@@ -16,3 +16,6 @@
 
 # Go workspace file
 go.work
+
+# Temp files
+/tmp
