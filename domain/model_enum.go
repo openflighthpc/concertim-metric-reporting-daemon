@@ -4,7 +4,7 @@
 // Build Date: 2022-11-09T16:39:46Z
 // Built By: goreleaser
 
-package gds
+package domain
 
 import (
 	"fmt"

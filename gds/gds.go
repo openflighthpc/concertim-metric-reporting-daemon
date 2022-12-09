@@ -3,11 +3,12 @@
 package gds
 
 import (
-	"encoding/xml"
 	"errors"
 	"net"
 
 	"github.com/rs/zerolog"
+
+	"github.com/alces-flight/concertim-mrapi/db"
 )
 
 // Server is a wrapper around a net.TCPListener it responds to every
@@ -17,10 +18,11 @@ type Server struct {
 	logger    zerolog.Logger
 	stopChan  chan struct{}
 	tcpServer *net.TCPListener
+	db        db.DB
 }
 
 // New returns a new Server.
-func New(logger zerolog.Logger) *Server {
+func New(logger zerolog.Logger, db db.DB) *Server {
 	addr := &net.TCPAddr{
 		IP:   net.IPv4(0, 0, 0, 0),
 		Port: 8678,
@@ -30,6 +32,7 @@ func New(logger zerolog.Logger) *Server {
 		logger:    logger.With().Str("component", "gds").Logger(),
 		tcpServer: nil,
 		stopChan:  make(chan struct{}),
+		db:        db,
 	}
 }
 
@@ -61,8 +64,9 @@ func (gds *Server) ListenAndServe() error {
 		select {
 		case conn := <-queue:
 			go func(c net.Conn) {
-				if output, err := xml.MarshalIndent(fakeCluster(), "", "  "); err != nil {
-					gds.logger.Error().Err(err).Msg("xml.Marshal")
+				output, err := generateOutput(gds.db.GetAll())
+				if err != nil {
+					gds.logger.Error().Err(err).Msg("Failed to generate output")
 				} else {
 					if _, err := c.Write(append(output, []byte("\n")...)); err != nil {
 						gds.logger.Warn().Err(err).Msg("Sending response")

@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 
+	"github.com/alces-flight/concertim-mrapi/db/memory"
 	"github.com/alces-flight/concertim-mrapi/gds"
 )
 
@@ -41,8 +42,9 @@ func init() {
 
 func main() {
 	idleConnsClosed := make(chan struct{})
+	datastore := memory.New(log.Logger)
 	apiServer := newAPIServer(idleConnsClosed)
-	gdsServer := gds.New(log.Logger)
+	gdsServer := gds.New(log.Logger, datastore)
 	go func() {
 		log.Info().Str("address", apiServer.Addr).Msg("API server listening")
 		err := apiServer.ListenAndServe()
