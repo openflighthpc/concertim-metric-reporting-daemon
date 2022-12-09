@@ -25,26 +25,15 @@ type Metric struct {
 	Type   domain.MetricType
 }
 
-func dbHostFromDomain(dh domain.Host) Host {
-	return Host{
-		Name:     dh.Name,
-		Reported: dh.Reported,
-		TMax:     dh.TMax,
-		DMax:     dh.DMax,
-	}
+// goverter:converter
+// goverter:extend ConvertTime
+type Converter interface {
+	ConvertHost(source domain.Host) Host
+	ConvertMetric(source domain.Metric) Metric
 }
 
-func dbMetricFromDomain(dm domain.Metric) Metric {
-	return Metric{
-		Name:  dm.Name,
-		Val:   dm.Val,
-		Units: dm.Units,
-		Slope: dm.Slope,
-		Tn:    dm.Tn,
-		TMax:  dm.TMax,
-		DMax:  dm.DMax,
-		Type:  dm.Type,
-	}
+func ConvertTime(source time.Time) time.Time {
+	return source
 }
 
 func domainHostFromDb(dh Host) domain.Host {

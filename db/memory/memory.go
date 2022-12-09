@@ -17,14 +17,16 @@ type Memory struct {
 
 func (m *Memory) PutHost(host domain.Host) error {
 	m.logger.Debug().Str("host", host.Name).Msg("Putting host")
+	var conv Converter = &ConverterImpl{}
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	m.hosts = append(m.hosts, dbHostFromDomain(host))
+	m.hosts = append(m.hosts, conv.ConvertHost(host))
 	return nil
 }
 
 func (m *Memory) PutMetric(host domain.Host, metric domain.Metric) error {
 	m.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
+	var conv Converter = &ConverterImpl{}
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	metrics, ok := m.metrics[host.Name]
@@ -32,7 +34,7 @@ func (m *Memory) PutMetric(host domain.Host, metric domain.Metric) error {
 		metrics = make(map[string]Metric, 0)
 		m.metrics[host.Name] = metrics
 	}
-	metrics[metric.Name] = dbMetricFromDomain(metric)
+	metrics[metric.Name] = conv.ConvertMetric(metric)
 	return nil
 }
 
