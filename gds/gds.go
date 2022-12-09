@@ -77,6 +77,7 @@ func (gds *Server) ListenAndServe() error {
 				gds.logger.Warn().Err(err).Msg("Error closing TCP server")
 			}
 			close(queue)
+			close(gds.stopChan)
 			return nil
 		}
 	}
