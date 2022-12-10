@@ -1,4 +1,4 @@
-//go:generate go run github.com/jmattheis/goverter/cmd/goverter -packageName=memory  -packagePath=github.com/alces-flight/concertim-mrapi/db/memory -output ./convertors.go .
+//go:generate goverter -packageName=memory  -packagePath=github.com/alces-flight/concertim-mrapi/db/memory -output ./convertors.go .
 
 package memory
 
