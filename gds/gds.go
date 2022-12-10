@@ -45,45 +45,31 @@ func (gds *Server) ListenAndServe() error {
 	}
 	gds.tcpServer = listener
 	gds.logger.Info().Stringer("address", gds.addr).Msg("Listenting")
-	queue := make(chan net.Conn)
 	go func() {
-		for {
-			conn, err := gds.tcpServer.Accept()
-			if err != nil {
-				gds.logger.Warn().Err(err).Msg("Accept")
-				// I assume here that if we've got an error it is because the
-				// TCPServer has been closed.
-				break
-			} else {
-				gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
-				queue <- conn
-			}
+		<-gds.stopChan
+		if err := gds.tcpServer.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
+			gds.logger.Warn().Err(err).Msg("Error closing TCP server")
 		}
 	}()
 	for {
-		select {
-		case conn := <-queue:
-			go func(c net.Conn) {
-				output, err := generateOutput(gds.db.GetAll())
-				if err != nil {
-					gds.logger.Error().Err(err).Msg("Failed to generate output")
-				} else {
-					if _, err := c.Write(append(output, []byte("\n")...)); err != nil {
-						gds.logger.Warn().Err(err).Msg("Sending response")
-					}
-				}
-				if err := c.Close(); err != nil {
-					gds.logger.Warn().Err(err).Msg("Error closing connection")
-				}
-			}(conn)
-		case <-gds.stopChan:
-			if err := gds.tcpServer.Close(); err != nil {
-				gds.logger.Warn().Err(err).Msg("Error closing TCP server")
-			}
-			close(queue)
-			close(gds.stopChan)
-			return nil
+		conn, err := gds.tcpServer.Accept()
+		if err != nil {
+			return err
 		}
+		gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
+		go func() {
+			output, err := generateOutput(gds.db.GetAll())
+			if err != nil {
+				gds.logger.Error().Err(err).Msg("Failed to generate output")
+			} else {
+				if _, err := conn.Write(append(output, []byte("\n")...)); err != nil {
+					gds.logger.Warn().Err(err).Msg("Sending response")
+				}
+			}
+			if err := conn.Close(); err != nil {
+				gds.logger.Warn().Err(err).Msg("Error closing connection")
+			}
+		}()
 	}
 }
 
@@ -94,6 +80,7 @@ func (gds *Server) Close() error {
 		return errors.New("gds.Server already closed")
 	default:
 		gds.stopChan <- struct{}{}
+		close(gds.stopChan)
 		return nil
 	}
 }

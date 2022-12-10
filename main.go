@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,7 +18,7 @@ import (
 	"github.com/alces-flight/concertim-mrapi/gds"
 )
 
-func newAPIServer(idleConnsClosed <-chan struct{}) *http.Server {
+func newAPIServer() *http.Server {
 	addr := ":3000"
 	server := http.Server{
 		Addr:         addr,
@@ -41,21 +43,23 @@ func init() {
 }
 
 func main() {
-	idleConnsClosed := make(chan struct{})
 	datastore := memory.New(log.Logger)
-	apiServer := newAPIServer(idleConnsClosed)
+	apiServer := newAPIServer()
 	gdsServer := gds.New(log.Logger, datastore)
 	go func() {
 		log.Info().Str("address", apiServer.Addr).Msg("API server listening")
 		err := apiServer.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && err == http.ErrServerClosed {
+			log.Info().Msg("http.Server closed. Waiting for active connections to finish")
+		} else if err != nil {
 			log.Fatal().Err(err).Msg("http.Server.ListenAndServe")
 		}
-		<-idleConnsClosed
 	}()
 	go func() {
 		err := gdsServer.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
+		if err != nil && errors.Is(err, net.ErrClosed) {
+			log.Info().Msg("gds.Server closed")
+		} else if err != nil {
 			log.Fatal().Err(err).Msg("gds.Server.ListenAndServe")
 		}
 	}()
@@ -66,11 +70,12 @@ func main() {
 	log.Info().Msg("Closing connections")
 	signal.Reset(gracefulExitSigs...)
 
-	if err := apiServer.Shutdown(context.Background()); err != nil {
-		log.Error().Err(err).Msg("http.Server.Shutdown")
-	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	if err := gdsServer.Close(); err != nil {
 		log.Error().Err(err).Msg("gds.Server.Close")
 	}
-	close(idleConnsClosed)
+	if err := apiServer.Shutdown(ctx); err != nil {
+		log.Error().Err(err).Msg("http.Server.Shutdown")
+	}
 }
