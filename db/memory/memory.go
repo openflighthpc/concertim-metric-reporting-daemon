@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"strings"
 	"sync"
 	"time"
 
@@ -9,32 +10,30 @@ import (
 )
 
 type Memory struct {
-	hosts   []Host
-	metrics map[string]map[string]Metric
+	hosts   []HostModel
+	metrics map[string]map[string]MetricModel
 	mux     sync.Mutex
 	logger  zerolog.Logger
 }
 
 func (m *Memory) PutHost(host domain.Host) error {
 	m.logger.Debug().Str("host", host.Name).Msg("Putting host")
-	var conv Converter = &ConverterImpl{}
 	m.mux.Lock()
 	defer m.mux.Unlock()
-	m.hosts = append(m.hosts, conv.ConvertHost(host))
+	m.hosts = append(m.hosts, conv.ModelFromDomainHost(host))
 	return nil
 }
 
 func (m *Memory) PutMetric(host domain.Host, metric domain.Metric) error {
 	m.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
-	var conv Converter = &ConverterImpl{}
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	metrics, ok := m.metrics[host.Name]
 	if !ok {
-		metrics = make(map[string]Metric, 0)
+		metrics = make(map[string]MetricModel, 0)
 		m.metrics[host.Name] = metrics
 	}
-	metrics[metric.Name] = conv.ConvertMetric(metric)
+	metrics[metric.Name] = conv.ModelFromDomainMetric(metric)
 	return nil
 }
 
@@ -42,15 +41,9 @@ func (m *Memory) GetAll() domain.Cluster {
 	m.logger.Debug().Msg("Getting all data")
 	cluster := domain.Cluster{}
 	for _, h := range m.hosts {
-		host := domainHostFromDb(h)
-		m.logger.Debug().Str("host", host.Name).Msg("Found host")
-		host.Metrics = make([]domain.Metric, 0)
-		if metrics, ok := m.metrics[host.Name]; ok {
-			for _, metric := range metrics {
-				m.logger.Debug().Str("metric", metric.Name).Msg("Found metric")
-				host.Metrics = append(host.Metrics, domainMetricFromDb(metric))
-			}
-		}
+		metrics := m.metrics[h.Name]
+		logHostAndMetrics(m.logger, h, metrics)
+		host := DomainHostFromModelHostAndMetrics(h, metrics)
 		cluster.Hosts = append(cluster.Hosts, host)
 	}
 
@@ -59,13 +52,27 @@ func (m *Memory) GetAll() domain.Cluster {
 
 func New(logger zerolog.Logger) *Memory {
 	m := &Memory{
-		hosts:   []Host{},
-		metrics: map[string]map[string]Metric{},
+		hosts:   []HostModel{},
+		metrics: map[string]map[string]MetricModel{},
 		mux:     sync.Mutex{},
 		logger:  logger.With().Str("component", "storage").Logger(),
 	}
 	addFakeData(m)
 	return m
+}
+
+func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]MetricModel) {
+	log.Debug().
+		Str("host", h.Name).
+		Int("metric.count", len(metrics)).
+		Func(func(e *zerolog.Event) {
+			metricNames := []string{}
+			for _, m := range metrics {
+				metricNames = append(metricNames, m.Name)
+			}
+			e.Str("metric.names", strings.Join(metricNames, ","))
+		}).
+		Msg("Found host")
 }
 
 func addFakeData(m *Memory) {

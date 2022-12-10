@@ -1,3 +1,5 @@
+//go:generate go run github.com/jmattheis/goverter/cmd/goverter -packageName=memory  -packagePath=github.com/alces-flight/concertim-mrapi/db/memory -output ./convertors.go .
+
 package memory
 
 import (
@@ -6,14 +8,16 @@ import (
 	"github.com/alces-flight/concertim-mrapi/domain"
 )
 
-type Host struct {
+var conv Converter = &ConverterImpl{}
+
+type HostModel struct {
 	Name     string
 	Reported time.Time
 	TMax     time.Duration
 	DMax     time.Duration
 }
 
-type Metric struct {
+type MetricModel struct {
 	Name   string
 	Val    string
 	Units  string
@@ -28,34 +32,26 @@ type Metric struct {
 // goverter:converter
 // goverter:extend ConvertTime
 type Converter interface {
-	ConvertHost(source domain.Host) Host
-	ConvertMetric(source domain.Metric) Metric
+	ModelFromDomainHost(source domain.Host) HostModel
+	ModelFromDomainMetric(source domain.Metric) MetricModel
+	DomainFromModelMetric(source MetricModel) domain.Metric
+	// goverter:mapExtend Metrics DefaultMetrics
+	DomainFromModelHost(source HostModel) domain.Host
+}
+
+func DomainHostFromModelHostAndMetrics(modelHost HostModel, modelMetrics map[string]MetricModel) domain.Host {
+	domainHost := conv.DomainFromModelHost(modelHost)
+	for _, modelMetric := range modelMetrics {
+		domainHost.Metrics = append(domainHost.Metrics, conv.DomainFromModelMetric(modelMetric))
+	}
+
+	return domainHost
 }
 
 func ConvertTime(source time.Time) time.Time {
 	return source
 }
 
-func domainHostFromDb(dh Host) domain.Host {
-	return domain.Host{
-		Name:     dh.Name,
-		Reported: dh.Reported,
-		TMax:     dh.TMax,
-		DMax:     dh.DMax,
-		Metrics:  []domain.Metric{},
-	}
-}
-
-func domainMetricFromDb(dm Metric) domain.Metric {
-	return domain.Metric{
-		Name:   dm.Name,
-		Val:    dm.Val,
-		Units:  dm.Units,
-		Slope:  dm.Slope,
-		Tn:     dm.Tn,
-		TMax:   dm.TMax,
-		DMax:   dm.DMax,
-		Source: "mrapi",
-		Type:   dm.Type,
-	}
+func DefaultMetrics() []domain.Metric {
+	return make([]domain.Metric, 0)
 }
