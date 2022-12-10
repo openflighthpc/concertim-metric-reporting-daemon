@@ -1,3 +1,4 @@
+// Package main runs the HTTP API server and the TCP GDS server.
 package main
 
 import (
