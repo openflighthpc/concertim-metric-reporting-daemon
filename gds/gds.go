@@ -1,5 +1,4 @@
-// Package gds provide a Ganglia Data Source Server.  The data it reports is
-// current canned.
+// Package gds provide a Ganglia Data Source Server.
 package gds
 
 import (
@@ -8,7 +7,7 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/alces-flight/concertim-mrapi/db"
+	"github.com/alces-flight/concertim-mrapi/domain"
 )
 
 // Server is a wrapper around a net.TCPListener it responds to every
@@ -18,11 +17,11 @@ type Server struct {
 	logger    zerolog.Logger
 	stopChan  chan struct{}
 	tcpServer *net.TCPListener
-	db        db.DB
+	repo      domain.Repository
 }
 
 // New returns a new Server.
-func New(logger zerolog.Logger, db db.DB) *Server {
+func New(logger zerolog.Logger, repo domain.Repository) *Server {
 	addr := &net.TCPAddr{
 		IP:   net.IPv4(0, 0, 0, 0),
 		Port: 8678,
@@ -32,7 +31,7 @@ func New(logger zerolog.Logger, db db.DB) *Server {
 		logger:    logger.With().Str("component", "gds").Logger(),
 		tcpServer: nil,
 		stopChan:  make(chan struct{}),
-		db:        db,
+		repo:      repo,
 	}
 }
 
@@ -58,7 +57,7 @@ func (gds *Server) ListenAndServe() error {
 		}
 		gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
 		go func() {
-			output, err := generateOutput(gds.db.GetAll())
+			output, err := generateOutput(gds.repo.GetAll())
 			if err != nil {
 				gds.logger.Error().Err(err).Msg("Failed to generate output")
 			} else {
