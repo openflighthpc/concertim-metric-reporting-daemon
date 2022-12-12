@@ -1,6 +1,7 @@
 package gds
 
 import (
+	"encoding/xml"
 	"fmt"
 	"io"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func init() {
@@ -29,7 +31,7 @@ func (fakeClock) Now() time.Time {
 	return time.Unix(i, 0)
 }
 
-func Test_GeneratedXMLIsValid(t *testing.T) {
+func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	tests := []struct {
 		name    string
 		cluster domain.Cluster
@@ -50,18 +52,25 @@ func Test_GeneratedXMLIsValid(t *testing.T) {
 			cluster: clusterWithMetrics(),
 			golden:  "cluster_with_metrics",
 		},
+		{
+			name:    "escapes XML correctly",
+			cluster: clusterWithXML(),
+			golden:  "escaped_xml",
+		},
 	}
-	outputGenerator := newOutputGenerator(fakeClock{})
+	outputGenerator, err := newOutputGenerator(fakeClock{})
+	require.NoError(t, err)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert := assert.New(t)
 			// Action
 			output, err := outputGenerator.generate(tt.cluster)
 
 			// Assertions
-			assert.NoError(err)
-			assert.Equal(goldenValue(t, tt.golden), string(output))
+			assert.NoError(t, err)
+			assert.Equal(t, goldenValue(t, tt.golden), string(output))
+			err = xml.Unmarshal(output, new(interface{}))
+			assert.NoError(t, err)
 		})
 	}
 }
@@ -137,4 +146,20 @@ func goldenValue(t *testing.T, goldenFile string) string {
 		t.Fatalf("Error opening file %s: %s", goldenPath, err)
 	}
 	return string(content)
+}
+
+func clusterWithXML() domain.Cluster {
+	return domain.Cluster{Hosts: []domain.Host{
+		{
+			Name:     "\"</HOST>",
+			Reported: fakeClock{}.Now(),
+			TMax:     10 * time.Second,
+			DMax:     10 * time.Second,
+			Metrics: []domain.Metric{{
+				Name:  "\"</NAME>",
+				Val:   "\"</VAL>",
+				Units: "\"</UNITS>",
+			}},
+		},
+	}}
 }

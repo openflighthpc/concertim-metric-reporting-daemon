@@ -22,19 +22,24 @@ type Server struct {
 }
 
 // New returns a new Server.
-func New(logger zerolog.Logger, repo domain.Repository) *Server {
+func New(logger zerolog.Logger, repo domain.Repository) (*Server, error) {
 	addr := &net.TCPAddr{
 		IP:   net.IPv4(0, 0, 0, 0),
 		Port: 8678,
 	}
+	generator, err := newOutputGenerator(realClock{})
+	if err != nil {
+		logger.Error().Err(err).Msg("Unable to create output generator")
+		return nil, err
+	}
 	return &Server{
 		addr:      addr,
-		generator: newOutputGenerator(realClock{}),
+		generator: generator,
 		logger:    logger.With().Str("component", "gds").Logger(),
 		repo:      repo,
 		stopChan:  make(chan struct{}),
 		tcpServer: nil,
-	}
+	}, nil
 }
 
 // ListenAndServe listens on the configured address and responds to each
@@ -63,7 +68,7 @@ func (gds *Server) ListenAndServe() error {
 			if err != nil {
 				gds.logger.Error().Err(err).Msg("Failed to generate output")
 			} else {
-				if _, err := conn.Write(append(output, []byte("\n")...)); err != nil {
+				if _, err := conn.Write(output); err != nil {
 					gds.logger.Warn().Err(err).Msg("Sending response")
 				}
 			}

@@ -48,7 +48,10 @@ func main() {
 	repository := memory.New(log.Logger)
 	addFakeData(repository)
 	apiServer := newAPIServer()
-	gdsServer := gds.New(log.Logger, repository)
+	gdsServer, err := gds.New(log.Logger, repository)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Unable to create gds.Server")
+	}
 	go func() {
 		log.Info().Str("address", apiServer.Addr).Msg("API server listening")
 		err := apiServer.ListenAndServe()
