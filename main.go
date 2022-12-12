@@ -15,9 +15,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 
-	"github.com/alces-flight/concertim-mrapi/db/memory"
 	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/alces-flight/concertim-mrapi/gds"
+	"github.com/alces-flight/concertim-mrapi/repository/memory"
 )
 
 func newAPIServer() *http.Server {
@@ -45,10 +45,10 @@ func init() {
 }
 
 func main() {
-	datastore := memory.New(log.Logger)
-	addFakeData(datastore)
+	repository := memory.New(log.Logger)
+	addFakeData(repository)
 	apiServer := newAPIServer()
-	gdsServer := gds.New(log.Logger, datastore)
+	gdsServer := gds.New(log.Logger, repository)
 	go func() {
 		log.Info().Str("address", apiServer.Addr).Msg("API server listening")
 		err := apiServer.ListenAndServe()
@@ -83,7 +83,7 @@ func main() {
 	}
 }
 
-func addFakeData(m *memory.Memory) {
+func addFakeData(m *memory.MemoryRepo) {
 	comp001 := domain.Host{Name: "comp001", Reported: time.Now().Add(-2 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
 	comp002 := domain.Host{Name: "comp002", Reported: time.Now().Add(-3 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
 	err := m.PutHost(comp001)

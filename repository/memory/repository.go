@@ -8,23 +8,25 @@ import (
 	"github.com/rs/zerolog"
 )
 
-type Memory struct {
+// MemoryRepo is an in-memory repository.  All data it stores will be lost
+// when the process exits.
+type MemoryRepo struct {
 	hosts   []HostModel
 	metrics map[string]map[string]MetricModel
 	mux     sync.Mutex
 	logger  zerolog.Logger
 }
 
-func (m *Memory) PutHost(host domain.Host) error {
-	m.logger.Debug().Str("host", host.Name).Msg("Putting host")
-	m.mux.Lock()
-	defer m.mux.Unlock()
-	m.hosts = append(m.hosts, conv.ModelFromDomainHost(host))
+func (mr *MemoryRepo) PutHost(host domain.Host) error {
+	mr.logger.Debug().Str("host", host.Name).Msg("Putting host")
+	mr.mux.Lock()
+	defer mr.mux.Unlock()
+	mr.hosts = append(mr.hosts, conv.ModelFromDomainHost(host))
 	return nil
 }
 
-func (m *Memory) isHostStored(host domain.Host) bool {
-	for _, dbHost := range m.hosts {
+func (mr *MemoryRepo) isHostStored(host domain.Host) bool {
+	for _, dbHost := range mr.hosts {
 		if dbHost.Name == host.Name {
 			return true
 		}
@@ -32,28 +34,28 @@ func (m *Memory) isHostStored(host domain.Host) bool {
 	return false
 }
 
-func (m *Memory) PutMetric(host domain.Host, metric domain.Metric) error {
-	m.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
-	m.mux.Lock()
-	defer m.mux.Unlock()
-	if !m.isHostStored(host) {
+func (mr *MemoryRepo) PutMetric(host domain.Host, metric domain.Metric) error {
+	mr.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
+	mr.mux.Lock()
+	defer mr.mux.Unlock()
+	if !mr.isHostStored(host) {
 		return domain.UnknownHost{Host: host}
 	}
-	metrics, ok := m.metrics[host.Name]
+	metrics, ok := mr.metrics[host.Name]
 	if !ok {
 		metrics = make(map[string]MetricModel, 0)
-		m.metrics[host.Name] = metrics
+		mr.metrics[host.Name] = metrics
 	}
 	metrics[metric.Name] = conv.ModelFromDomainMetric(metric)
 	return nil
 }
 
-func (m *Memory) GetAll() domain.Cluster {
-	m.logger.Debug().Msg("Getting all data")
+func (mr *MemoryRepo) GetAll() domain.Cluster {
+	mr.logger.Debug().Msg("Getting all data")
 	cluster := domain.Cluster{}
-	for _, h := range m.hosts {
-		metrics := m.metrics[h.Name]
-		logHostAndMetrics(m.logger, h, metrics)
+	for _, h := range mr.hosts {
+		metrics := mr.metrics[h.Name]
+		logHostAndMetrics(mr.logger, h, metrics)
 		host := DomainHostFromModelHostAndMetrics(h, metrics)
 		cluster.Hosts = append(cluster.Hosts, host)
 	}
@@ -61,14 +63,14 @@ func (m *Memory) GetAll() domain.Cluster {
 	return cluster
 }
 
-func New(logger zerolog.Logger) *Memory {
-	m := &Memory{
+func New(logger zerolog.Logger) *MemoryRepo {
+	mr := &MemoryRepo{
 		hosts:   []HostModel{},
 		metrics: map[string]map[string]MetricModel{},
 		mux:     sync.Mutex{},
 		logger:  logger.With().Str("component", "storage").Logger(),
 	}
-	return m
+	return mr
 }
 
 func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]MetricModel) {
@@ -77,8 +79,8 @@ func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]Metri
 		Int("metric.count", len(metrics)).
 		Func(func(e *zerolog.Event) {
 			metricNames := []string{}
-			for _, m := range metrics {
-				metricNames = append(metricNames, m.Name)
+			for _, mr := range metrics {
+				metricNames = append(metricNames, mr.Name)
 			}
 			e.Str("metric.names", strings.Join(metricNames, ","))
 		}).
