@@ -2,6 +2,7 @@ package memory
 
 import (
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -170,10 +171,20 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			assert.Len(cluster.Hosts, len(tt.hosts))
 			for _, host := range cluster.Hosts {
 				assert.Contains(tt.hosts, host.Name)
-				assert.Equal(tt.metrics[host.Name], host.Metrics)
+				assert.Equal(
+					sortMetrics(tt.metrics[host.Name]),
+					sortMetrics(host.Metrics),
+				)
 			}
 		})
 	}
+}
+
+func sortMetrics(metrics []domain.Metric) []domain.Metric {
+	sort.SliceStable(metrics, func(i, j int) bool {
+		return metrics[i].Name < metrics[j].Name
+	})
+	return metrics
 }
 
 func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
