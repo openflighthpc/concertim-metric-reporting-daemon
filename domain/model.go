@@ -1,5 +1,9 @@
 //go:generate go-enum --marshal --lower --names
 
+// Package domain exports the domain models.
+//
+// It consists of the Cluster, Host and Metric models as well as a Repository
+// interface.
 package domain
 
 import (
@@ -22,10 +26,12 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
+// Cluster is the domain model representing a cluster.
 type Cluster struct {
 	Hosts []Host
 }
 
+// Host is the domain model representing a host.
 type Host struct {
 	// XXX Consider Name HostName for better documentation of what we key maps
 	// off of.
@@ -36,6 +42,7 @@ type Host struct {
 	Metrics  []Metric
 }
 
+// Metric is the domain model representing a single metric.
 type Metric struct {
 	Name   string
 	Val    string

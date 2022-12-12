@@ -83,7 +83,7 @@ func main() {
 	}
 }
 
-func addFakeData(m *memory.MemoryRepo) {
+func addFakeData(m *memory.Repo) {
 	comp001 := domain.Host{Name: "comp001", Reported: time.Now().Add(-2 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
 	comp002 := domain.Host{Name: "comp002", Reported: time.Now().Add(-3 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
 	err := m.PutHost(comp001)

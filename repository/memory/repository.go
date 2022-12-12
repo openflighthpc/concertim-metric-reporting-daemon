@@ -1,3 +1,5 @@
+// Package memory provides an in-memory repository.  All data it stores will
+// be lost when the process exits.
 package memory
 
 import (
@@ -8,16 +10,17 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// MemoryRepo is an in-memory repository.  All data it stores will be lost
+// Repo is an in-memory repository.  All data it stores will be lost
 // when the process exits.
-type MemoryRepo struct {
+type Repo struct {
 	hosts   map[string]HostModel
 	metrics map[string]map[string]MetricModel
 	mux     sync.Mutex
 	logger  zerolog.Logger
 }
 
-func (mr *MemoryRepo) PutHost(host domain.Host) error {
+// PutHost implements the Repository interface.
+func (mr *Repo) PutHost(host domain.Host) error {
 	mr.logger.Debug().Str("host", host.Name).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -25,12 +28,13 @@ func (mr *MemoryRepo) PutHost(host domain.Host) error {
 	return nil
 }
 
-func (mr *MemoryRepo) isHostStored(host domain.Host) bool {
+func (mr *Repo) isHostStored(host domain.Host) bool {
 	_, ok := mr.hosts[host.Name]
 	return ok
 }
 
-func (mr *MemoryRepo) PutMetric(host domain.Host, metric domain.Metric) error {
+// PutMetric implements the Repository interface.
+func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 	mr.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -46,21 +50,23 @@ func (mr *MemoryRepo) PutMetric(host domain.Host, metric domain.Metric) error {
 	return nil
 }
 
-func (mr *MemoryRepo) GetAll() domain.Cluster {
+// GetAll implements the Repository interface.
+func (mr *Repo) GetAll() domain.Cluster {
 	mr.logger.Debug().Msg("Getting all data")
 	cluster := domain.Cluster{}
 	for _, h := range mr.hosts {
 		metrics := mr.metrics[h.Name]
 		logHostAndMetrics(mr.logger, h, metrics)
-		host := DomainHostFromModelHostAndMetrics(h, metrics)
+		host := domainHostFromModelHostAndMetrics(h, metrics)
 		cluster.Hosts = append(cluster.Hosts, host)
 	}
 
 	return cluster
 }
 
-func New(logger zerolog.Logger) *MemoryRepo {
-	mr := &MemoryRepo{
+// New returns an empty in-memory repository.
+func New(logger zerolog.Logger) *Repo {
+	mr := &Repo{
 		hosts:   map[string]HostModel{},
 		metrics: map[string]map[string]MetricModel{},
 		mux:     sync.Mutex{},
