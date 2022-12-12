@@ -3,7 +3,6 @@ package memory
 import (
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/rs/zerolog"
@@ -24,10 +23,22 @@ func (m *Memory) PutHost(host domain.Host) error {
 	return nil
 }
 
+func (m *Memory) isHostStored(host domain.Host) bool {
+	for _, dbHost := range m.hosts {
+		if dbHost.Name == host.Name {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *Memory) PutMetric(host domain.Host, metric domain.Metric) error {
 	m.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
 	m.mux.Lock()
 	defer m.mux.Unlock()
+	if !m.isHostStored(host) {
+		return domain.UnknownHost{Host: host}
+	}
 	metrics, ok := m.metrics[host.Name]
 	if !ok {
 		metrics = make(map[string]MetricModel, 0)
@@ -57,7 +68,6 @@ func New(logger zerolog.Logger) *Memory {
 		mux:     sync.Mutex{},
 		logger:  logger.With().Str("component", "storage").Logger(),
 	}
-	addFakeData(m)
 	return m
 }
 
@@ -73,66 +83,4 @@ func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]Metri
 			e.Str("metric.names", strings.Join(metricNames, ","))
 		}).
 		Msg("Found host")
-}
-
-func addFakeData(m *Memory) {
-	comp001 := domain.Host{Name: "comp001", Reported: time.Now().Add(-2 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
-	comp002 := domain.Host{Name: "comp002", Reported: time.Now().Add(-3 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
-	err := m.PutHost(comp001)
-	if err != nil {
-		m.logger.Warn().Err(err)
-	}
-	err = m.PutHost(comp002)
-	if err != nil {
-		m.logger.Warn().Err(err)
-	}
-	err = m.PutMetric(comp001,
-		domain.Metric{
-			Name:   "foo",
-			Val:    "foobar",
-			Units:  "foos",
-			Slope:  domain.MetricSlopeZero,
-			Tn:     0,
-			TMax:   60 * time.Second,
-			DMax:   60 * time.Second,
-			Source: "MRAPI",
-			Type:   domain.MetricTypeString,
-		},
-	)
-	if err != nil {
-		m.logger.Warn().Err(err)
-	}
-	// Duplicate foo metric
-	err = m.PutMetric(comp001,
-		domain.Metric{
-			Name:   "foo",
-			Val:    "FOOBAR",
-			Units:  "FOOS",
-			Slope:  domain.MetricSlopeZero,
-			Tn:     0,
-			TMax:   60 * time.Second,
-			DMax:   60 * time.Second,
-			Source: "MRAPI",
-			Type:   domain.MetricTypeString,
-		},
-	)
-	if err != nil {
-		m.logger.Warn().Err(err)
-	}
-	err = m.PutMetric(comp001,
-		domain.Metric{
-			Name:   "bar",
-			Val:    "12",
-			Units:  "bars",
-			Slope:  domain.MetricSlopeBoth,
-			Tn:     0,
-			TMax:   60 * time.Second,
-			DMax:   60 * time.Second,
-			Source: "MRAPI",
-			Type:   domain.MetricTypeInt32,
-		},
-	)
-	if err != nil {
-		m.logger.Warn().Err(err)
-	}
 }

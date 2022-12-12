@@ -27,6 +27,8 @@ type Cluster struct {
 }
 
 type Host struct {
+	// XXX Consider Name HostName for better documentation of what we key maps
+	// off of.
 	Name     string
 	Reported time.Time
 	TMax     time.Duration

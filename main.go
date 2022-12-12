@@ -16,6 +16,7 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/alces-flight/concertim-mrapi/db/memory"
+	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/alces-flight/concertim-mrapi/gds"
 )
 
@@ -45,6 +46,7 @@ func init() {
 
 func main() {
 	datastore := memory.New(log.Logger)
+	addFakeData(datastore)
 	apiServer := newAPIServer()
 	gdsServer := gds.New(log.Logger, datastore)
 	go func() {
@@ -78,5 +80,67 @@ func main() {
 	}
 	if err := apiServer.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("http.Server.Shutdown")
+	}
+}
+
+func addFakeData(m *memory.Memory) {
+	comp001 := domain.Host{Name: "comp001", Reported: time.Now().Add(-2 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
+	comp002 := domain.Host{Name: "comp002", Reported: time.Now().Add(-3 * time.Hour), TMax: 60 * time.Second, DMax: 60 * time.Second}
+	err := m.PutHost(comp001)
+	if err != nil {
+		log.Logger.Warn().Err(err)
+	}
+	err = m.PutHost(comp002)
+	if err != nil {
+		log.Logger.Warn().Err(err)
+	}
+	err = m.PutMetric(comp001,
+		domain.Metric{
+			Name:   "foo",
+			Val:    "foobar",
+			Units:  "foos",
+			Slope:  domain.MetricSlopeZero,
+			Tn:     0,
+			TMax:   60 * time.Second,
+			DMax:   60 * time.Second,
+			Source: "MRAPI",
+			Type:   domain.MetricTypeString,
+		},
+	)
+	if err != nil {
+		log.Logger.Warn().Err(err)
+	}
+	// Duplicate foo metric
+	err = m.PutMetric(comp001,
+		domain.Metric{
+			Name:   "foo",
+			Val:    "FOOBAR",
+			Units:  "FOOS",
+			Slope:  domain.MetricSlopeZero,
+			Tn:     0,
+			TMax:   60 * time.Second,
+			DMax:   60 * time.Second,
+			Source: "MRAPI",
+			Type:   domain.MetricTypeString,
+		},
+	)
+	if err != nil {
+		log.Logger.Warn().Err(err)
+	}
+	err = m.PutMetric(comp001,
+		domain.Metric{
+			Name:   "bar",
+			Val:    "12",
+			Units:  "bars",
+			Slope:  domain.MetricSlopeBoth,
+			Tn:     0,
+			TMax:   60 * time.Second,
+			DMax:   60 * time.Second,
+			Source: "MRAPI",
+			Type:   domain.MetricTypeInt32,
+		},
+	)
+	if err != nil {
+		log.Logger.Warn().Err(err)
 	}
 }
