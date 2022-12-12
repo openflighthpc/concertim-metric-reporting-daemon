@@ -41,19 +41,44 @@ type metric struct {
 	Type    domain.MetricType  `xml:"TYPE,attr"`
 }
 
-func generateOutput(dCluster domain.Cluster) ([]byte, error) {
-	cluster := gdsClusterFromDomain(dCluster)
+var header = []byte(`<?xml version="1.0" encoding="ISO-8859-1"?>
+<GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
+`)
+
+type clock interface {
+	Now() time.Time
+}
+
+type realClock struct{}
+
+func (realClock) Now() time.Time { return time.Now() }
+
+type outputGenerator struct {
+	clock  clock
+	header []byte
+}
+
+func newOutputGenerator(clock clock) *outputGenerator {
+	return &outputGenerator{
+		clock:  clock,
+		header: header,
+	}
+}
+
+func (g *outputGenerator) generate(dCluster domain.Cluster) ([]byte, error) {
+	cluster := g.clusterFromDomain(dCluster)
 	xml, err := xml.MarshalIndent(cluster, "", "  ")
 	if err != nil {
 		return nil, err
 	}
-	return xml, nil
+	xml = append(xml, []byte("\n")...)
+	return append(g.header, xml...), nil
 }
 
-func gdsClusterFromDomain(dCluster domain.Cluster) cluster {
+func (g *outputGenerator) clusterFromDomain(dCluster domain.Cluster) cluster {
 	cluster := cluster{
 		Name:      "unspecified",
-		LocalTime: time.Now().Unix(),
+		LocalTime: g.clock.Now().Unix(),
 		Owner:     "unspecified",
 		LatLong:   "unspecified",
 		URL:       "unspecified",
@@ -62,13 +87,13 @@ func gdsClusterFromDomain(dCluster domain.Cluster) cluster {
 	}
 
 	for _, dh := range dCluster.Hosts {
-		cluster.Hosts = append(cluster.Hosts, gdsHostFromDomain(dh))
+		cluster.Hosts = append(cluster.Hosts, g.hostFromDomain(dh))
 	}
 
 	return cluster
 }
 
-func gdsHostFromDomain(dHost domain.Host) host {
+func (g *outputGenerator) hostFromDomain(dHost domain.Host) host {
 	host := host{
 		Name:     dHost.Name,
 		IP:       "",
@@ -79,12 +104,12 @@ func gdsHostFromDomain(dHost domain.Host) host {
 	}
 	// Metrics: []metric{},
 	for _, dm := range dHost.Metrics {
-		host.Metrics = append(host.Metrics, gdsMetricFromDomain(dm))
+		host.Metrics = append(host.Metrics, g.metricsFromDomain(dm))
 	}
 	return host
 }
 
-func gdsMetricFromDomain(dMetric domain.Metric) metric {
+func (g *outputGenerator) metricsFromDomain(dMetric domain.Metric) metric {
 	return metric{
 		Name:   dMetric.Name,
 		Val:    dMetric.Val,

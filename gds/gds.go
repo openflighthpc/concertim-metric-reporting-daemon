@@ -14,10 +14,11 @@ import (
 // connection with Ganglia compliant XML.
 type Server struct {
 	addr      *net.TCPAddr
+	generator *outputGenerator
 	logger    zerolog.Logger
+	repo      domain.Repository
 	stopChan  chan struct{}
 	tcpServer *net.TCPListener
-	repo      domain.Repository
 }
 
 // New returns a new Server.
@@ -28,10 +29,11 @@ func New(logger zerolog.Logger, repo domain.Repository) *Server {
 	}
 	return &Server{
 		addr:      addr,
+		generator: newOutputGenerator(realClock{}),
 		logger:    logger.With().Str("component", "gds").Logger(),
-		tcpServer: nil,
-		stopChan:  make(chan struct{}),
 		repo:      repo,
+		stopChan:  make(chan struct{}),
+		tcpServer: nil,
 	}
 }
 
@@ -57,7 +59,7 @@ func (gds *Server) ListenAndServe() error {
 		}
 		gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
 		go func() {
-			output, err := generateOutput(gds.repo.GetAll())
+			output, err := gds.generator.generate(gds.repo.GetAll())
 			if err != nil {
 				gds.logger.Error().Err(err).Msg("Failed to generate output")
 			} else {
