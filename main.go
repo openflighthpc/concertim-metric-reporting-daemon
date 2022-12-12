@@ -15,25 +15,11 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 
+	"github.com/alces-flight/concertim-mrapi/api"
 	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/alces-flight/concertim-mrapi/gds"
 	"github.com/alces-flight/concertim-mrapi/repository/memory"
 )
-
-func newAPIServer() *http.Server {
-	addr := ":3000"
-	server := http.Server{
-		Addr:         addr,
-		ReadTimeout:  time.Millisecond * 100,
-		WriteTimeout: time.Millisecond * 100,
-		Handler: http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			if _, err := rw.Write([]byte("OK\n")); err != nil {
-				log.Error().Err(err).Msg("http.ResponseWriter.Write")
-			}
-		}),
-	}
-	return &server
-}
 
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
@@ -47,7 +33,7 @@ func init() {
 func main() {
 	repository := memory.New(log.Logger)
 	addFakeData(repository)
-	apiServer := newAPIServer()
+	apiServer := api.NewServer(log.Logger)
 	gdsServer, err := gds.New(log.Logger, repository)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to create gds.Server")
