@@ -195,3 +195,30 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	assert.Error(err)
 	assert.ErrorAs(err, &domain.UnknownHost{})
 }
+
+func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
+	// Setup
+	assert := assert.New(t)
+	repo := New(log.Logger)
+	host := domain.Host{Name: "comp01", Reported: time.Now(), TMax: 10, DMax: 10, Metrics: []domain.Metric{}}
+	err := repo.PutHost(host)
+	assert.NoError(err)
+
+	// Preconditions
+	cluster := repo.GetAll()
+	assert.Len(cluster.Hosts, 1)
+
+	// Actions
+	updatedHost := host
+	updatedHost.Metrics = make([]domain.Metric, len(host.Metrics))
+	copy(updatedHost.Metrics, host.Metrics)
+	updatedHost.TMax = host.TMax + 10
+	err = repo.PutHost(updatedHost)
+
+	// Assertions
+	assert.NoError(err)
+	cluster = repo.GetAll()
+	assert.Len(cluster.Hosts, 1)
+	assert.Equal(updatedHost, cluster.Hosts[0])
+	assert.Equal(host.TMax+10, cluster.Hosts[0].TMax)
+}

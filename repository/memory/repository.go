@@ -11,7 +11,7 @@ import (
 // MemoryRepo is an in-memory repository.  All data it stores will be lost
 // when the process exits.
 type MemoryRepo struct {
-	hosts   []HostModel
+	hosts   map[string]HostModel
 	metrics map[string]map[string]MetricModel
 	mux     sync.Mutex
 	logger  zerolog.Logger
@@ -21,17 +21,13 @@ func (mr *MemoryRepo) PutHost(host domain.Host) error {
 	mr.logger.Debug().Str("host", host.Name).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	mr.hosts = append(mr.hosts, conv.ModelFromDomainHost(host))
+	mr.hosts[host.Name] = conv.ModelFromDomainHost(host)
 	return nil
 }
 
 func (mr *MemoryRepo) isHostStored(host domain.Host) bool {
-	for _, dbHost := range mr.hosts {
-		if dbHost.Name == host.Name {
-			return true
-		}
-	}
-	return false
+	_, ok := mr.hosts[host.Name]
+	return ok
 }
 
 func (mr *MemoryRepo) PutMetric(host domain.Host, metric domain.Metric) error {
@@ -65,7 +61,7 @@ func (mr *MemoryRepo) GetAll() domain.Cluster {
 
 func New(logger zerolog.Logger) *MemoryRepo {
 	mr := &MemoryRepo{
-		hosts:   []HostModel{},
+		hosts:   map[string]HostModel{},
 		metrics: map[string]map[string]MetricModel{},
 		mux:     sync.Mutex{},
 		logger:  logger.With().Str("component", "storage").Logger(),
