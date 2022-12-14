@@ -37,20 +37,17 @@ type Host struct {
 	// off of.
 	Name     string
 	Reported time.Time
-	TMax     time.Duration
 	DMax     time.Duration
 	Metrics  []Metric
 }
 
 // Metric is the domain model representing a single metric.
 type Metric struct {
-	Name   string
-	Val    string
-	Units  string
-	Slope  MetricSlope
-	Tn     time.Duration
-	TMax   time.Duration
-	DMax   time.Duration
-	Source string
-	Type   MetricType
+	Name  string
+	Val   string
+	Units string
+	Slope MetricSlope
+	Tn    time.Duration
+	DMax  time.Duration
+	Type  MetricType
 }

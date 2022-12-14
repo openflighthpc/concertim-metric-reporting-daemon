@@ -13,7 +13,6 @@ func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.Host {
 	var domainHost domain.Host
 	domainHost.Name = source.Name
 	domainHost.Reported = ConvertTime(source.Reported)
-	domainHost.TMax = time.Duration(source.TMax)
 	domainHost.DMax = time.Duration(source.DMax)
 	domainHost.Metrics = DefaultMetrics()
 	return domainHost
@@ -25,9 +24,7 @@ func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.Metric 
 	domainMetric.Units = source.Units
 	domainMetric.Slope = domain.MetricSlope(source.Slope)
 	domainMetric.Tn = time.Duration(source.Tn)
-	domainMetric.TMax = time.Duration(source.TMax)
 	domainMetric.DMax = time.Duration(source.DMax)
-	domainMetric.Source = source.Source
 	domainMetric.Type = domain.MetricType(source.Type)
 	return domainMetric
 }
@@ -35,7 +32,6 @@ func (c *ConverterImpl) ModelFromDomainHost(source domain.Host) HostModel {
 	var memoryHostModel HostModel
 	memoryHostModel.Name = source.Name
 	memoryHostModel.Reported = ConvertTime(source.Reported)
-	memoryHostModel.TMax = time.Duration(source.TMax)
 	memoryHostModel.DMax = time.Duration(source.DMax)
 	return memoryHostModel
 }
@@ -46,9 +42,7 @@ func (c *ConverterImpl) ModelFromDomainMetric(source domain.Metric) MetricModel 
 	memoryMetricModel.Units = source.Units
 	memoryMetricModel.Slope = domain.MetricSlope(source.Slope)
 	memoryMetricModel.Tn = time.Duration(source.Tn)
-	memoryMetricModel.TMax = time.Duration(source.TMax)
 	memoryMetricModel.DMax = time.Duration(source.DMax)
-	memoryMetricModel.Source = source.Source
 	memoryMetricModel.Type = domain.MetricType(source.Type)
 	return memoryMetricModel
 }

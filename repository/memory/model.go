@@ -14,7 +14,6 @@ var conv Converter = &ConverterImpl{}
 type HostModel struct {
 	Name     string
 	Reported time.Time
-	TMax     time.Duration
 	DMax     time.Duration
 }
 
@@ -25,7 +24,6 @@ type MetricModel struct {
 	Units  string
 	Slope  domain.MetricSlope
 	Tn     time.Duration
-	TMax   time.Duration
 	DMax   time.Duration
 	Source string
 	Type   domain.MetricType

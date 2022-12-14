@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
   <CLUSTER NAME="unspecified" LOCALTIME="1670856697" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
-    <HOST NAME="&#34;&lt;/HOST&gt;" IP="" REPORTED="1670856697" TN="0" TMAX="10" DMAX="10">
-      <METRIC NAME="&#34;&lt;/NAME&gt;" VAL="&#34;&lt;/VAL&gt;" UNITS="&#34;&lt;/UNITS&gt;" SLOPE="" TN="0" TMAX="0" DMAX="0" SOURCE="mrapi" TYPE=""></METRIC>
+    <HOST NAME="&#34;&lt;/HOST&gt;" IP="" REPORTED="1670856697" TN="0" TMAX="60" DMAX="10">
+      <METRIC NAME="&#34;&lt;/NAME&gt;" VAL="&#34;&lt;/VAL&gt;" UNITS="&#34;&lt;/UNITS&gt;" SLOPE="" TN="0" TMAX="60" DMAX="0" SOURCE="mrapi" TYPE=""></METRIC>
     </HOST>
   </CLUSTER>
 </GANGLIA_XML>

@@ -80,14 +80,12 @@ func clusterWithoutMetrics() domain.Cluster {
 		{
 			Name:     "comp10",
 			Reported: fakeClock{}.Now(),
-			TMax:     10 * time.Second,
 			DMax:     10 * time.Second,
 			Metrics:  []domain.Metric{},
 		},
 		{
 			Name:     "comp20",
 			Reported: fakeClock{}.Now(),
-			TMax:     20 * time.Second,
 			DMax:     20 * time.Second,
 			Metrics:  []domain.Metric{},
 		},
@@ -107,26 +105,22 @@ func clusterWithMetrics() domain.Cluster {
 
 func buildMetrics(i int) []domain.Metric {
 	powerMetric := domain.Metric{
-		Name:   "power",
-		Val:    fmt.Sprintf("%d", i*10),
-		Units:  "W",
-		Slope:  "both",
-		Tn:     0,
-		TMax:   60 * time.Second,
-		DMax:   60 * time.Second,
-		Source: "mrapi",
-		Type:   domain.MetricTypeDouble,
+		Name:  "power",
+		Val:   fmt.Sprintf("%d", i*10),
+		Units: "W",
+		Slope: "both",
+		Tn:    0,
+		DMax:  60 * time.Second,
+		Type:  domain.MetricTypeDouble,
 	}
 	tempMetric := domain.Metric{
-		Name:   "temp",
-		Val:    fmt.Sprintf("%d", i*20),
-		Units:  "C",
-		Slope:  "both",
-		Tn:     0,
-		TMax:   120 * time.Second,
-		DMax:   120 * time.Second,
-		Source: "mrapi",
-		Type:   domain.MetricTypeFloat,
+		Name:  "temp",
+		Val:   fmt.Sprintf("%d", i*20),
+		Units: "C",
+		Slope: "both",
+		Tn:    0,
+		DMax:  120 * time.Second,
+		Type:  domain.MetricTypeFloat,
 	}
 	return []domain.Metric{powerMetric, tempMetric}
 }
@@ -153,7 +147,6 @@ func clusterWithXML() domain.Cluster {
 		{
 			Name:     "\"</HOST>",
 			Reported: fakeClock{}.Now(),
-			TMax:     10 * time.Second,
 			DMax:     10 * time.Second,
 			Metrics: []domain.Metric{{
 				Name:  "\"</NAME>",

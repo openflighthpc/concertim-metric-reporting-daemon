@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
   <CLUSTER NAME="unspecified" LOCALTIME="1670856697" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
-    <HOST NAME="comp10" IP="" REPORTED="1670856697" TN="0" TMAX="10" DMAX="10">
+    <HOST NAME="comp10" IP="" REPORTED="1670856697" TN="0" TMAX="60" DMAX="10">
       <METRIC NAME="power" VAL="10" UNITS="W" SLOPE="both" TN="0" TMAX="60" DMAX="60" SOURCE="mrapi" TYPE="double"></METRIC>
-      <METRIC NAME="temp" VAL="20" UNITS="C" SLOPE="both" TN="0" TMAX="120" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
+      <METRIC NAME="temp" VAL="20" UNITS="C" SLOPE="both" TN="0" TMAX="60" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
     </HOST>
-    <HOST NAME="comp20" IP="" REPORTED="1670856697" TN="0" TMAX="20" DMAX="20">
+    <HOST NAME="comp20" IP="" REPORTED="1670856697" TN="0" TMAX="60" DMAX="20">
       <METRIC NAME="power" VAL="20" UNITS="W" SLOPE="both" TN="0" TMAX="60" DMAX="60" SOURCE="mrapi" TYPE="double"></METRIC>
-      <METRIC NAME="temp" VAL="40" UNITS="C" SLOPE="both" TN="0" TMAX="120" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
+      <METRIC NAME="temp" VAL="40" UNITS="C" SLOPE="both" TN="0" TMAX="60" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
     </HOST>
   </CLUSTER>
 </GANGLIA_XML>
