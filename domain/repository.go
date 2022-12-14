@@ -5,11 +5,11 @@ import "fmt"
 // UnknownHost is the error reported when an attempt to add a metric to an
 // unknown host is made.
 type UnknownHost struct {
-	Host Host
+	HostName string
 }
 
 func (e UnknownHost) Error() string {
-	return fmt.Sprintf("Unknown host %s", e.Host.Name)
+	return fmt.Sprintf("Unknown host %s", e.HostName)
 }
 
 // Repository is the interface for any persistence layer.
@@ -29,4 +29,6 @@ type Repository interface {
 	// GetAll returns a Cluster populated with all of the Hosts and Metrics
 	// that have been added to the repository.
 	GetAll() Cluster
+
+	GetHost(string) (Host, bool)
 }

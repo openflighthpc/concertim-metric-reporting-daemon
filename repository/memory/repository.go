@@ -39,7 +39,7 @@ func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return domain.UnknownHost{Host: host}
+		return domain.UnknownHost{HostName: host.Name}
 	}
 	metrics, ok := mr.metrics[host.Name]
 	if !ok {
@@ -52,6 +52,8 @@ func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 
 // GetAll implements the Repository interface.
 func (mr *Repo) GetAll() domain.Cluster {
+	mr.mux.Lock()
+	defer mr.mux.Unlock()
 	mr.logger.Debug().Msg("Getting all data")
 	cluster := domain.Cluster{}
 	for _, h := range mr.hosts {
@@ -62,6 +64,16 @@ func (mr *Repo) GetAll() domain.Cluster {
 	}
 
 	return cluster
+}
+
+func (mr *Repo) GetHost(hostName string) (domain.Host, bool) {
+	mr.mux.Lock()
+	defer mr.mux.Unlock()
+	host, ok := mr.hosts[hostName]
+	if !ok {
+		return domain.Host{}, false
+	}
+	return conv.DomainFromModelHost(host), true
 }
 
 // New returns an empty in-memory repository.

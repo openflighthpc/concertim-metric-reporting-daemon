@@ -7,6 +7,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -50,4 +51,41 @@ type Metric struct {
 	Tn    time.Duration
 	DMax  time.Duration
 	Type  MetricType
+}
+
+var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")
+
+func ParseMetricVal(val any, metricType MetricType) (string, error) {
+	switch v := val.(type) {
+	case string:
+		if metricType == MetricTypeString {
+			return v, nil
+		}
+		if v, ok := val.(float64); ok {
+			return "", fmt.Errorf("%f is %w sbe glcr %s", v, ErrInvalidMetricVal, metricType)
+		}
+		return "", fmt.Errorf("%s is %w for type %s", val, ErrInvalidMetricVal, metricType)
+	case float64:
+		if metricType == MetricTypeString {
+			return "", fmt.Errorf("%f is %w for type %s", val, ErrInvalidMetricVal, metricType)
+		}
+		return parseFloat64ToMetricType(v, metricType)
+	default:
+		return "", fmt.Errorf("%s is %w", val, ErrInvalidMetricVal)
+	}
+}
+
+func parseFloat64ToMetricType(val float64, metricType MetricType) (string, error) {
+	switch metricType {
+	case MetricTypeInt8,
+		MetricTypeUint8,
+		MetricTypeInt16,
+		MetricTypeUint16,
+		MetricTypeInt32,
+		MetricTypeUint32:
+		return fmt.Sprintf("%d", int(val)), nil
+	case MetricTypeFloat, MetricTypeDouble:
+		return fmt.Sprintf("%f", val), nil
+	}
+	return "", nil
 }

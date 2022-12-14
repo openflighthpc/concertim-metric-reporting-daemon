@@ -4,99 +4,100 @@
 package api
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
+	"context"
 	"net/http"
 	"time"
 
+	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
 )
 
+// Server is a wrapper around a net/http.Server.
+type Server struct {
+	logger     zerolog.Logger
+	httpServer *http.Server
+	repo       domain.Repository
+}
+
 // NewServer returns an *http.Server configured as an API server.
-func NewServer(logger zerolog.Logger) *http.Server {
+func NewServer(logger zerolog.Logger, repo domain.Repository) *Server {
+	return &Server{
+		logger: logger.With().Str("component", "api").Logger(),
+		repo:   repo,
+	}
+}
+
+func (s *Server) ListenAndServe() error {
 	addr := ":3000"
 	server := http.Server{
 		Addr:         addr,
 		ReadTimeout:  time.Millisecond * 100,
 		WriteTimeout: time.Millisecond * 100,
-		Handler:      newRouter(logger),
+		Handler:      s.addRoutes(),
 	}
-	return &server
+	s.httpServer = &server
+	s.logger.Info().Str("address", server.Addr).Msg("API server listening")
+	return server.ListenAndServe()
 }
 
-func newRouter(logger zerolog.Logger) chi.Router {
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.httpServer.Shutdown(ctx)
+}
+
+func (s *Server) addRoutes() chi.Router {
 	r := chi.NewRouter()
-	r.Use(hlog.NewHandler(logger))
+	r.Use(hlog.NewHandler(s.logger))
 	r.Use(logMiddleware())
 	r.Use(hlog.RemoteAddrHandler("ip"))
+	r.Use(middleware.CleanPath)
 
-	r.Get("/", func(rw http.ResponseWriter, r *http.Request) {
-		if _, err := rw.Write([]byte("OK\n")); err != nil {
-			log.Error().Err(err).Msg("http.ResponseWriter.Write")
-		}
-	})
-
-	r.Put("/metrics/", putMetricHandler)
+	r.Put("/{hostName}/metrics", s.putMetricHandler)
 
 	return r
-}
-
-func parseBody(params any, rw http.ResponseWriter, r *http.Request) error {
-	rawRequestBody, err := io.ReadAll(r.Body)
-	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write([]byte(fmt.Sprintf("error reading body: %s\n", err.Error())))
-		return err
-	}
-
-	err = json.Unmarshal(rawRequestBody, params)
-	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
-		_, _ = rw.Write([]byte(fmt.Sprintf("error decoding body: %s\n", err.Error())))
-		return err
-	}
-
-	return nil
 }
 
 type putMetricRequest struct {
 	Name  string `json:"name"`
 	Val   any    `json:"value"`
 	Units string `json:"units"`
-	Mtype string `json:"type"`
+	Type  string `json:"type"`
 	Slope string `json:"slope"`
-	Ttl   uint   `json:"ttl"`
+	TTL   uint   `json:"ttl"`
 }
 
-func putMetricHandler(rw http.ResponseWriter, r *http.Request) {
-	params := &putMetricRequest{}
-	err := parseBody(params, rw, r)
+type putMetricResponse struct {
+	Status int           `json:"status"`
+	Metric domain.Metric `json:"metric"`
+}
+
+func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
+	putMetric := &putMetricRequest{}
+	err := parseJSONBody(putMetric, rw, r)
+	if err != nil {
+		// The correct response has already been sent by parseJSONBody.
+		return
+	}
+	hostName := chi.URLParam(r, "hostName")
+	hlog.FromRequest(r).Debug().Str("hostName", hostName).Interface("putMetric", putMetric).Send()
+
+	metric, err := DomainMetricFromPutMetric(*putMetric)
+	if err != nil {
+		BadRequest(rw, r, err, "")
+		return
+	}
+	err = domain.AddMetric(s.repo, metric, hostName)
 	if err != nil {
 		logger := hlog.FromRequest(r)
-		logger.Warn().Err(err).Msg("parsing body")
-
+		logger.Debug().Err(err).Msg("adding metric")
+		renderJSON("", http.StatusNotFound, rw)
 		return
 	}
 
-	logger := hlog.FromRequest(r)
-	logger.Printf("params: %#v", params)
-
-	rw.WriteHeader(http.StatusCreated)
-	rw.Header().Set("Content-Type", "application/json")
-	body := struct {
-		Status string
-		Req    putMetricRequest
-	}{
-		Status: http.StatusText(http.StatusCreated),
-		Req:    *params,
-	}
-
-	serializedBody, _ := json.Marshal(body)
-	_, _ = rw.Write(append(serializedBody, []byte("\n")...))
+	body := putMetricResponse{Status: http.StatusOK, Metric: metric}
+	renderJSON(body, http.StatusOK, rw)
 }
 
 func logMiddleware() func(http.Handler) http.Handler {
