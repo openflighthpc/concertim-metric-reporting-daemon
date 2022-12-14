@@ -2,9 +2,9 @@
 <GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
   <CLUSTER NAME="unspecified" LOCALTIME="{{localTime | xml}}" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
     {{- range .Hosts }}
-    <HOST NAME="{{.Name | xml}}" IP="" REPORTED="{{.Reported | timeToUnix | xml}}" TN="0" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}">
+    <HOST NAME="{{.Name | xml}}" IP="" REPORTED="{{.Reported | timeToUnix | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}">
       {{- range .Metrics }}
-      <METRIC NAME="{{.Name | xml}}" VAL="{{.Val | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="0" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}" SOURCE="mrapi" TYPE="{{.Type | xml}}"></METRIC>
+      <METRIC NAME="{{.Name | xml}}" VAL="{{.Val | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}" SOURCE="mrapi" TYPE="{{.Type | xml}}"></METRIC>
       {{- end }}
     </HOST>
     {{- end }}

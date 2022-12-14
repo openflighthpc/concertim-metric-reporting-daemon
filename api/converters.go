@@ -11,7 +11,7 @@ func DomainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {
 	var dst domain.Metric
 	dst.Name = src.Name
 	dst.Units = src.Units
-	dst.Tn = 0
+	dst.Reported = time.Now()
 	dst.DMax = time.Duration(src.TTL) * time.Second
 
 	dst.Type, err = domain.ParseMetricType(src.Type)

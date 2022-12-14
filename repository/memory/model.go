@@ -19,14 +19,13 @@ type HostModel struct {
 
 // MetricModel is the format of a metric as stored in this repository.
 type MetricModel struct {
-	Name   string
-	Val    string
-	Units  string
-	Slope  domain.MetricSlope
-	Tn     time.Duration
-	DMax   time.Duration
-	Source string
-	Type   domain.MetricType
+	Name     string
+	Val      string
+	Units    string
+	Slope    domain.MetricSlope
+	Reported time.Time
+	DMax     time.Duration
+	Type     domain.MetricType
 }
 
 // Converter is an interface used to convert from domain models to repositry

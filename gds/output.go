@@ -19,14 +19,17 @@ var outputTemplateBytes []byte
 // in tests.
 type clock interface {
 	Now() time.Time
+	Since(t time.Time) time.Duration
 }
 
 // realClock is used to implemented clock for time.Time.
 type realClock struct{}
 
-func (realClock) Now() time.Time { return time.Now() }
+func (realClock) Now() time.Time                  { return time.Now() }
+func (realClock) Since(t time.Time) time.Duration { return time.Since(t) }
 
 type outputGenerator struct {
+	clock    clock
 	template *template.Template
 }
 
@@ -51,12 +54,19 @@ func escapeXML(a any) any {
 	}
 }
 
+// secondsAsInt returns the duration as an integer number of seconds.
+func secondsAsInt(d time.Duration) int {
+	return int(d.Seconds())
+}
+
 func newOutputGenerator(clock clock) (*outputGenerator, error) {
+	og := outputGenerator{clock: clock}
 	funcMap := template.FuncMap{
 		"localTime":    clock.Now().Unix,
 		"timeToUnix":   func(t time.Time) int64 { return t.Unix() },
-		"secondsAsInt": func(d time.Duration) int { return int(d.Seconds()) },
+		"secondsAsInt": secondsAsInt,
 		"xml":          escapeXML,
+		"secondsSince": og.secondsSince,
 	}
 	outputTemplate, err := template.New("output").
 		Funcs(funcMap).
@@ -64,7 +74,13 @@ func newOutputGenerator(clock clock) (*outputGenerator, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &outputGenerator{template: outputTemplate}, nil
+	og.template = outputTemplate
+	return &og, nil
+}
+
+// secondsSince returns an integer number of seconds since startTime.
+func (g *outputGenerator) secondsSince(startTime time.Time) int {
+	return secondsAsInt(g.clock.Since(startTime))
 }
 
 func (g *outputGenerator) generate(dCluster domain.Cluster) ([]byte, error) {

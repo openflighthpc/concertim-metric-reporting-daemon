@@ -102,8 +102,8 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			},
 			metrics: map[string][]domain.Metric{
 				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"},
-					domain.Metric{Name: "temp", Val: "100", Units: "C", Slope: "both", Tn: 0, DMax: 60, Type: "int32"},
+					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					domain.Metric{Name: "temp", Val: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
 				},
 			},
 		},
@@ -115,10 +115,10 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			},
 			metrics: map[string][]domain.Metric{
 				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"},
+					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 				"comp20": []domain.Metric{
-					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"},
+					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
@@ -130,10 +130,10 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			},
 			metrics: map[string][]domain.Metric{
 				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"},
+					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 				"comp20": []domain.Metric{
-					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"},
+					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
@@ -189,7 +189,7 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	assert := assert.New(t)
 	repo := New(log.Logger)
 	host := domain.Host{Name: "comp01", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
-	metric := domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", Tn: 0, DMax: 60, Type: "int64"}
+	metric := domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"}
 
 	// Preconditions
 	cluster := repo.GetAll()

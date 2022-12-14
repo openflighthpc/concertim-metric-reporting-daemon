@@ -30,6 +30,9 @@ func (fakeClock) Now() time.Time {
 	}
 	return time.Unix(i, 0)
 }
+func (fakeClock) Since(t time.Time) time.Duration {
+	return 32 * time.Second
+}
 
 func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	tests := []struct {
@@ -105,22 +108,22 @@ func clusterWithMetrics() domain.Cluster {
 
 func buildMetrics(i int) []domain.Metric {
 	powerMetric := domain.Metric{
-		Name:  "power",
-		Val:   fmt.Sprintf("%d", i*10),
-		Units: "W",
-		Slope: "both",
-		Tn:    0,
-		DMax:  60 * time.Second,
-		Type:  domain.MetricTypeDouble,
+		Name:     "power",
+		Val:      fmt.Sprintf("%d", i*10),
+		Units:    "W",
+		Slope:    "both",
+		DMax:     60 * time.Second,
+		Reported: fakeClock{}.Now(),
+		Type:     domain.MetricTypeDouble,
 	}
 	tempMetric := domain.Metric{
-		Name:  "temp",
-		Val:   fmt.Sprintf("%d", i*20),
-		Units: "C",
-		Slope: "both",
-		Tn:    0,
-		DMax:  120 * time.Second,
-		Type:  domain.MetricTypeFloat,
+		Name:     "temp",
+		Val:      fmt.Sprintf("%d", i*20),
+		Units:    "C",
+		Slope:    "both",
+		DMax:     120 * time.Second,
+		Reported: fakeClock{}.Now(),
+		Type:     domain.MetricTypeFloat,
 	}
 	return []domain.Metric{powerMetric, tempMetric}
 }

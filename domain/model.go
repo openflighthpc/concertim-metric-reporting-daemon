@@ -44,13 +44,13 @@ type Host struct {
 
 // Metric is the domain model representing a single metric.
 type Metric struct {
-	Name  string
-	Val   string
-	Units string
-	Slope MetricSlope
-	Tn    time.Duration
-	DMax  time.Duration
-	Type  MetricType
+	Name     string
+	Val      string
+	Units    string
+	Slope    MetricSlope
+	Reported time.Time
+	DMax     time.Duration
+	Type     MetricType
 }
 
 var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")

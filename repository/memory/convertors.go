@@ -23,7 +23,7 @@ func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.Metric 
 	domainMetric.Val = source.Val
 	domainMetric.Units = source.Units
 	domainMetric.Slope = domain.MetricSlope(source.Slope)
-	domainMetric.Tn = time.Duration(source.Tn)
+	domainMetric.Reported = ConvertTime(source.Reported)
 	domainMetric.DMax = time.Duration(source.DMax)
 	domainMetric.Type = domain.MetricType(source.Type)
 	return domainMetric
@@ -41,7 +41,7 @@ func (c *ConverterImpl) ModelFromDomainMetric(source domain.Metric) MetricModel 
 	memoryMetricModel.Val = source.Val
 	memoryMetricModel.Units = source.Units
 	memoryMetricModel.Slope = domain.MetricSlope(source.Slope)
-	memoryMetricModel.Tn = time.Duration(source.Tn)
+	memoryMetricModel.Reported = ConvertTime(source.Reported)
 	memoryMetricModel.DMax = time.Duration(source.DMax)
 	memoryMetricModel.Type = domain.MetricType(source.Type)
 	return memoryMetricModel
