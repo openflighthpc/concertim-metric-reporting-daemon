@@ -9,7 +9,6 @@ func AddMetric(repo Repository, metric Metric, hostName string) error {
 			Name:     hostName,
 			Reported: time.Now(),
 			DMax:     60,
-			Metrics:  []Metric{},
 		}
 		err := repo.PutHost(host)
 		if err != nil {

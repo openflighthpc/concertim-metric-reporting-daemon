@@ -80,19 +80,16 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		// The correct response has already been sent by parseJSONBody.
 		return
 	}
-	hostName := chi.URLParam(r, "hostName")
-	hlog.FromRequest(r).Debug().Str("hostName", hostName).Interface("putMetric", putMetric).Send()
-
 	metric, err := DomainMetricFromPutMetric(*putMetric)
 	if err != nil {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = domain.AddMetric(s.repo, metric, hostName)
+	err = domain.AddMetric(s.repo, metric, chi.URLParam(r, "hostName"))
 	if err != nil {
 		logger := hlog.FromRequest(r)
 		logger.Debug().Err(err).Msg("adding metric")
-		renderJSON("", http.StatusNotFound, rw)
+		renderJSON("", http.StatusInternalServerError, rw)
 		return
 	}
 
