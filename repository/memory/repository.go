@@ -21,30 +21,30 @@ type Repo struct {
 
 // PutHost implements the Repository interface.
 func (mr *Repo) PutHost(host domain.Host) error {
-	mr.logger.Debug().Str("host", host.Name).Msg("Putting host")
+	mr.logger.Debug().Str("host", host.DeviceName).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	mr.hosts[host.Name] = conv.ModelFromDomainHost(host)
+	mr.hosts[host.DeviceName] = conv.ModelFromDomainHost(host)
 	return nil
 }
 
 func (mr *Repo) isHostStored(host domain.Host) bool {
-	_, ok := mr.hosts[host.Name]
+	_, ok := mr.hosts[host.DeviceName]
 	return ok
 }
 
 // PutMetric implements the Repository interface.
 func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
-	mr.logger.Debug().Str("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
+	mr.logger.Debug().Str("host", host.DeviceName).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return domain.UnknownHost{HostName: host.Name}
+		return domain.UnknownHost{HostName: host.DeviceName}
 	}
-	metrics, ok := mr.metrics[host.Name]
+	metrics, ok := mr.metrics[host.DeviceName]
 	if !ok {
 		metrics = make(map[string]MetricModel, 0)
-		mr.metrics[host.Name] = metrics
+		mr.metrics[host.DeviceName] = metrics
 	}
 	metrics[metric.Name] = conv.ModelFromDomainMetric(metric)
 	return nil
@@ -57,7 +57,7 @@ func (mr *Repo) GetAll() domain.Cluster {
 	mr.logger.Debug().Msg("Getting all data")
 	cluster := domain.Cluster{}
 	for _, h := range mr.hosts {
-		metrics := mr.metrics[h.Name]
+		metrics := mr.metrics[h.DeviceName]
 		logHostAndMetrics(mr.logger, h, metrics)
 		host := domainHostFromModelHostAndMetrics(h, metrics)
 		cluster.Hosts = append(cluster.Hosts, host)
@@ -89,7 +89,7 @@ func New(logger zerolog.Logger) *Repo {
 
 func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]MetricModel) {
 	log.Debug().
-		Str("host", h.Name).
+		Str("host", h.DeviceName).
 		Int("metric.count", len(metrics)).
 		Func(func(e *zerolog.Event) {
 			metricNames := []string{}

@@ -81,16 +81,18 @@ func Test_GeneratedXMLIsCorrect(t *testing.T) {
 func clusterWithoutMetrics() domain.Cluster {
 	return domain.Cluster{Hosts: []domain.Host{
 		{
-			Name:     "comp10",
-			Reported: fakeClock{}.Now(),
-			DMax:     10 * time.Second,
-			Metrics:  []domain.Metric{},
+			DeviceName: "comp10",
+			DSMName:    "comp10.cluster.local",
+			Reported:   fakeClock{}.Now(),
+			DMax:       10 * time.Second,
+			Metrics:    []domain.Metric{},
 		},
 		{
-			Name:     "comp20",
-			Reported: fakeClock{}.Now(),
-			DMax:     20 * time.Second,
-			Metrics:  []domain.Metric{},
+			DeviceName: "comp20",
+			DSMName:    "comp20.cluster.local",
+			Reported:   fakeClock{}.Now(),
+			DMax:       20 * time.Second,
+			Metrics:    []domain.Metric{},
 		},
 	}}
 }
@@ -148,9 +150,10 @@ func goldenValue(t *testing.T, goldenFile string) string {
 func clusterWithXML() domain.Cluster {
 	return domain.Cluster{Hosts: []domain.Host{
 		{
-			Name:     "\"</HOST>",
-			Reported: fakeClock{}.Now(),
-			DMax:     10 * time.Second,
+			DeviceName: "\"</HOST>",
+			DSMName:    "\"</HOST>.cluster.local",
+			Reported:   fakeClock{}.Now(),
+			DMax:       10 * time.Second,
 			Metrics: []domain.Metric{{
 				Name:  "\"</NAME>",
 				Val:   "\"</VAL>",

@@ -54,7 +54,7 @@ func (s *Server) addRoutes() chi.Router {
 	r.Use(hlog.RemoteAddrHandler("ip"))
 	r.Use(middleware.CleanPath)
 
-	r.Put("/{hostName}/metrics", s.putMetricHandler)
+	r.Put("/{deviceName}/metrics", s.putMetricHandler)
 
 	return r
 }
@@ -85,7 +85,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = domain.AddMetric(s.repo, metric, chi.URLParam(r, "hostName"))
+	err = domain.AddMetric(s.repo, metric, chi.URLParam(r, "deviceName"))
 	if err != nil {
 		logger := hlog.FromRequest(r)
 		logger.Debug().Err(err).Msg("adding metric")

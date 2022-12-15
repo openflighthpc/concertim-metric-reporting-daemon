@@ -12,9 +12,10 @@ var conv Converter = &ConverterImpl{}
 
 // HostModel is the format of a host as stored in this repository.
 type HostModel struct {
-	Name     string
-	Reported time.Time
-	DMax     time.Duration
+	DeviceName string
+	DSMName    string
+	Reported   time.Time
+	DMax       time.Duration
 }
 
 // MetricModel is the format of a metric as stored in this repository.

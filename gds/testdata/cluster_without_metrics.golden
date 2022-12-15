@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
   <CLUSTER NAME="unspecified" LOCALTIME="1670856697" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
-    <HOST NAME="comp10" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="10">
+    <HOST NAME="comp10.cluster.local" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="10">
     </HOST>
-    <HOST NAME="comp20" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="20">
+    <HOST NAME="comp20.cluster.local" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="20">
     </HOST>
   </CLUSTER>
 </GANGLIA_XML>

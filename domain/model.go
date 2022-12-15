@@ -36,10 +36,11 @@ type Cluster struct {
 type Host struct {
 	// XXX Consider Name HostName for better documentation of what we key maps
 	// off of.
-	Name     string
-	Reported time.Time
-	DMax     time.Duration
-	Metrics  []Metric
+	DeviceName string
+	DSMName    string
+	Reported   time.Time
+	DMax       time.Duration
+	Metrics    []Metric
 }
 
 // Metric is the domain model representing a single metric.
