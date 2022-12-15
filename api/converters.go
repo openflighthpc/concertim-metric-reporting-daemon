@@ -6,7 +6,7 @@ import (
 	"github.com/alces-flight/concertim-mrapi/domain"
 )
 
-func DomainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {
+func domainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {
 	var err error
 	var dst domain.Metric
 	dst.Name = src.Name

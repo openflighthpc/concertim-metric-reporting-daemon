@@ -16,6 +16,7 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/alces-flight/concertim-mrapi/api"
+	"github.com/alces-flight/concertim-mrapi/dsmRepository"
 	"github.com/alces-flight/concertim-mrapi/gds"
 	"github.com/alces-flight/concertim-mrapi/repository/memory"
 )
@@ -31,7 +32,8 @@ func init() {
 
 func main() {
 	repository := memory.New(log.Logger)
-	apiServer := api.NewServer(log.Logger, repository)
+	dsmRepo := dsmRepository.New(log.Logger)
+	apiServer := api.NewServer(log.Logger, repository, dsmRepo)
 	gdsServer, err := gds.New(log.Logger, repository)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to create gds.Server")

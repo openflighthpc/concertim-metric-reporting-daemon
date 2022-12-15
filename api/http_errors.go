@@ -7,12 +7,15 @@ import (
 	"github.com/rs/zerolog/hlog"
 )
 
+// ErrorResponse is the response type for any error messages.  It is loosely
+// based on the JSON:API error object.
 type ErrorResponse struct {
 	Status string `json:"status"`
 	Title  string `json:"title"`
 	Detail string `json:"detail"`
 }
 
+// InternalError responds with an internal error.
 func InternalError(rw http.ResponseWriter, r *http.Request, err error, logMsg string) {
 	if logMsg == "" {
 		logMsg = http.StatusText(http.StatusInternalServerError)
@@ -20,6 +23,7 @@ func InternalError(rw http.ResponseWriter, r *http.Request, err error, logMsg st
 	respondWithError(rw, r, err, http.StatusInternalServerError, logMsg)
 }
 
+// BadRequest responds with a bad request.
 func BadRequest(rw http.ResponseWriter, r *http.Request, err error, logMsg string) {
 	if logMsg == "" {
 		logMsg = http.StatusText(http.StatusBadRequest)

@@ -20,16 +20,19 @@ type Server struct {
 	logger     zerolog.Logger
 	httpServer *http.Server
 	repo       domain.Repository
+	dsmRepo    domain.DataSourceMapRepository
 }
 
 // NewServer returns an *http.Server configured as an API server.
-func NewServer(logger zerolog.Logger, repo domain.Repository) *Server {
+func NewServer(logger zerolog.Logger, repo domain.Repository, dsmRepo domain.DataSourceMapRepository) *Server {
 	return &Server{
-		logger: logger.With().Str("component", "api").Logger(),
-		repo:   repo,
+		logger:  logger.With().Str("component", "api").Logger(),
+		repo:    repo,
+		dsmRepo: dsmRepo,
 	}
 }
 
+// ListenAndServe runs the HTTP API server.
 func (s *Server) ListenAndServe() error {
 	addr := ":3000"
 	server := http.Server{
@@ -43,6 +46,7 @@ func (s *Server) ListenAndServe() error {
 	return server.ListenAndServe()
 }
 
+// Shutdown stops the HTTP API server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.httpServer.Shutdown(ctx)
 }
@@ -80,12 +84,12 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		// The correct response has already been sent by parseJSONBody.
 		return
 	}
-	metric, err := DomainMetricFromPutMetric(*putMetric)
+	metric, err := domainMetricFromPutMetric(*putMetric)
 	if err != nil {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = domain.AddMetric(s.repo, metric, chi.URLParam(r, "deviceName"))
+	err = domain.AddMetric(s.repo, s.dsmRepo, metric, chi.URLParam(r, "deviceName"))
 	if err != nil {
 		logger := hlog.FromRequest(r)
 		logger.Debug().Err(err).Msg("adding metric")

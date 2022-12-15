@@ -66,6 +66,7 @@ func (mr *Repo) GetAll() domain.Cluster {
 	return cluster
 }
 
+// GetHost implements the Repository interface.
 func (mr *Repo) GetHost(hostName string) (domain.Host, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()

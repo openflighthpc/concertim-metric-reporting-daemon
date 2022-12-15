@@ -54,8 +54,12 @@ type Metric struct {
 	Type     MetricType
 }
 
+// ErrInvalidMetricVal is used if the metric's value is not valid for its
+// type.
 var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")
 
+// ParseMetricVal attempts to parse the given value according to the given
+// metric type.  If successful, the value will be returned as a string.
 func ParseMetricVal(val any, metricType MetricType) (string, error) {
 	switch v := val.(type) {
 	case string:
