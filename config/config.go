@@ -2,7 +2,9 @@
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 
 	"gopkg.in/yaml.v3"
 )
@@ -35,8 +37,17 @@ type DSM struct {
 	Sleep     int64  `yaml:"sleep"`
 }
 
+var DefaultPaths = []string{
+	"/data/private/share/daemons/mrapi/config.yml",
+	"./config.yml",
+}
+
 // FromFile parses the given file path and returns a Config.
-func FromFile(path string) (*Config, error) {
+func FromFile(paths []string) (*Config, error) {
+	path, err := findConfigFile(paths)
+	if err != nil {
+		return nil, err
+	}
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -47,4 +58,14 @@ func FromFile(path string) (*Config, error) {
 		return nil, err
 	}
 	return &config, nil
+}
+
+func findConfigFile(paths []string) (string, error) {
+	for _, path := range paths {
+		_, err := os.Stat(path)
+		if err == nil {
+			return path, nil
+		}
+	}
+	return "", fmt.Errorf("Unable to find config file")
 }

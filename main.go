@@ -32,7 +32,7 @@ func init() {
 }
 
 func main() {
-	config, err := config.FromFile("config.yml")
+	config, err := config.FromFile(config.DefaultPaths)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config file")
 	}
