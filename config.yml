@@ -1,0 +1,44 @@
+# Configuration for the HTTP API.
+api:
+  # The address of the network interface to listen on.
+  ip: "127.0.0.1"
+
+  # The port to listen on.
+  port: 3000
+
+# Configuration for the gangali data source server.
+gds:
+  # The address of the network interface to listen on.
+  ip: "127.0.0.1"
+
+  # The port to listen on.
+  port: 8678
+
+  # The cluster name to use in the ganglia output.
+  clusterName: "unspecified"
+
+  # The source to use in the ganglia output.
+  metricSource: "mrapi"
+
+
+# Configuration for generating the data source map lookup.
+dsm:
+  # The type of retriever to use for obtaining the data source map look up
+  # table.  Either "file" or "script".
+  #
+  # If "file", "path" should be set to the path to a JSON file containing an
+  # object with device names as the keys and the device's map to host as the
+  # value, e.g.,
+  #
+  #   {"comp001": "comp001.concertim.alces-flight.com", ...}
+  #
+  # If "script" it should be set to the path of an executable script that
+  # prints JSON to stdout in the same format as above.
+  retriever: "file"
+
+  # See "retriever" comment for what this means.
+  path: "/home/ben/projects/concertim-deploy/ansible/tmp/foo.json"
+
+  # The data source map is periodically updated using the configured
+  # retriever.  This value sets the time to sleep between runs.
+  sleep: 60

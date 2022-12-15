@@ -51,19 +51,19 @@ func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 }
 
 // GetAll implements the Repository interface.
-func (mr *Repo) GetAll() domain.Cluster {
+func (mr *Repo) GetAll() []domain.Host {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	mr.logger.Debug().Msg("Getting all data")
-	cluster := domain.Cluster{}
+	hosts := make([]domain.Host, 0, len(mr.hosts))
 	for _, h := range mr.hosts {
 		metrics := mr.metrics[h.DeviceName]
 		logHostAndMetrics(mr.logger, h, metrics)
 		host := domainHostFromModelHostAndMetrics(h, metrics)
-		cluster.Hosts = append(cluster.Hosts, host)
+		hosts = append(hosts, host)
 	}
 
-	return cluster
+	return hosts
 }
 
 // GetHost implements the Repository interface.

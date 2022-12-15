@@ -5,9 +5,11 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/alces-flight/concertim-mrapi/config"
 	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -17,6 +19,7 @@ import (
 
 // Server is a wrapper around a net/http.Server.
 type Server struct {
+	config     config.API
 	logger     zerolog.Logger
 	httpServer *http.Server
 	repo       domain.Repository
@@ -24,8 +27,9 @@ type Server struct {
 }
 
 // NewServer returns an *http.Server configured as an API server.
-func NewServer(logger zerolog.Logger, repo domain.Repository, dsmRepo domain.DataSourceMapRepository) *Server {
+func NewServer(logger zerolog.Logger, repo domain.Repository, dsmRepo domain.DataSourceMapRepository, config config.API) *Server {
 	return &Server{
+		config:  config,
 		logger:  logger.With().Str("component", "api").Logger(),
 		repo:    repo,
 		dsmRepo: dsmRepo,
@@ -34,9 +38,8 @@ func NewServer(logger zerolog.Logger, repo domain.Repository, dsmRepo domain.Dat
 
 // ListenAndServe runs the HTTP API server.
 func (s *Server) ListenAndServe() error {
-	addr := ":3000"
 	server := http.Server{
-		Addr:         addr,
+		Addr:         fmt.Sprintf("%s:%d", s.config.IP, s.config.Port),
 		ReadTimeout:  time.Millisecond * 100,
 		WriteTimeout: time.Millisecond * 100,
 		Handler:      s.addRoutes(),

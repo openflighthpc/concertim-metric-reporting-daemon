@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
-  <CLUSTER NAME="unspecified" LOCALTIME="{{localTime | xml}}" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
+  <CLUSTER NAME="{{.Name | xml}}" LOCALTIME="{{.LocalTime | xml}}" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
     {{- range .Hosts }}
     <HOST NAME="{{.DSMName | xml}}" IP="" REPORTED="{{.Reported | timeToUnix | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}">
       {{- range .Metrics }}
-      <METRIC NAME="{{.Name | xml}}" VAL="{{.Val | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}" SOURCE="mrapi" TYPE="{{.Type | xml}}"></METRIC>
+      <METRIC NAME="{{.Name | xml}}" VAL="{{.Val | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}" SOURCE="{{$.MetricSource}}" TYPE="{{.Type | xml}}"></METRIC>
       {{- end }}
     </HOST>
     {{- end }}

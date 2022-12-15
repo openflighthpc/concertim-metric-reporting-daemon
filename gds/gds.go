@@ -3,10 +3,12 @@ package gds
 
 import (
 	"errors"
+	"fmt"
 	"net"
 
 	"github.com/rs/zerolog"
 
+	"github.com/alces-flight/concertim-mrapi/config"
 	"github.com/alces-flight/concertim-mrapi/domain"
 )
 
@@ -22,12 +24,16 @@ type Server struct {
 }
 
 // New returns a new Server.
-func New(logger zerolog.Logger, repo domain.Repository) (*Server, error) {
-	addr := &net.TCPAddr{
-		IP:   net.IPv4(0, 0, 0, 0),
-		Port: 8678,
+func New(logger zerolog.Logger, repo domain.Repository, config config.GDS) (*Server, error) {
+	ip := net.ParseIP(config.IP)
+	if ip == nil {
+		return nil, fmt.Errorf("%s is not a valid IP address", config.IP)
 	}
-	generator, err := newOutputGenerator(realClock{})
+	addr := &net.TCPAddr{
+		IP:   ip,
+		Port: config.Port,
+	}
+	generator, err := newOutputGenerator(realClock{}, config)
 	if err != nil {
 		logger.Error().Err(err).Msg("Unable to create output generator")
 		return nil, err

@@ -26,9 +26,9 @@ type Repository interface {
 	// returned.
 	PutMetric(Host, Metric) error
 
-	// GetAll returns a Cluster populated with all of the Hosts and Metrics
-	// that have been added to the repository.
-	GetAll() Cluster
+	// GetAll returns a slice of all Hosts added to the repository, populated
+	// with all of their Metrics.
+	GetAll() []Host
 
 	GetHost(string) (Host, bool)
 }

@@ -7,6 +7,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/alces-flight/concertim-mrapi/config"
 	"github.com/alces-flight/concertim-mrapi/domain"
 )
 
@@ -30,6 +31,7 @@ func (realClock) Since(t time.Time) time.Duration { return time.Since(t) }
 
 type outputGenerator struct {
 	clock    clock
+	config   config.GDS
 	template *template.Template
 }
 
@@ -59,10 +61,9 @@ func secondsAsInt(d time.Duration) int {
 	return int(d.Seconds())
 }
 
-func newOutputGenerator(clock clock) (*outputGenerator, error) {
-	og := outputGenerator{clock: clock}
+func newOutputGenerator(clock clock, config config.GDS) (*outputGenerator, error) {
+	og := outputGenerator{clock: clock, config: config}
 	funcMap := template.FuncMap{
-		"localTime":    clock.Now().Unix,
 		"timeToUnix":   func(t time.Time) int64 { return t.Unix() },
 		"secondsAsInt": secondsAsInt,
 		"xml":          escapeXML,
@@ -83,11 +84,24 @@ func (g *outputGenerator) secondsSince(startTime time.Time) int {
 	return secondsAsInt(g.clock.Since(startTime))
 }
 
-func (g *outputGenerator) generate(dCluster domain.Cluster) ([]byte, error) {
+func (g *outputGenerator) generate(hosts []domain.Host) ([]byte, error) {
 	var buf bytes.Buffer
-	err := g.template.Execute(&buf, dCluster)
+	cluster := cluster{
+		Hosts:        hosts,
+		LocalTime:    g.clock.Now().Unix(),
+		MetricSource: g.config.MetricSource,
+		Name:         g.config.ClusterName,
+	}
+	err := g.template.Execute(&buf, cluster)
 	if err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
+}
+
+type cluster struct {
+	Hosts        []domain.Host
+	LocalTime    int64
+	MetricSource string
+	Name         string
 }

@@ -19,8 +19,8 @@ func init() {
 
 func Test_NewRepoIsEmpty(t *testing.T) {
 	repo := New(log.Logger)
-	cluster := repo.GetAll()
-	assert.Empty(t, cluster.Hosts)
+	hosts := repo.GetAll()
+	assert.Empty(t, hosts)
 }
 
 func Test_AddedHostCanBeRetrieved(t *testing.T) {
@@ -70,8 +70,8 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			repo := New(log.Logger)
 
 			// Preconditions
-			cluster := repo.GetAll()
-			assert.Empty(cluster.Hosts)
+			hosts := repo.GetAll()
+			assert.Empty(hosts)
 
 			// Actions
 			for _, host := range tt.hosts {
@@ -80,9 +80,9 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			}
 
 			// Assertions
-			cluster = repo.GetAll()
-			assert.Len(cluster.Hosts, len(tt.hosts))
-			for _, host := range cluster.Hosts {
+			hosts = repo.GetAll()
+			assert.Len(hosts, len(tt.hosts))
+			for _, host := range hosts {
 				assert.Contains(tt.hosts, host)
 			}
 		})
@@ -147,8 +147,8 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			repo := New(log.Logger)
 
 			// Preconditions
-			cluster := repo.GetAll()
-			assert.Empty(cluster.Hosts)
+			hosts := repo.GetAll()
+			assert.Empty(hosts)
 
 			// Actions
 			for _, host := range tt.hosts {
@@ -164,9 +164,9 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			}
 
 			// Assertions
-			cluster = repo.GetAll()
-			assert.Len(cluster.Hosts, len(tt.hosts))
-			for _, host := range cluster.Hosts {
+			hosts = repo.GetAll()
+			assert.Len(hosts, len(tt.hosts))
+			for _, host := range hosts {
 				assert.Contains(tt.hosts, host.DeviceName)
 				assert.Equal(
 					sortMetrics(tt.metrics[host.DeviceName]),
@@ -192,8 +192,8 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	metric := domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"}
 
 	// Preconditions
-	cluster := repo.GetAll()
-	assert.Empty(cluster.Hosts)
+	hosts := repo.GetAll()
+	assert.Empty(hosts)
 
 	// Actions
 	// Deliberately don't add host to the repo.
@@ -213,8 +213,8 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 	assert.NoError(err)
 
 	// Preconditions
-	cluster := repo.GetAll()
-	assert.Len(cluster.Hosts, 1)
+	hosts := repo.GetAll()
+	assert.Len(hosts, 1)
 
 	// Actions
 	updatedHost := host
@@ -225,8 +225,8 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 
 	// Assertions
 	assert.NoError(err)
-	cluster = repo.GetAll()
-	assert.Len(cluster.Hosts, 1)
-	assert.Equal(updatedHost, cluster.Hosts[0])
-	assert.Equal(host.DMax+10, cluster.Hosts[0].DMax)
+	hosts = repo.GetAll()
+	assert.Len(hosts, 1)
+	assert.Equal(updatedHost, hosts[0])
+	assert.Equal(host.DMax+10, hosts[0].DMax)
 }

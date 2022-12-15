@@ -27,11 +27,6 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
-// Cluster is the domain model representing a cluster.
-type Cluster struct {
-	Hosts []Host
-}
-
 // Host is the domain model representing a host.
 type Host struct {
 	// XXX Consider Name HostName for better documentation of what we key maps

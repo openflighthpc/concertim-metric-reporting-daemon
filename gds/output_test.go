@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/alces-flight/concertim-mrapi/config"
 	domain "github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -36,38 +37,42 @@ func (fakeClock) Since(t time.Time) time.Duration {
 
 func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	tests := []struct {
-		name    string
-		cluster domain.Cluster
-		golden  string
+		name   string
+		hosts  []domain.Host
+		golden string
 	}{
 		{
-			name:    "generates correct XML for empty cluster",
-			cluster: domain.Cluster{Hosts: []domain.Host{}},
-			golden:  "empty_cluster",
+			name:   "generates correct XML for empty cluster",
+			hosts:  []domain.Host{},
+			golden: "empty_cluster",
 		},
 		{
-			name:    "generates correct XML for cluster with hosts without metrics",
-			cluster: clusterWithoutMetrics(),
-			golden:  "cluster_without_metrics",
+			name:   "generates correct XML for cluster with hosts without metrics",
+			hosts:  clusterWithoutMetrics(),
+			golden: "cluster_without_metrics",
 		},
 		{
-			name:    "generates correct XML for cluster with hosts with metrics",
-			cluster: clusterWithMetrics(),
-			golden:  "cluster_with_metrics",
+			name:   "generates correct XML for cluster with hosts with metrics",
+			hosts:  clusterWithMetrics(),
+			golden: "cluster_with_metrics",
 		},
 		{
-			name:    "escapes XML correctly",
-			cluster: clusterWithXML(),
-			golden:  "escaped_xml",
+			name:   "escapes XML correctly",
+			hosts:  clusterWithXML(),
+			golden: "escaped_xml",
 		},
 	}
-	outputGenerator, err := newOutputGenerator(fakeClock{})
+	config := config.GDS{
+		ClusterName:  "unspecified",
+		MetricSource: "mrapi",
+	}
+	outputGenerator, err := newOutputGenerator(fakeClock{}, config)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Action
-			output, err := outputGenerator.generate(tt.cluster)
+			output, err := outputGenerator.generate(tt.hosts)
 
 			// Assertions
 			assert.NoError(t, err)
@@ -78,8 +83,8 @@ func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	}
 }
 
-func clusterWithoutMetrics() domain.Cluster {
-	return domain.Cluster{Hosts: []domain.Host{
+func clusterWithoutMetrics() []domain.Host {
+	return []domain.Host{
 		{
 			DeviceName: "comp10",
 			DSMName:    "comp10.cluster.local",
@@ -94,18 +99,18 @@ func clusterWithoutMetrics() domain.Cluster {
 			DMax:       20 * time.Second,
 			Metrics:    []domain.Metric{},
 		},
-	}}
+	}
 }
 
-func clusterWithMetrics() domain.Cluster {
-	cluster := clusterWithoutMetrics()
-	var hosts []domain.Host
-	for i, host := range cluster.Hosts {
+func clusterWithMetrics() []domain.Host {
+	origHosts := clusterWithoutMetrics()
+	newHosts := make([]domain.Host, 0, len(origHosts))
+	log.Printf("origHosts: %#v", origHosts)
+	for i, host := range origHosts {
 		host.Metrics = append(host.Metrics, buildMetrics(i+1)...)
-		hosts = append(hosts, host)
+		newHosts = append(newHosts, host)
 	}
-	cluster.Hosts = hosts
-	return cluster
+	return newHosts
 }
 
 func buildMetrics(i int) []domain.Metric {
@@ -147,8 +152,8 @@ func goldenValue(t *testing.T, goldenFile string) string {
 	return string(content)
 }
 
-func clusterWithXML() domain.Cluster {
-	return domain.Cluster{Hosts: []domain.Host{
+func clusterWithXML() []domain.Host {
+	return []domain.Host{
 		{
 			DeviceName: "\"</HOST>",
 			DSMName:    "\"</HOST>.cluster.local",
@@ -160,5 +165,5 @@ func clusterWithXML() domain.Cluster {
 				Units: "\"</UNITS>",
 			}},
 		},
-	}}
+	}
 }
