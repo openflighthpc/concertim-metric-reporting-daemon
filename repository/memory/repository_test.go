@@ -72,6 +72,11 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			// Preconditions
 			hosts := repo.GetAll()
 			assert.Empty(hosts)
+			for _, host := range tt.hosts {
+				h, ok := repo.GetHost(host.DeviceName)
+				assert.False(ok)
+				assert.Equal(domain.Host{}, h)
+			}
 
 			// Actions
 			for _, host := range tt.hosts {
@@ -84,6 +89,11 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			assert.Len(hosts, len(tt.hosts))
 			for _, host := range hosts {
 				assert.Contains(tt.hosts, host)
+			}
+			for _, host := range tt.hosts {
+				h, ok := repo.GetHost(host.DeviceName)
+				assert.True(ok)
+				assert.Equal(host, h)
 			}
 		})
 	}
