@@ -1,6 +1,7 @@
 package gds
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/net/html/charset"
 )
 
 func init() {
@@ -77,10 +79,17 @@ func Test_GeneratedXMLIsCorrect(t *testing.T) {
 			// Assertions
 			assert.NoError(t, err)
 			assert.Equal(t, goldenValue(t, tt.golden), string(output))
-			err = xml.Unmarshal(output, new(interface{}))
-			assert.NoError(t, err)
+			assert.NoError(t, parseXML(output))
 		})
 	}
+}
+
+func parseXML(theXML []byte) error {
+	reader := bytes.NewReader(theXML)
+	decoder := xml.NewDecoder(reader)
+	decoder.CharsetReader = charset.NewReaderLabel
+	err := decoder.Decode(new(interface{}))
+	return err
 }
 
 func clusterWithoutMetrics() []domain.Host {
