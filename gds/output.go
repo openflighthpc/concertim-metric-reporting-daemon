@@ -7,8 +7,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/alces-flight/concertim-mrapi/config"
-	"github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 )
 
 //go:embed output.tmpl

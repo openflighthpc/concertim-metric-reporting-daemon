@@ -49,7 +49,7 @@
       <!ATTLIST METRICS SLOPE (zero | positive | negative | both | unspecified) #IMPLIED>
       <!ATTLIST METRICS SOURCE (gmond) 'gmond'>
 ]>
-<GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
+<GANGLIA_XML VERSION="3.1.7" SOURCE="{{.MetricSource}}">
   <CLUSTER NAME="{{.Name | xml}}" LOCALTIME="{{.LocalTime | xml}}" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
     {{- range .Hosts }}
     <HOST NAME="{{.DSMName | xml}}" IP="" REPORTED="{{.Reported | timeToUnix | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}">

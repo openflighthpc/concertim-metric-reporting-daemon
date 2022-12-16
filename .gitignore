@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+concertim-metric-reporting-daemon
 
 # Test binary, built with `go test -c`
 *.test

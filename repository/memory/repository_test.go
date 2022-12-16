@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	domain "github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"

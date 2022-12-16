@@ -15,12 +15,12 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 
-	"github.com/alces-flight/concertim-mrapi/api"
-	"github.com/alces-flight/concertim-mrapi/config"
-	"github.com/alces-flight/concertim-mrapi/domain"
-	"github.com/alces-flight/concertim-mrapi/dsmRepository"
-	"github.com/alces-flight/concertim-mrapi/gds"
-	"github.com/alces-flight/concertim-mrapi/repository/memory"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/api"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
 )
 
 func init() {

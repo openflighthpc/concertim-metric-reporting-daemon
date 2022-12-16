@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alces-flight/concertim-mrapi/config"
-	domain "github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -66,7 +66,7 @@ func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	}
 	config := config.GDS{
 		ClusterName:  "unspecified",
-		MetricSource: "mrapi",
+		MetricSource: "ct-metric-reporting-daemon",
 	}
 	outputGenerator, err := newOutputGenerator(fakeClock{}, config)
 	require.NoError(t, err)

@@ -3,7 +3,7 @@
 package memory
 
 import (
-	domain "github.com/alces-flight/concertim-mrapi/domain"
+	domain "github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"time"
 )
 

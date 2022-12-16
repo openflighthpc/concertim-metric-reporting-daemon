@@ -8,8 +8,8 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/alces-flight/concertim-mrapi/config"
-	"github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 )
 
 // Server is a wrapper around a net.TCPListener it responds to every

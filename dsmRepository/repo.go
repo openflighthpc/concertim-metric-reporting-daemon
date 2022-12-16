@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/alces-flight/concertim-mrapi/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/rs/zerolog"
 )
 

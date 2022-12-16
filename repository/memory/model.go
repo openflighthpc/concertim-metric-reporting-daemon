@@ -1,11 +1,11 @@
-//go:generate goverter -packageName=memory  -packagePath=github.com/alces-flight/concertim-mrapi/repository/memory -output ./convertors.go .
+//go:generate goverter -packageName=memory  -packagePath=github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory -output ./convertors.go .
 
 package memory
 
 import (
 	"time"
 
-	"github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 )
 
 var conv Converter = &ConverterImpl{}

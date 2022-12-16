@@ -1,4 +1,4 @@
-module github.com/alces-flight/concertim-mrapi
+module github.com/alces-flight/concertim-metric-reporting-daemon
 
 go 1.18
 

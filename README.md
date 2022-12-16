@@ -1,9 +1,9 @@
-# Alces Concertim Metric Reporting API
+# Alces Concertim Metric Reporting Daemon
 
 ## Overview
 
-Metric Reporting API (MRAPI) provides a HTTP API for metrics to be reported to
-Concertim Mia.
+Concertim Metric Reporting Daemon (ct-metric-reporting-daemon) provides a HTTP
+API for metrics to be reported to Concertim Mia.
 
 ## Development
 
@@ -12,8 +12,8 @@ getting started with development.
 
 ## Deployment
 
-See the [deployment docs](docs/DEPLOYMENT.md) for details on deploying Flight
-Hub.
+See the [deployment docs](docs/DEPLOYMENT.md) for details on building and
+deploying Concertim Metric Reporting Daemon.
 
 # Copyright and License
 

@@ -49,7 +49,7 @@
       <!ATTLIST METRICS SLOPE (zero | positive | negative | both | unspecified) #IMPLIED>
       <!ATTLIST METRICS SOURCE (gmond) 'gmond'>
 ]>
-<GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
+<GANGLIA_XML VERSION="3.1.7" SOURCE="ct-metric-reporting-daemon">
   <CLUSTER NAME="unspecified" LOCALTIME="1670856697" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
   </CLUSTER>
 </GANGLIA_XML>

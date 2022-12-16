@@ -19,7 +19,7 @@ the package in projects that are licensed so as to be compatible with
 AGPL Version 3 may use the package under the terms of that
 license. However, if AGPL Version 3.0 terms are incompatible with your
 planned use of this package, alternative license terms are available
-from Alces Software Ltd - please direct inquiries about licensing to
+from Alces Flight Ltd - please direct inquiries about licensing to
 licensing@alces-flight.com.
 
 For more information, please visit <http://www.alces-flight.com/>.

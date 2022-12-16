@@ -3,7 +3,7 @@ package api
 import (
 	"time"
 
-	"github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 )
 
 func domainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {

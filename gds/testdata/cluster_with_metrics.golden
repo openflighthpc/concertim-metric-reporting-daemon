@@ -49,15 +49,15 @@
       <!ATTLIST METRICS SLOPE (zero | positive | negative | both | unspecified) #IMPLIED>
       <!ATTLIST METRICS SOURCE (gmond) 'gmond'>
 ]>
-<GANGLIA_XML VERSION="3.1.7" SOURCE="mrapi">
+<GANGLIA_XML VERSION="3.1.7" SOURCE="ct-metric-reporting-daemon">
   <CLUSTER NAME="unspecified" LOCALTIME="1670856697" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
     <HOST NAME="comp10.cluster.local" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="10">
-      <METRIC NAME="power" VAL="10" UNITS="W" SLOPE="both" TN="32" TMAX="60" DMAX="60" SOURCE="mrapi" TYPE="double"></METRIC>
-      <METRIC NAME="temp" VAL="20" UNITS="C" SLOPE="both" TN="32" TMAX="60" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
+      <METRIC NAME="power" VAL="10" UNITS="W" SLOPE="both" TN="32" TMAX="60" DMAX="60" SOURCE="ct-metric-reporting-daemon" TYPE="double"></METRIC>
+      <METRIC NAME="temp" VAL="20" UNITS="C" SLOPE="both" TN="32" TMAX="60" DMAX="120" SOURCE="ct-metric-reporting-daemon" TYPE="float"></METRIC>
     </HOST>
     <HOST NAME="comp20.cluster.local" IP="" REPORTED="1670856697" TN="32" TMAX="60" DMAX="20">
-      <METRIC NAME="power" VAL="20" UNITS="W" SLOPE="both" TN="32" TMAX="60" DMAX="60" SOURCE="mrapi" TYPE="double"></METRIC>
-      <METRIC NAME="temp" VAL="40" UNITS="C" SLOPE="both" TN="32" TMAX="60" DMAX="120" SOURCE="mrapi" TYPE="float"></METRIC>
+      <METRIC NAME="power" VAL="20" UNITS="W" SLOPE="both" TN="32" TMAX="60" DMAX="60" SOURCE="ct-metric-reporting-daemon" TYPE="double"></METRIC>
+      <METRIC NAME="temp" VAL="40" UNITS="C" SLOPE="both" TN="32" TMAX="60" DMAX="120" SOURCE="ct-metric-reporting-daemon" TYPE="float"></METRIC>
     </HOST>
   </CLUSTER>
 </GANGLIA_XML>

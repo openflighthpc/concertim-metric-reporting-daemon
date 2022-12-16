@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/alces-flight/concertim-mrapi/config"
+import "github.com/alces-flight/concertim-metric-reporting-daemon/config"
 
 // Application is the application container.  It holds references to the
 // various singleton components of the system such as the Repository.  It also

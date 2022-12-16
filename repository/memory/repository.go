@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/alces-flight/concertim-mrapi/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/rs/zerolog"
 )
 

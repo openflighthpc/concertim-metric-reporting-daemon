@@ -18,7 +18,7 @@ gds:
   clusterName: "unspecified"
 
   # The source to use in the ganglia output.
-  metricSource: "mrapi"
+  metricSource: "ct-metric-reporting-daemon"
 
   # The time in seconds that a host should remain "fresh" for.
   #

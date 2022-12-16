@@ -40,7 +40,7 @@ type DSM struct {
 
 // DefaultPaths contains the default paths used to search for a config file.
 var DefaultPaths = []string{
-	"/data/private/share/daemons/mrapi/config.yml",
+	"/data/private/share/daemons/ct-metric-reporting-daemon/config.yml",
 	"./config.yml",
 }
 
