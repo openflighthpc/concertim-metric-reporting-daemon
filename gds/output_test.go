@@ -114,7 +114,6 @@ func clusterWithoutMetrics() []domain.Host {
 func clusterWithMetrics() []domain.Host {
 	origHosts := clusterWithoutMetrics()
 	newHosts := make([]domain.Host, 0, len(origHosts))
-	log.Printf("origHosts: %#v", origHosts)
 	for i, host := range origHosts {
 		host.Metrics = append(host.Metrics, buildMetrics(i+1)...)
 		newHosts = append(newHosts, host)
