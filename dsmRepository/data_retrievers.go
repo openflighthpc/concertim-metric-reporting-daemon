@@ -8,14 +8,14 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// ExternalScript retrieves the data source map by running the script
+// Script retrieves the data source map by running the script
 // specified at Path.
-type ExternalScript struct {
+type Script struct {
 	Path   string
 	Logger zerolog.Logger
 }
 
-func (e *ExternalScript) getNewData() (map[string]string, error) {
+func (e *Script) getNewData() (map[string]string, error) {
 	out, err := exec.Command(e.Path).Output()
 	if err != nil {
 		return nil, err

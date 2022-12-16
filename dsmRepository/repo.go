@@ -100,7 +100,7 @@ func (r *Repo) getRetriver() dataRetriever {
 			Logger: r.logger.With().Str("compent", "dsm-data-retriever").Logger(),
 		}
 	case "script":
-		return &ExternalScript{
+		return &Script{
 			Path:   r.config.Path,
 			Logger: r.logger.With().Str("compent", "dsm-data-retriever").Logger(),
 		}
