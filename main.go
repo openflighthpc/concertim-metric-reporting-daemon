@@ -17,6 +17,7 @@ import (
 
 	"github.com/alces-flight/concertim-mrapi/api"
 	"github.com/alces-flight/concertim-mrapi/config"
+	"github.com/alces-flight/concertim-mrapi/domain"
 	"github.com/alces-flight/concertim-mrapi/dsmRepository"
 	"github.com/alces-flight/concertim-mrapi/gds"
 	"github.com/alces-flight/concertim-mrapi/repository/memory"
@@ -38,8 +39,9 @@ func main() {
 	}
 	repository := memory.New(log.Logger)
 	dsmRepo := dsmRepository.New(log.Logger, config.DSM)
-	apiServer := api.NewServer(log.Logger, repository, dsmRepo, config.API)
-	gdsServer, err := gds.New(log.Logger, repository, config.GDS)
+	app := domain.NewApp(*config, repository, dsmRepo)
+	apiServer := api.NewServer(log.Logger, app, config.API)
+	gdsServer, err := gds.New(log.Logger, app, config.GDS)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to create gds.Server")
 	}

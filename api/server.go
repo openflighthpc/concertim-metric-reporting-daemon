@@ -19,20 +19,18 @@ import (
 
 // Server is a wrapper around a net/http.Server.
 type Server struct {
+	app        *domain.Application
 	config     config.API
-	logger     zerolog.Logger
 	httpServer *http.Server
-	repo       domain.Repository
-	dsmRepo    domain.DataSourceMapRepository
+	logger     zerolog.Logger
 }
 
 // NewServer returns an *http.Server configured as an API server.
-func NewServer(logger zerolog.Logger, repo domain.Repository, dsmRepo domain.DataSourceMapRepository, config config.API) *Server {
+func NewServer(logger zerolog.Logger, app *domain.Application, config config.API) *Server {
 	return &Server{
-		config:  config,
-		logger:  logger.With().Str("component", "api").Logger(),
-		repo:    repo,
-		dsmRepo: dsmRepo,
+		app:    app,
+		config: config,
+		logger: logger.With().Str("component", "api").Logger(),
 	}
 }
 
@@ -92,7 +90,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = domain.AddMetric(s.repo, s.dsmRepo, metric, chi.URLParam(r, "deviceName"))
+	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
 	if err != nil {
 		logger := hlog.FromRequest(r)
 		logger.Debug().Err(err).Msg("adding metric")

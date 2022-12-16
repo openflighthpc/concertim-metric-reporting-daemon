@@ -1,25 +1,27 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 // AddMetric adds the given metric for the specified host to the repository.
 // If the host has not previously been added it will also be added if its data
 // source map to host can be found in the DataSourceMapRepository.
-func AddMetric(repo Repository, dsmRepo DataSourceMapRepository, metric Metric, hostName string) error {
-	host, ok := repo.GetHost(hostName)
+func (app *Application) AddMetric(metric Metric, hostName string) error {
+	host, ok := app.Repo.GetHost(hostName)
 	if !ok {
 		var err error
-		host, err = addHost(repo, dsmRepo, hostName)
+		host, err = app.addHost(hostName)
 		if err != nil {
 			return err
 		}
 	}
 	host.Reported = time.Now()
-	err := repo.PutHost(host)
+	err := app.Repo.PutHost(host)
 	if err != nil {
 		return err
 	}
-	err = repo.PutMetric(host, metric)
+	err = app.Repo.PutMetric(host, metric)
 	return err
 }
 
@@ -27,8 +29,8 @@ func AddMetric(repo Repository, dsmRepo DataSourceMapRepository, metric Metric, 
 //
 // The host is only added if a data source map can be found in the
 // DataSourceMapRepository.  Otherwise an error is returned.
-func addHost(repo Repository, dsmRepo DataSourceMapRepository, hostName string) (Host, error) {
-	mapToHost, ok := dsmRepo.Get(hostName)
+func (app *Application) addHost(hostName string) (Host, error) {
+	mapToHost, ok := app.dsmRepo.Get(hostName)
 	if !ok {
 		return Host{}, UnknownHost{HostName: hostName}
 	}
@@ -36,9 +38,9 @@ func addHost(repo Repository, dsmRepo DataSourceMapRepository, hostName string) 
 		DeviceName: hostName,
 		DSMName:    mapToHost,
 		Reported:   time.Now(),
-		DMax:       60,
+		DMax:       time.Duration(app.config.HostTTL) * time.Second,
 	}
-	err := repo.PutHost(host)
+	err := app.Repo.PutHost(host)
 	if err != nil {
 		return Host{}, err
 	}

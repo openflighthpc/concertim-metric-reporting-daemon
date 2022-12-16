@@ -28,15 +28,17 @@ type GDS struct {
 	ClusterName  string `yaml:"clusterName"`
 	Port         int    `yaml:"port"`
 	MetricSource string `yaml:"metricSource"`
+	HostTTL      int    `yaml:"hostTTL"`
 }
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
 	Retriever string `yaml:"retriever"`
 	Path      string `yaml:"path"`
-	Sleep     int64  `yaml:"sleep"`
+	Sleep     int    `yaml:"sleep"`
 }
 
+// DefaultPaths contains the default paths used to search for a config file.
 var DefaultPaths = []string{
 	"/data/private/share/daemons/mrapi/config.yml",
 	"./config.yml",

@@ -20,6 +20,12 @@ gds:
   # The source to use in the ganglia output.
   metricSource: "mrapi"
 
+  # The time in seconds that a host should remain "fresh" for.
+  #
+  # If the last metric for a host was reported more than `hostTTL` seconds
+  # ago, the host and all of its metrics are considered stale and no longer
+  # included in the metric stream.
+  hostTTL: 180
 
 # Configuration for generating the data source map lookup.
 dsm:

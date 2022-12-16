@@ -16,15 +16,15 @@ import (
 // connection with Ganglia compliant XML.
 type Server struct {
 	addr      *net.TCPAddr
+	app       *domain.Application
 	generator *outputGenerator
 	logger    zerolog.Logger
-	repo      domain.Repository
 	stopChan  chan struct{}
 	tcpServer *net.TCPListener
 }
 
 // New returns a new Server.
-func New(logger zerolog.Logger, repo domain.Repository, config config.GDS) (*Server, error) {
+func New(logger zerolog.Logger, app *domain.Application, config config.GDS) (*Server, error) {
 	ip := net.ParseIP(config.IP)
 	if ip == nil {
 		return nil, fmt.Errorf("%s is not a valid IP address", config.IP)
@@ -40,9 +40,9 @@ func New(logger zerolog.Logger, repo domain.Repository, config config.GDS) (*Ser
 	}
 	return &Server{
 		addr:      addr,
+		app:       app,
 		generator: generator,
 		logger:    logger.With().Str("component", "gds").Logger(),
-		repo:      repo,
 		stopChan:  make(chan struct{}),
 		tcpServer: nil,
 	}, nil
@@ -70,7 +70,7 @@ func (gds *Server) ListenAndServe() error {
 		}
 		gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
 		go func() {
-			output, err := gds.generator.generate(gds.repo.GetAll())
+			output, err := gds.generator.generate(gds.app.Repo.GetAll())
 			if err != nil {
 				gds.logger.Error().Err(err).Msg("Failed to generate output")
 			} else {
