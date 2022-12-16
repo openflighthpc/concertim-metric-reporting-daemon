@@ -14,10 +14,19 @@ func AddMetric(repo Repository, dsmRepo DataSourceMapRepository, metric Metric, 
 			return err
 		}
 	}
-	err := repo.PutMetric(host, metric)
+	host.Reported = time.Now()
+	err := repo.PutHost(host)
+	if err != nil {
+		return err
+	}
+	err = repo.PutMetric(host, metric)
 	return err
 }
 
+// addHost creates a new Host and adds it to the Repository.
+//
+// The host is only added if a data source map can be found in the
+// DataSourceMapRepository.  Otherwise an error is returned.
 func addHost(repo Repository, dsmRepo DataSourceMapRepository, hostName string) (Host, error) {
 	mapToHost, ok := dsmRepo.Get(hostName)
 	if !ok {
