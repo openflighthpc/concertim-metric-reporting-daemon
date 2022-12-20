@@ -4,10 +4,12 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/pprof"
 	"syscall"
 	"time"
 
@@ -23,6 +25,9 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
 )
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+var memprofile = flag.String("memprofile", "", "write mem profile to file")
+
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
 	isatty := err == nil
@@ -33,6 +38,19 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal().Err(err).Send()
+		}
+		err = pprof.StartCPUProfile(f)
+		if err != nil {
+			log.Fatal().Err(err).Send()
+		}
+		defer pprof.StopCPUProfile()
+	}
+
 	config, err := config.FromFile(config.DefaultPaths)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config file")
@@ -75,5 +93,18 @@ func main() {
 	}
 	if err := apiServer.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("http.Server.Shutdown")
+	}
+
+	if *memprofile != "" {
+		f, err := os.Create(*memprofile)
+		if err != nil {
+			log.Fatal().Err(err).Send()
+		}
+		err = pprof.WriteHeapProfile(f)
+		if err != nil {
+			log.Fatal().Err(err).Send()
+		}
+		f.Close()
+		return
 	}
 }
