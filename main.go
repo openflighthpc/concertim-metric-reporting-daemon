@@ -37,6 +37,14 @@ func init() {
 	}
 }
 
+func setLogLevel(config *config.Config) {
+	level, err := zerolog.ParseLevel(config.LogLevel)
+	if err != nil {
+		log.Error().Err(err).Msg("Unable to set log level")
+	}
+	zerolog.SetGlobalLevel(level)
+}
+
 func main() {
 	flag.Parse()
 	if *cpuprofile != "" {
@@ -55,6 +63,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config file")
 	}
+	setLogLevel(config)
 	repository := memory.New(log.Logger)
 	dsmRepo := dsmRepository.New(log.Logger, config.DSM)
 	app := domain.NewApp(*config, repository, dsmRepo)

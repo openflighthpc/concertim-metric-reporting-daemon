@@ -48,3 +48,5 @@ dsm:
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
   sleep: 60
+
+log_level: debug
