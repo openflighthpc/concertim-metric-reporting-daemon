@@ -111,9 +111,9 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 				"comp10": {DeviceName: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
 			},
 			metrics: map[string][]domain.Metric{
-				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
-					domain.Metric{Name: "temp", Val: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
+				"comp10": {
+					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "temp", Val: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
 				},
 			},
 		},
@@ -124,11 +124,11 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 				"comp20": {DeviceName: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
 			},
 			metrics: map[string][]domain.Metric{
-				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+				"comp10": {
+					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
-				"comp20": []domain.Metric{
-					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+				"comp20": {
+					{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
@@ -139,11 +139,11 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 				"comp20": {DeviceName: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
 			},
 			metrics: map[string][]domain.Metric{
-				"comp10": []domain.Metric{
-					domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+				"comp10": {
+					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
-				"comp20": []domain.Metric{
-					domain.Metric{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+				"comp20": {
+					{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
@@ -211,7 +211,7 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 
 	// Assertions
 	assert.Error(err)
-	assert.ErrorAs(err, &domain.UnknownHost{})
+	assert.ErrorIs(err, domain.UnknownHost)
 }
 
 func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
