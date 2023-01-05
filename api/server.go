@@ -5,6 +5,7 @@ package api
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -108,7 +109,11 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
-	if err != nil {
+	if errors.Is(err, domain.UnknownHost) {
+		body := ErrorResponse{Status: "404", Title: "Host Not Found", Detail: err.Error()}
+		renderJSON(body, http.StatusNotFound, rw)
+		return
+	} else if err != nil {
 		logger := hlog.FromRequest(r)
 		logger.Debug().Err(err).Msg("adding metric")
 		renderJSON("", http.StatusInternalServerError, rw)

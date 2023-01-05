@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func (app *Application) AddMetric(metric Metric, hostName string) error {
 func (app *Application) addHost(hostName string) (Host, error) {
 	mapToHost, ok := app.dsmRepo.Get(hostName)
 	if !ok {
-		return Host{}, UnknownHost{HostName: hostName}
+		return Host{}, fmt.Errorf("%w: %s", UnknownHost, hostName)
 	}
 	host := Host{
 		DeviceName: hostName,

@@ -1,16 +1,10 @@
 package domain
 
-import "fmt"
+import "errors"
 
 // UnknownHost is the error reported when an attempt to add a metric to an
 // unknown host is made.
-type UnknownHost struct {
-	HostName string
-}
-
-func (e UnknownHost) Error() string {
-	return fmt.Sprintf("Unknown host %s", e.HostName)
-}
+var UnknownHost = errors.New("Unknown host")
 
 // Repository is the interface for any persistence layer.
 type Repository interface {

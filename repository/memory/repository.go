@@ -3,6 +3,7 @@
 package memory
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
@@ -39,7 +40,7 @@ func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return domain.UnknownHost{HostName: host.DeviceName}
+		return fmt.Errorf("%w: %s", domain.UnknownHost, host.DeviceName)
 	}
 	metrics, ok := mr.metrics[host.DeviceName]
 	if !ok {
