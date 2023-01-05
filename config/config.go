@@ -12,15 +12,16 @@ import (
 // Config is the configuration struct for the app.
 type Config struct {
 	LogLevel string `yaml:"log_level"`
-	API `yaml:"api"`
-	GDS `yaml:"gds"`
-	DSM `yaml:"dsm"`
+	API      `yaml:"api"`
+	GDS      `yaml:"gds"`
+	DSM      `yaml:"dsm"`
 }
 
 // API is the configuration for the HTTP API component.
 type API struct {
-	IP   string `yaml:"ip"`
-	Port int    `yaml:"port"`
+	IP        string `yaml:"ip"`
+	Port      int    `yaml:"port"`
+	JWTSecret string `yaml:"-"`
 }
 
 // GDS is the configuration for the Ganglia Data Source server component.
@@ -60,6 +61,11 @@ func FromFile(paths []string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	secret, ok := os.LookupEnv("JWT_SECRET")
+	if !ok {
+		return nil, fmt.Errorf("Environment variable JWT_SECRET not set")
+	}
+	config.API.JWTSecret = secret
 	return &config, nil
 }
 

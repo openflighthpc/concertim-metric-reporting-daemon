@@ -13,6 +13,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 )
@@ -58,6 +59,13 @@ func (s *Server) addRoutes() chi.Router {
 	r.Use(logMiddleware())
 	r.Use(hlog.RemoteAddrHandler("ip"))
 	r.Use(middleware.CleanPath)
+
+	// Currently, as long as the JWT token can be verified, we allow all
+	// access.  Later we probably want to check the claims that are being
+	// made.
+	tokenAuth := jwtauth.New("HS256", []byte(s.config.JWTSecret), nil)
+	r.Use(jwtauth.Verifier(tokenAuth))
+	r.Use(jwtauth.Authenticator)
 
 	r.Put("/{deviceName}/metrics", s.putMetricHandler)
 
