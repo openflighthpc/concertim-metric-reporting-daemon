@@ -24,14 +24,16 @@ type Server struct {
 	config     config.API
 	httpServer *http.Server
 	logger     zerolog.Logger
+	tokenAuth  *jwtauth.JWTAuth
 }
 
 // NewServer returns an *http.Server configured as an API server.
 func NewServer(logger zerolog.Logger, app *domain.Application, config config.API) *Server {
 	return &Server{
-		app:    app,
-		config: config,
-		logger: logger.With().Str("component", "api").Logger(),
+		app:       app,
+		config:    config,
+		logger:    logger.With().Str("component", "api").Logger(),
+		tokenAuth: jwtauth.New("HS256", []byte(config.JWTSecret), nil),
 	}
 }
 
@@ -60,14 +62,21 @@ func (s *Server) addRoutes() chi.Router {
 	r.Use(hlog.RemoteAddrHandler("ip"))
 	r.Use(middleware.CleanPath)
 
-	// Currently, as long as the JWT token can be verified, we allow all
-	// access.  Later we probably want to check the claims that are being
-	// made.
-	tokenAuth := jwtauth.New("HS256", []byte(s.config.JWTSecret), nil)
-	r.Use(jwtauth.Verifier(tokenAuth))
-	r.Use(jwtauth.Authenticator)
+	r.Group(func(r chi.Router) {
+		// Currently, as long as the JWT token can be verified, we allow all
+		// access.  Later we probably want to check the claims that are being
+		// made.
+		r.Use(jwtauth.Verifier(s.tokenAuth))
+		r.Use(jwtauth.Authenticator)
 
-	r.Put("/{deviceName}/metrics", s.putMetricHandler)
+		r.Put("/{deviceName}/metrics", s.putMetricHandler)
+	})
+
+	// TODO: Protect the create token route.  We want to allow emma to
+	// create tokens.  Emma has already authenticated the user.  Emma
+	// should create its own token using the shared secret between it and
+	// ctmrd.  This route should authenticate that token.
+	r.Post("/token", s.createToken)
 
 	return r
 }
@@ -107,6 +116,44 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	body := putMetricResponse{Status: http.StatusOK, Metric: metric}
+	renderJSON(body, http.StatusOK, rw)
+}
+
+type createTokenRequest struct {
+	ExpiresIn time.Duration `json:"expires_in,omitempty"`
+}
+
+type createTokenResponse struct {
+	Status int    `json:"status"`
+	Token  string `json:"token"`
+}
+
+func (s *Server) createToken(rw http.ResponseWriter, r *http.Request) {
+	tokenRequest := &createTokenRequest{}
+	err := parseJSONBody(tokenRequest, rw, r)
+	if err != nil {
+		// The correct response has already been sent by parseJSONBody.
+		return
+	}
+	if tokenRequest.ExpiresIn == 0 {
+		tokenRequest.ExpiresIn = time.Hour * 24
+	}
+
+	claims := map[string]interface{}{}
+	jwtauth.SetExpiryIn(claims, tokenRequest.ExpiresIn)
+	s.logger.Info().Int64("exp", claims["exp"].(int64)).Send()
+
+	_, tokenString, err := s.tokenAuth.Encode(claims)
+	if err != nil {
+		logger := hlog.FromRequest(r)
+		logger.Debug().Err(err).Msg("Creating token")
+		renderJSON("", http.StatusInternalServerError, rw)
+		return
+	}
+	logger := hlog.FromRequest(r)
+	logger.Info().Interface("claims", claims).Msg("Created token")
+
+	body := createTokenResponse{Status: http.StatusOK, Token: tokenString}
 	renderJSON(body, http.StatusOK, rw)
 }
 
