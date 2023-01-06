@@ -92,8 +92,7 @@ type putMetricRequest struct {
 }
 
 type putMetricResponse struct {
-	Status int           `json:"status"`
-	Metric domain.Metric `json:"metric"`
+	Status int `json:"status"`
 }
 
 func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
@@ -110,7 +109,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
 	if errors.Is(err, domain.UnknownHost) {
-		body := ErrorResponse{Status: "404", Title: "Host Not Found", Detail: err.Error()}
+		body := ErrorResponse{Status: http.StatusNotFound, Title: "Host Not Found", Detail: err.Error()}
 		renderJSON(body, http.StatusNotFound, rw)
 		return
 	} else if err != nil {
@@ -120,7 +119,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body := putMetricResponse{Status: http.StatusOK, Metric: metric}
+	body := putMetricResponse{Status: http.StatusOK}
 	renderJSON(body, http.StatusOK, rw)
 }
 

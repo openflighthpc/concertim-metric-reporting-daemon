@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog/hlog"
@@ -10,7 +9,7 @@ import (
 // ErrorResponse is the response type for any error messages.  It is loosely
 // based on the JSON:API error object.
 type ErrorResponse struct {
-	Status string `json:"status"`
+	Status int    `json:"status"`
 	Title  string `json:"title"`
 	Detail string `json:"detail"`
 }
@@ -35,7 +34,7 @@ func respondWithError(rw http.ResponseWriter, r *http.Request, err error, status
 	logger := hlog.FromRequest(r)
 	logger.Info().Err(err).Msg(logMsg)
 	resp := ErrorResponse{
-		Status: fmt.Sprintf("%d", status),
+		Status: status,
 		Title:  logMsg,
 		Detail: err.Error(),
 	}
