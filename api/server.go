@@ -34,7 +34,7 @@ func NewServer(logger zerolog.Logger, app *domain.Application, config config.API
 		app:       app,
 		config:    config,
 		logger:    logger.With().Str("component", "api").Logger(),
-		tokenAuth: jwtauth.New("HS256", []byte(config.JWTSecret), nil),
+		tokenAuth: jwtauth.New("HS256", config.JWTSecret, nil),
 	}
 }
 

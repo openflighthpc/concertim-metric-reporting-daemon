@@ -2,26 +2,29 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
 // Config is the configuration struct for the app.
 type Config struct {
-	LogLevel string `yaml:"log_level"`
-	API      `yaml:"api"`
-	GDS      `yaml:"gds"`
-	DSM      `yaml:"dsm"`
+	LogLevel         string `yaml:"log_level"`
+	SharedSecretFile string `yaml:"shared_secret_file"`
+	API              `yaml:"api"`
+	GDS              `yaml:"gds"`
+	DSM              `yaml:"dsm"`
 }
 
 // API is the configuration for the HTTP API component.
 type API struct {
 	IP        string `yaml:"ip"`
 	Port      int    `yaml:"port"`
-	JWTSecret string `yaml:"-"`
+	JWTSecret []byte `yaml:"-"`
 }
 
 // GDS is the configuration for the Ganglia Data Source server component.
@@ -42,8 +45,8 @@ type DSM struct {
 
 // DefaultPaths contains the default paths used to search for a config file.
 var DefaultPaths = []string{
-	"/data/private/share/daemons/ct-metric-reporting-daemon/config.yml",
-	"./config.yml",
+	"/data/private/share/daemons/ct-metric-reporting-daemon/config/config.yml",
+	"./config/config.yml",
 }
 
 // FromFile parses the given file path and returns a Config.
@@ -61,11 +64,11 @@ func FromFile(paths []string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	secret, ok := os.LookupEnv("JWT_SECRET")
-	if !ok {
-		return nil, fmt.Errorf("Environment variable JWT_SECRET not set")
+	secret, err := ioutil.ReadFile(config.SharedSecretFile)
+	if err != nil {
+		return nil, errors.Wrap(err, "error reading shared secret")
 	}
-	config.API.JWTSecret = secret
+	config.API.JWTSecret = bytes.TrimRight(secret, "\n")
 	return &config, nil
 }
 

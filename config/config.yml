@@ -43,10 +43,11 @@ dsm:
   retriever: "file"
 
   # See "retriever" comment for what this means.
-  path: "/home/ben/projects/concertim-deploy/ansible/tmp/foo.json"
+  path: "./config/dsm.json"
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
   sleep: 60
 
 log_level: debug
+shared_secret_file: "./config/secret.dev"
