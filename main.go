@@ -113,7 +113,7 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Send()
 		}
-		f.Close()
+		f.Close() //nolint:errcheck
 		return
 	}
 }

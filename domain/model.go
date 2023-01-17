@@ -70,6 +70,8 @@ func ParseMetricVal(val any, metricType MetricType) (string, error) {
 			return "", fmt.Errorf("%f is %w for type %s", val, ErrInvalidMetricVal, metricType)
 		}
 		return parseFloat64ToMetricType(v, metricType)
+	case nil:
+		return "", fmt.Errorf("null is %w", ErrInvalidMetricVal)
 	default:
 		return "", fmt.Errorf("%s is %w", val, ErrInvalidMetricVal)
 	}

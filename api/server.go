@@ -83,12 +83,12 @@ func (s *Server) addRoutes() chi.Router {
 }
 
 type putMetricRequest struct {
-	Name  string `json:"name"`
-	Val   any    `json:"value"`
-	Units string `json:"units"`
-	Type  string `json:"type"`
-	Slope string `json:"slope"`
-	TTL   uint   `json:"ttl"`
+	Name  string `json:"name"  validate:"required,notblank"`
+	Val   any    `json:"value" validate:"required,notblank"`
+	Units string `json:"units" validate:"required"`
+	Type  string `json:"type"  validate:"required,oneof=string int8 uint8 int16 uint16 int32 uint32 float double"`
+	Slope string `json:"slope" validate:"required,oneof=zero positive negative both derivative"`
+	TTL   int    `json:"ttl"   validate:"required,min=1"`
 }
 
 type putMetricResponse struct {
@@ -109,7 +109,10 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
 	if errors.Is(err, domain.UnknownHost) {
-		body := ErrorResponse{Status: http.StatusNotFound, Title: "Host Not Found", Detail: err.Error()}
+		body := ErrorsPayload{
+			Status: http.StatusNotFound,
+			Errors: []*ErrorObject{{Title: "Host Not Found", Detail: err.Error()}},
+		}
 		renderJSON(body, http.StatusNotFound, rw)
 		return
 	} else if err != nil {
