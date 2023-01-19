@@ -5,6 +5,11 @@
 Concertim Metric Reporting Daemon (ct-metric-reporting-daemon) provides a HTTP
 API for metrics to be reported to Concertim Mia.
 
+## Usage
+
+See the [usage docs](docs/usage.md) for details on using Concertim Metric
+Reporting Daemon.
+
 ## Development
 
 See the [development docs](docs/DEVELOPMENT.md) for details on development and
