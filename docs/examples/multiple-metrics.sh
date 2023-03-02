@@ -5,6 +5,7 @@ set -o pipefail
 
 # The base URL against which relative URLs are constructed.
 # BASE_URL="http://localhost:3000"
+# BASE_URL="https://localhost:9444/mrd"
 BASE_URL="https://command.concertim.alces-flight.com/mrd"
 
 
@@ -19,14 +20,17 @@ BASE_URL="https://command.concertim.alces-flight.com/mrd"
 HOST="comp001"
 
 
-# To make testing this API easier, it exports an unauthenticated endpoint with
-# which an auth token can be created.  Obviously this is a security issue and
+# An auth token is required for creating metrics.  One can be generated with
+# the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
+# the environment variable AUTH_TOKEN.
+#
+# To make testing this API easier, an unauthenticated endpoint is provided that
+# can be used to create auth tokens.  Obviously this is a security issue and
 # this end point will be removed in a future version.
 #
-# The intended mechanism to create auth tokens is via the Concertim UI and
-# re-use them on each request.  Here we do what's easiest and create a new one
-# for each request.
-AUTH_TOKEN=$(curl -s -k -X POST "${BASE_URL}/token" -d '{}' | jq -r .token)
+# The intended mechanism is to create auth tokens either via the Concertim UI
+# or the main Concertim API and to re-use them on each request.
+AUTH_TOKEN=${AUTH_TOKEN:-$(curl -s -k -X POST "${BASE_URL}/token" -d '{}' | jq -r .token)}
 
 
 report_metric() {
