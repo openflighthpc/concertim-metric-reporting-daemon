@@ -17,7 +17,7 @@ BASE_URL="https://command.concertim.alces-flight.com/mrd"
 #
 # The rack and device API will contain an endpoint to list valid names.  For
 # now you can obtain them from the Concertim UI.
-HOST="comp001"
+HOST=${1:-comp001}
 
 
 # An auth token is required for creating metrics.  One can be generated with
