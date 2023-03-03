@@ -64,7 +64,7 @@ func New(logger zerolog.Logger, config config.DSM) *Repo {
 }
 
 func (r *Repo) setData(newData map[string]string) {
-	r.logger.Debug().Msg("Updating data")
+	r.logger.Info().Msg("Updating data")
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	r.data = newData
@@ -76,6 +76,7 @@ func (r *Repo) runUpdateTimer() {
 		if retriever == nil {
 			return
 		}
+		r.logger.Debug().Str("retriever", r.config.Retriever).Msg("Getting data retriever")
 		newData, err := r.getRetriver().getNewData()
 		if err != nil {
 			r.logger.Warn().Err(err).Msg("Unable to update")
@@ -97,12 +98,12 @@ func (r *Repo) getRetriver() dataRetriever {
 	case "file":
 		return &JSONFileRetreiver{
 			Path:   r.config.Path,
-			Logger: r.logger.With().Str("compent", "dsm-data-retriever").Logger(),
+			Logger: r.logger.With().Str("component", "dsm-data-retriever").Logger(),
 		}
 	case "script":
 		return &Script{
 			Path:   r.config.Path,
-			Logger: r.logger.With().Str("compent", "dsm-data-retriever").Logger(),
+			Logger: r.logger.With().Str("component", "dsm-data-retriever").Logger(),
 		}
 	default:
 		r.logger.Warn().Str("retriever", r.config.Retriever).Msg("Unknown data retriever")
