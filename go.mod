@@ -6,7 +6,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/jwtauth/v5 v5.1.0
 	github.com/go-playground/locales v0.14.1
-	github.com/go-playground/universal-translator v0.18.0
+	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.28.0
