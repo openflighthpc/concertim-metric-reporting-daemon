@@ -1,5 +1,5 @@
 BIN_NAME = metric-reporting-daemon
-EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md scripts/device-name-to-data_source_map.rb
+EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/device-name-to-data_source_map.rb
 TARFILE = $(BIN_NAME).tgz
 
 build:
