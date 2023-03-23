@@ -73,12 +73,6 @@ func (s *Server) addRoutes() chi.Router {
 		r.Put("/{deviceName}/metrics", s.putMetricHandler)
 	})
 
-	// TODO: Protect the create token route.  We want to allow emma to
-	// create tokens.  Emma has already authenticated the user.  Emma
-	// should create its own token using the shared secret between it and
-	// ctmrd.  This route should authenticate that token.
-	r.Post("/token", s.createToken)
-
 	return r
 }
 
@@ -123,44 +117,6 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	body := putMetricResponse{Status: http.StatusOK}
-	renderJSON(body, http.StatusOK, rw)
-}
-
-type createTokenRequest struct {
-	ExpiresIn time.Duration `json:"expires_in,omitempty"`
-}
-
-type createTokenResponse struct {
-	Status int    `json:"status"`
-	Token  string `json:"token"`
-}
-
-func (s *Server) createToken(rw http.ResponseWriter, r *http.Request) {
-	tokenRequest := &createTokenRequest{}
-	err := parseJSONBody(tokenRequest, rw, r)
-	if err != nil {
-		// The correct response has already been sent by parseJSONBody.
-		return
-	}
-	if tokenRequest.ExpiresIn == 0 {
-		tokenRequest.ExpiresIn = time.Hour * 24
-	}
-
-	claims := map[string]interface{}{}
-	jwtauth.SetExpiryIn(claims, tokenRequest.ExpiresIn)
-	s.logger.Info().Int64("exp", claims["exp"].(int64)).Send()
-
-	_, tokenString, err := s.tokenAuth.Encode(claims)
-	if err != nil {
-		logger := hlog.FromRequest(r)
-		logger.Debug().Err(err).Msg("Creating token")
-		renderJSON("", http.StatusInternalServerError, rw)
-		return
-	}
-	logger := hlog.FromRequest(r)
-	logger.Info().Interface("claims", claims).Msg("Created token")
-
-	body := createTokenResponse{Status: http.StatusOK, Token: tokenString}
 	renderJSON(body, http.StatusOK, rw)
 }
 
