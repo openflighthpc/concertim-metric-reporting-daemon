@@ -139,9 +139,11 @@ e.g.,
 
 # Authentication
 
-Authenticed requests should set the `Authorization` header using the `Bearer` authentication strategy.  The token should be a JWT token, which can be created as described below.
+Requests requiring authentication should set the `Authorization` header using the `Bearer` authentication strategy.  The token should be a JWT token, which can be created as described below.
 
-When deployed as part of the Concertim MIA appliance, an API token can be created by visiting `System -> Appliance tools -> Access tokens`.  Entering the name of the service that the token is for and the number of days for which it should be valid.
+When deployed as part of the Concertim appliance, an API token can be created by using the ct-visualisation-app [get-auth-token.sh example script](https://github.com/alces-flight/concertim-ct-visualisation-app/blob/main/docs/api/examples/get-auth-token.sh), which will print the auth token to standard output.
+
+When running locally, an API token can be created by running, `go run cmd/create-auth-token/main.go`.  The auth token will be printed to standard output.
 
 ```
 $ curl -D - -k  -X POST http://localhost:3000/token -d '{}'

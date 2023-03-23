@@ -22,14 +22,11 @@ HOST=${1:-comp001}
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
 # the environment variable AUTH_TOKEN.
-#
-# To make testing this API easier, an unauthenticated endpoint is provided that
-# can be used to create auth tokens.  Obviously this is a security issue and
-# this end point will be removed in a future version.
-#
-# The intended mechanism is to create auth tokens either via the Concertim UI
-# or the main Concertim API and to re-use them on each request.
-AUTH_TOKEN=${AUTH_TOKEN:-$(curl -s -k -X POST "${BASE_URL}/token" -d '{}' | jq -r .token)}
+if [ -z "${AUTH_TOKEN}" ] ; then
+  echo "$(basename $0) AUTH_TOKEN not set" >&2
+  exit 1
+fi
+
 
 # Use `jq` to construct a JSON body request.
 #
