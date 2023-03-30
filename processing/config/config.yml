@@ -1,0 +1,19 @@
+# Configuration for the gmetad server to poll.
+# gmetad:
+#   retriever: "file"
+#   path: "./testdata/ganglia.xml"
+#   sleep: 10s
+
+gmetad:
+  retriever: "tcp"
+
+  # The IP address to use to connect to gmetad on
+  ip: "127.0.0.1"
+
+  # The port to use to connect to gmetad on
+  port: 8651
+
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 10s
+
+log_level: debug
