@@ -5,7 +5,6 @@ package retrieval
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"net"
 	"time"
 
@@ -102,24 +101,37 @@ func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
 }
 
 func getXMLRetriver(logger zerolog.Logger, config config.Gmetad) (xmlRetriever, error) {
-	switch config.Retriever {
-	case "file":
+	makeFileRetriever := func(path string) *fileRetreiver {
 		return &fileRetreiver{
-			path:   config.Path,
+			path:   path,
 			logger: logger,
-		}, nil
-	default:
-		ip := net.ParseIP(config.IP)
-		if ip == nil {
-			return nil, fmt.Errorf("%s is not a valid IP address", config.IP)
 		}
-		addr := &net.TCPAddr{
-			IP:   ip,
-			Port: config.Port,
+	}
+	scheme := config.URL.Scheme
+	switch scheme {
+	case "file":
+		if config.URL.Path == "" && config.URL.Opaque != "" {
+			// An opaque URL such as `file:./relative/path` or
+			// `file:/absolute/path` was used.
+			return makeFileRetriever(config.URL.Opaque), nil
+		} else {
+			return makeFileRetriever(config.URL.Path), nil
+		}
+	case "":
+		// Scheme has not been given.  We default to a `file:` scheme and treat the
+		// path as is.
+		return makeFileRetriever(config.URL.Path), nil
+	case "tcp":
+		addr, err := net.ResolveTCPAddr("tcp", config.URL.Host)
+		if err != nil {
+			return nil, errors.Wrap(err, "resolving gmetad addr")
 		}
 		return &tcpRetriever{
 			addr:   addr,
 			logger: logger,
 		}, nil
+	default:
+		logger.Warn().Str("scheme", scheme).Msg("unsupported scheme")
+		return nil, nil
 	}
 }

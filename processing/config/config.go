@@ -4,11 +4,27 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"time"
 
 	"gopkg.in/yaml.v3"
 )
+
+type YAMLURL struct {
+	*url.URL
+}
+
+func (j *YAMLURL) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var s string
+	err := unmarshal(&s)
+	if err != nil {
+		return err
+	}
+	url, err := url.Parse(s)
+	j.URL = url
+	return err
+}
 
 // Config is the configuration struct for the app.
 type Config struct {
@@ -18,11 +34,8 @@ type Config struct {
 
 // Gmetad is the configuration for Ganglia's gmetad process.
 type Gmetad struct {
-	Retriever string        `yaml:"retriever"`
-	Path      string        `yaml:"path"`
-	IP        string        `yaml:"ip"`
-	Port      int           `yaml:"port"`
-	Sleep     time.Duration `yaml:"sleep"`
+	URL   YAMLURL       `yaml:"url"`
+	Sleep time.Duration `yaml:"sleep"`
 }
 
 // DefaultPaths contains the default paths used to search for a config file.
