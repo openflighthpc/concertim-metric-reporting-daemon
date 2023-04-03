@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"strconv"
 	"time"
 
@@ -21,7 +22,7 @@ func NewProcessor(logger zerolog.Logger, dsmRepo *DSMRepo) *Processor {
 	}
 }
 
-func (p *Processor) Process(grids []retrieval.Grid) error {
+func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 	now := time.Now().Unix()
 	err := p.dsmRepo.Update()
 	if err != nil {
@@ -72,8 +73,9 @@ func (p *Processor) Process(grids []retrieval.Grid) error {
 					Int("count", len(gHost.Metrics)).
 					Msg("processing metrics")
 				ctHost := Host{
-					Name:    gHost.Name,
-					Metrics: make(map[MetricName]Metric),
+					Name:        gHost.Name,
+					MemcacheKey: memcacheKey,
+					Metrics:     make(map[MetricName]Metric),
 				}
 				for _, gMetric := range gHost.Metrics {
 					p.logger.Debug().
@@ -92,7 +94,8 @@ func (p *Processor) Process(grids []retrieval.Grid) error {
 					result.AddMetric(MemcacheKey(memcacheKey), ctMetric)
 				}
 				if len(ctHost.Metrics) > 0 {
-					ctHost.Mtime = time.Now()
+					now := time.Now()
+					ctHost.Mtime = &now
 				}
 				result.Hosts = append(result.Hosts, ctHost)
 			}
@@ -108,7 +111,7 @@ func (p *Processor) Process(grids []retrieval.Grid) error {
 			Int("clusters", result.numIgnoredClusters).
 			Int("hosts", result.numIgnoredHosts)).
 		Msg("completed")
-	return nil
+	return result, nil
 }
 
 type (
@@ -121,13 +124,13 @@ type (
 type Result struct {
 	// HostsByMetric is a map from a metric's name to a list of hosts that
 	// currently have a fresh value for that metric.
-	HostsByMetric map[MetricName][]MemcacheKey
+	HostsByMetric map[MetricName][]MemcacheKey `json:"hosts_by_metric"`
 
 	// UniqueMetrics is a set of unique metrics by name.
 	UniqueMetrics map[MetricName]Metric
 
 	// Hosts is a slice of Host containing their processed metrics.
-	Hosts []Host
+	Hosts []Host `json:"hosts"`
 
 	// numMetrics keeps track of the total metrics processed for logging.  Other
 	// logged information is derived from the other attributes.
@@ -156,22 +159,42 @@ func (r *Result) AddMetric(mckey MemcacheKey, metric Metric) {
 	r.numMetrics += 1
 }
 
+func (r *Result) MarshalJSON() ([]byte, error) {
+	uniqMetricNames := make([]Metric, 0, len(r.UniqueMetrics))
+	for _, val := range r.UniqueMetrics {
+		uniqMetricNames = append(uniqMetricNames, val)
+	}
+
+	return json.Marshal(&struct {
+		HostsByMetric map[MetricName][]MemcacheKey `json:"hosts_by_metric"`
+		Hosts         []Host                       `json:"hosts"`
+		UniqueMetrics []Metric                     `json:"unique_metrics"`
+	}{
+		HostsByMetric: r.HostsByMetric,
+		Hosts:         r.Hosts,
+		UniqueMetrics: uniqMetricNames,
+	})
+}
+
 type Host struct {
-	Name    string
-	Metrics map[MetricName]Metric
-	Mtime   time.Time
+	Name        string                `json:"name,omitempty"`
+	MemcacheKey string                `json:"memcache_key,omitempty"`
+	Metrics     map[MetricName]Metric `json:"metrics"`
+	// Use a pointer for Mtime so that the json marshalling will omit when
+	// empty.
+	Mtime *time.Time `json:"mtime,omitempty"`
 }
 
 type Metric struct {
-	Name      string
-	Datatype  string
-	Units     string
-	Source    string
-	Value     string
-	Nature    string
-	Dmax      int
-	Timestamp int64
-	Stale     bool
+	Name      string `json:"name,omitempty"`
+	Datatype  string `json:"datatype,omitempty"`
+	Units     string `json:"units,omitempty"`
+	Source    string `json:"source,omitempty"`
+	Value     string `json:"value,omitempty"`
+	Nature    string `json:"nature,omitempty"`
+	Dmax      int    `json:"dmax,omitempty"`
+	Timestamp int64  `json:"timestamp,omitempty"`
+	Stale     bool   `json:"stale"`
 }
 
 func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {

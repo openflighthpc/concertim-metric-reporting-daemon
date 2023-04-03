@@ -15,6 +15,7 @@ type Config struct {
 	LogLevel  string `yaml:"log_level"`
 	DSM       `yaml:"dsm"`
 	Retrieval `yaml:"retrieval"`
+	Recorder  `yaml:"recorder"`
 }
 
 // Retrieval is the configuration for retrieving the ganglia XML.
@@ -28,6 +29,11 @@ type Retrieval struct {
 type DSM struct {
 	Retriever string `yaml:"retriever"`
 	Path      string `yaml:"path"`
+}
+
+// Retrieval is the configuration for retrieving the ganglia XML.
+type Recorder struct {
+	Path string `yaml:"path"`
 }
 
 // DefaultPaths contains the default paths used to search for a config file.

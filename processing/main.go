@@ -41,6 +41,7 @@ func main() {
 
 	dsmRepo := NewDSMRepo(log.Logger, config.DSM)
 	processor := NewProcessor(log.Logger, dsmRepo)
+	recorder := NewScriptRecorder(log.Logger, config.Recorder)
 
 	go func() {
 		err = poller.Start(pollChan)
@@ -50,9 +51,13 @@ func main() {
 	}()
 
 	for grids := range pollChan {
-		err := processor.Process(grids)
+		results, err := processor.Process(grids)
 		if err != nil {
-			log.Err(err).Msg("Processing metrics")
+			log.Err(err).Msg("processing metrics")
+		}
+		err = recorder.Record(results)
+		if err != nil {
+			log.Err(err).Msg("recording results")
 		}
 
 	}

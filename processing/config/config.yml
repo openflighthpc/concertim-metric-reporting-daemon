@@ -42,4 +42,16 @@ dsm:
   # See "retriever" comment for what this means.
   path: "./config/dsm.json"
 
+# Configuration for storing the processed results.
+#
+# Currently there is an expectation that the results will be stored in Memcache
+# using the Ruby Marshal serialization format.  Golang has poor support for
+# serializing and de-serializing Ruby Marshal, so we use a Ruby script to do
+# this instead.  The Ruby script is supplied with the processed results as JSON
+# via stdin.
+recorder:
+  # The path of an executable script that reads JSON from stdin in and saves
+  # the results to Memcache using Ruby Marshal to serialize.
+  path: "./libexec/results-to-memcache.rb"
+
 log_level: debug
