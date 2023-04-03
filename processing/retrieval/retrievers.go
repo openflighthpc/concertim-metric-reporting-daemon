@@ -31,13 +31,13 @@ func (r *fileRetreiver) describe() string {
 // tcpRetriever retrieves the ganglia XML connecting to a Ganglia gmetad
 // server.
 type tcpRetriever struct {
-	addr   *net.TCPAddr
+	addr   string
 	logger zerolog.Logger
 }
 
 func (r *tcpRetriever) retrieve() ([]byte, error) {
-	r.logger.Debug().Stringer("addr", r.addr).Msg("retrieving xml")
-	conn, err := net.DialTCP("tcp", nil, r.addr)
+	r.logger.Debug().Str("addr", r.addr).Msg("retrieving xml")
+	conn, err := net.Dial("tcp", r.addr)
 	if err != nil {
 		return nil, errors.Wrap(err, "dialing gmetad")
 	}
@@ -49,5 +49,5 @@ func (r *tcpRetriever) retrieve() ([]byte, error) {
 }
 
 func (r *tcpRetriever) describe() string {
-	return r.addr.String()
+	return r.addr
 }

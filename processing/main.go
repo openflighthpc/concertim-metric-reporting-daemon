@@ -34,7 +34,7 @@ func main() {
 	}
 	setLogLevel(config)
 	pollChan := make(chan []retrieval.Grid)
-	poller, err := retrieval.New(log.Logger, config.Gmetad)
+	poller, err := retrieval.New(log.Logger, config.Retrieval)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to create retrieval.poller")
 	}

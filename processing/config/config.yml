@@ -1,17 +1,10 @@
 # Configuration for retrieving metrics from gmetad.
-gmetad:
-  # The URL locating the gmetad server to poll for metrics.
-  #
-  # Typically, this will be "tcp://localhost:8651".
-  #
-  # Whilst developing a "file:" URL such as "file:./testdata/ganglia.xml" might
-  # be useful.
-  #
-  # url: "file:./testdata/ganglia.xml"
-  # url: "file:/home/ben/projects/concertim/src/daemons/ct-metric-processing-daemon/testdata/ganglia.xml"
-  # url: "file:///home/ben/projects/concertim/src/daemons/ct-metric-processing-daemon/testdata/ganglia.xml"
-  url: "./testdata/ganglia.xml"
-  # url: "tcp://localhost:8651"
+retrieval:
+  # The IP address, or hostname, of the gmetad server to poll for metrics.
+  ip: localhost
+
+  # The port of the gmetad server to poll for metrics.
+  port: 8651
 
   # The metrics are periodically retrieved from the gmetad source.  This is the
   # minimum duration to sleep between polls.
@@ -20,5 +13,11 @@ gmetad:
   # `1h10m20s` for one hour ten minutes and twenty seconds.
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
   sleep: 10s
+
+  # If this values is given and is not an empty string, the ganglia XML will be
+  # read from this file instead of polling the gmetad server.  In this case the
+  # IP add port will be ignored.  Relative paths are relative to the working
+  # directory of the running process.
+  testdata: "./testdata/ganglia.xml"
 
 log_level: debug

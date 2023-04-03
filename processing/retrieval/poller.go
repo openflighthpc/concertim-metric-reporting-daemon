@@ -5,7 +5,7 @@ package retrieval
 import (
 	"bytes"
 	"encoding/xml"
-	"net"
+	"fmt"
 	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
@@ -28,13 +28,13 @@ type xmlRetriever interface {
 // Its config contains the source of the ganglia data to retrieve and the
 // period with which to retrieve it.
 type Poller struct {
-	config       config.Gmetad
+	config       config.Retrieval
 	logger       zerolog.Logger
 	xmlRetriever xmlRetriever
 }
 
 // New returns a new Poller.
-func New(logger zerolog.Logger, config config.Gmetad) (*Poller, error) {
+func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 	xmlRetriever, err := getXMLRetriver(logger, config)
 	if err != nil {
 		return nil, err
@@ -100,38 +100,16 @@ func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
 		Msg("retrieved")
 }
 
-func getXMLRetriver(logger zerolog.Logger, config config.Gmetad) (xmlRetriever, error) {
-	makeFileRetriever := func(path string) *fileRetreiver {
+func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetriever, error) {
+	if config.Testdata != "" {
 		return &fileRetreiver{
-			path:   path,
-			logger: logger,
-		}
-	}
-	scheme := config.URL.Scheme
-	switch scheme {
-	case "file":
-		if config.URL.Path == "" && config.URL.Opaque != "" {
-			// An opaque URL such as `file:./relative/path` or
-			// `file:/absolute/path` was used.
-			return makeFileRetriever(config.URL.Opaque), nil
-		} else {
-			return makeFileRetriever(config.URL.Path), nil
-		}
-	case "":
-		// Scheme has not been given.  We default to a `file:` scheme and treat the
-		// path as is.
-		return makeFileRetriever(config.URL.Path), nil
-	case "tcp":
-		addr, err := net.ResolveTCPAddr("tcp", config.URL.Host)
-		if err != nil {
-			return nil, errors.Wrap(err, "resolving gmetad addr")
-		}
-		return &tcpRetriever{
-			addr:   addr,
+			path:   config.Testdata,
 			logger: logger,
 		}, nil
-	default:
-		logger.Warn().Str("scheme", scheme).Msg("unsupported scheme")
-		return nil, nil
+	} else {
+		return &tcpRetriever{
+			addr:   fmt.Sprintf("%s:%d", config.IP, config.Port),
+			logger: logger,
+		}, nil
 	}
 }
