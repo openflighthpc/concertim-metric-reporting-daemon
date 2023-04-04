@@ -30,12 +30,12 @@ class Run
     hosts_by_metric = @results["hosts_by_metric"]
     puts "recording #{hosts_by_metric.length} metric -> device maps..."
     hosts_by_metric.each do |metric_name, hosts|
-      cache.set("not:meryl:metric:#{metric_name}", hosts)
+      cache.set("meryl:metric:#{metric_name}", hosts)
     end
 
     uniq = @results["unique_metrics"]
     puts "recording #{uniq.length} unique metrics..."
-    cache.set("not:meryl:unique_metrics", uniq)
+    cache.set("meryl:unique_metrics", uniq)
   end
 
   def cache
