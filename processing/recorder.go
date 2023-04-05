@@ -11,16 +11,22 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Recorder records the processed metrics.
+// Recorder is an interface for recording the processed metrics.
 type Recorder interface {
 	Record(Result) error
 }
 
+// ScriptRecorder implements the Recorder interface and records the metrics by
+// calling the configured script.
+//
+// The processed metrics are converted to JSON and sent to the script over
+// standard input.
 type ScriptRecorder struct {
 	Path   string
 	Logger zerolog.Logger
 }
 
+// NewScriptRecorder returns a new ScriptRecorder.
 func NewScriptRecorder(logger zerolog.Logger, config config.Recorder) *ScriptRecorder {
 	return &ScriptRecorder{
 		Path:   config.Path,
@@ -28,13 +34,17 @@ func NewScriptRecorder(logger zerolog.Logger, config config.Recorder) *ScriptRec
 	}
 }
 
+// Record calls the configured script providing the given results encoded as
+// JSON over standard input.
+//
+// The output of the script is logged.  It is assumed that very little output
+// will be generated.
 func (sr *ScriptRecorder) Record(result *Result) error {
 	buf := &bytes.Buffer{}
 	enc := json.NewEncoder(buf)
 	if err := enc.Encode(result); err != nil {
 		return errors.Wrap(err, "encoding results")
 	}
-
 	cmd := exec.Command(sr.Path)
 	cmd.Stdin = bytes.NewReader(buf.Bytes())
 	out, err := cmd.Output()

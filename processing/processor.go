@@ -10,11 +10,22 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Processor is a struct for processing the metrics retrieved from Ganglia.
+//
+// It produces three different views of the metrics:
+//
+// 1. A list of unique metrics.
+// 2. For each unique metric, a list of which devices are currently reporting
+//    that metric.
+// 3. For each host a map from metric name to that metric.
+//
+// These views are currently, recorded in memcache by Recorder.
 type Processor struct {
 	dsmRepo *DSMRepo
 	logger  zerolog.Logger
 }
 
+// NewProcessor returns a new *Processor.
 func NewProcessor(logger zerolog.Logger, dsmRepo *DSMRepo) *Processor {
 	return &Processor{
 		dsmRepo: dsmRepo,
@@ -22,6 +33,12 @@ func NewProcessor(logger zerolog.Logger, dsmRepo *DSMRepo) *Processor {
 	}
 }
 
+// Process processes the provided ganglia metrics and returns a *Result struct
+// containing the results of the processing run.
+//
+// Any grids or clusters with a name other than "unspecified" are ignored.
+// This allows (with suitable configuration) Ganglia's gmond to run and
+// collect metrics for localhost without storing them in memcache.
 func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 	now := time.Now().Unix()
 	err := p.dsmRepo.Update()
@@ -121,6 +138,8 @@ type (
 
 // Result contains the result of the processing run for a single set of
 // metrics.
+//
+// See the documentation of Processor for details of the views it provides.
 type Result struct {
 	// HostsByMetric is a map from a metric's name to a list of hosts that
 	// currently have a fresh value for that metric.
@@ -140,6 +159,7 @@ type Result struct {
 	numIgnoredHosts    int
 }
 
+// NewResult returns a new empty *Result.
 func NewResult() *Result {
 	return &Result{
 		HostsByMetric: map[MetricName][]MemcacheKey{},
@@ -147,6 +167,8 @@ func NewResult() *Result {
 	}
 }
 
+// AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
+// should be the memcache key for the host that reported the metric.
 func (r *Result) AddMetric(mckey MemcacheKey, metric Metric) {
 	metricName := MetricName(metric.Name)
 	hosts, ok := r.HostsByMetric[metricName]
@@ -197,6 +219,14 @@ type Metric struct {
 	Stale     bool   `json:"stale"`
 }
 
+// MetricFromGanglia parses the given Ganglia metric into a format suitable
+// for processing.
+//
+// The formats are largely similar with the following changes:
+//
+// Slope is replaced with a simplified Nature.
+// TN is replaced with a more easily consumed Timestamp.
+// TMAX is replaced with a more easily consumed Stale.
 func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {
 	var dst Metric
 	tn, err := strconv.Atoi(src.TN)

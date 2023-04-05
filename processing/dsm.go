@@ -26,6 +26,8 @@ type DSMRepo struct {
 	mux    sync.Mutex
 }
 
+// NewDSMRepo returns a new empty *DSMRepo.  The Update method should be
+// called before using it.
 func NewDSMRepo(logger zerolog.Logger, config config.DSM) *DSMRepo {
 	return &DSMRepo{
 		config: config,
@@ -33,6 +35,10 @@ func NewDSMRepo(logger zerolog.Logger, config config.DSM) *DSMRepo {
 	}
 }
 
+// Get looks up the given DSM and returns the stored memcache key for it.
+//
+// A second boolean value is returned indicating if the DSM was found, similar
+// to indexing into a map.
 func (r *DSMRepo) Get(dsm DSM) (string, bool) {
 	memcacheKey, ok := r.data[dsm]
 	if !ok {
@@ -43,6 +49,10 @@ func (r *DSMRepo) Get(dsm DSM) (string, bool) {
 	return memcacheKey, ok
 }
 
+// Update retrieves the latest DSM from an external source and updates its
+// internal repository.
+//
+// The external source to use is configured when creating a new DSMRepo.
 func (r *DSMRepo) Update() error {
 	retriever, err := r.getRetriver()
 	if err != nil {
@@ -123,6 +133,7 @@ func (sr *scriptRetriever) getNewData() (map[DSM]string, error) {
 	return parseJSON(sr.logger, out)
 }
 
+// DSM represents a Ganglia identifier for a host.
 type DSM struct {
 	GridName    string
 	ClusterName string

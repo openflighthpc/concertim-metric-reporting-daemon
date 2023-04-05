@@ -59,6 +59,5 @@ func main() {
 		if err != nil {
 			log.Err(err).Msg("recording results")
 		}
-
 	}
 }
