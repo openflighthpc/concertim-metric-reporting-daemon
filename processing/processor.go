@@ -131,12 +131,8 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 	return result, nil
 }
 
-type (
-	// MetricName exists to document some function signatures.
-	MetricName string
-	// MemcacheKey exists to document some function signatures.
-	MemcacheKey string
-)
+// MetricName exists to document some function signatures.
+type MetricName string
 
 // Result contains the result of the processing run for a single set of
 // metrics.
@@ -205,7 +201,7 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 // Host is the domain model for a host.
 type Host struct {
 	Name        string                `json:"name,omitempty"`
-	MemcacheKey string                `json:"memcache_key,omitempty"`
+	MemcacheKey MemcacheKey           `json:"memcache_key,omitempty"`
 	Metrics     map[MetricName]Metric `json:"metrics"`
 	// Use a pointer for Mtime so that the json marshalling will omit when
 	// empty.

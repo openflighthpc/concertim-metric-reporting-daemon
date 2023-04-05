@@ -21,7 +21,7 @@ import (
 // "unspecified"/"unspecified"/"comp203" to "hacor:device:9".
 type DSMRepo struct {
 	config config.DSM
-	data   map[DSM]string
+	data   map[DSM]MemcacheKey
 	logger zerolog.Logger
 	mux    sync.Mutex
 }
@@ -39,12 +39,12 @@ func NewDSMRepo(logger zerolog.Logger, config config.DSM) *DSMRepo {
 //
 // A second boolean value is returned indicating if the DSM was found, similar
 // to indexing into a map.
-func (r *DSMRepo) Get(dsm DSM) (string, bool) {
+func (r *DSMRepo) Get(dsm DSM) (MemcacheKey, bool) {
 	memcacheKey, ok := r.data[dsm]
 	if !ok {
 		r.logger.Debug().Stringer("lookup", dsm).Msg("not found")
 	} else {
-		r.logger.Debug().Stringer("lookup", dsm).Str("memcacheKey", memcacheKey).Msg("found")
+		r.logger.Debug().Stringer("lookup", dsm).Stringer("memcacheKey", memcacheKey).Msg("found")
 	}
 	return memcacheKey, ok
 }
@@ -66,7 +66,7 @@ func (r *DSMRepo) Update() error {
 	return nil
 }
 
-func (r *DSMRepo) setData(newData map[DSM]string) {
+func (r *DSMRepo) setData(newData map[DSM]MemcacheKey) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	r.data = newData
@@ -92,7 +92,7 @@ func (r *DSMRepo) getRetriver() (dataRetriever, error) {
 
 // dataRetriever is an interface for retrieving updated data for the DSMRepo.
 type dataRetriever interface {
-	getNewData() (map[DSM]string, error)
+	getNewData() (map[DSM]MemcacheKey, error)
 }
 
 // jsonFileRetreiver retrieves the data source map from a pre-poulated JSON
@@ -102,7 +102,7 @@ type jsonFileRetreiver struct {
 	logger zerolog.Logger
 }
 
-func (j *jsonFileRetreiver) getNewData() (map[DSM]string, error) {
+func (j *jsonFileRetreiver) getNewData() (map[DSM]MemcacheKey, error) {
 	j.logger.Debug().Str("path", j.path).Msg("retrieving")
 	data, err := ioutil.ReadFile(j.path)
 	if err != nil {
@@ -120,7 +120,7 @@ type scriptRetriever struct {
 	logger zerolog.Logger
 }
 
-func (sr *scriptRetriever) getNewData() (map[DSM]string, error) {
+func (sr *scriptRetriever) getNewData() (map[DSM]MemcacheKey, error) {
 	sr.logger.Debug().Str("path", sr.path).Msg("retrieving")
 	out, err := exec.Command(sr.path).Output()
 	if err != nil {
@@ -144,8 +144,15 @@ func (d DSM) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.GridName, d.ClusterName, d.HostName)
 }
 
-func parseJSON(logger zerolog.Logger, data []byte) (map[DSM]string, error) {
-	dsmMap := map[DSM]string{}
+// MemcacheKey exists to document some function signatures.
+type MemcacheKey string
+
+func (m MemcacheKey) String() string {
+	return string(m)
+}
+
+func parseJSON(logger zerolog.Logger, data []byte) (map[DSM]MemcacheKey, error) {
+	dsmMap := map[DSM]MemcacheKey{}
 	gridMap := map[string]map[string]map[string]string{}
 	err := json.Unmarshal(data, &gridMap)
 	if err != nil {
@@ -153,13 +160,13 @@ func parseJSON(logger zerolog.Logger, data []byte) (map[DSM]string, error) {
 	}
 	for gName, clusterMap := range gridMap {
 		for cName, hostMap := range clusterMap {
-			for hName, memcacheKey := range hostMap {
+			for hName, key := range hostMap {
 				dsm := DSM{gName, cName, hName}
 				logger.Debug().
 					Stringer("dsm", dsm).
-					Str("memcacheKey", memcacheKey).
+					Str("memcacheKey", key).
 					Msg("adding")
-				dsmMap[dsm] = memcacheKey
+				dsmMap[dsm] = MemcacheKey(key)
 			}
 		}
 	}
