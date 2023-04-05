@@ -1,6 +1,7 @@
 package retrieval
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
@@ -25,7 +26,7 @@ func (r *fileRetreiver) retrieve() ([]byte, error) {
 }
 
 func (r *fileRetreiver) describe() string {
-	return r.path
+	return fmt.Sprintf("file:%s", r.path)
 }
 
 // tcpRetriever retrieves the ganglia XML connecting to a Ganglia gmetad
@@ -49,5 +50,5 @@ func (r *tcpRetriever) retrieve() ([]byte, error) {
 }
 
 func (r *tcpRetriever) describe() string {
-	return r.addr
+	return fmt.Sprintf("tcp://%s", r.addr)
 }

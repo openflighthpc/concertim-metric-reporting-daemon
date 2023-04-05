@@ -96,8 +96,8 @@ func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
 		Int("bytes", len(xml)).
 		Int("hosts", numHosts).
 		Int("metrics", numMetrics).
-		Str("from", r.xmlRetriever.describe()).
-		Msg("retrieved")
+		Str("source", r.xmlRetriever.describe()).
+		Msg("completed")
 }
 
 func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetriever, error) {

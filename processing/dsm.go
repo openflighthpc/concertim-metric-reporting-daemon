@@ -70,7 +70,7 @@ func (r *DSMRepo) setData(newData map[DSM]MemcacheKey) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	r.data = newData
-	r.logger.Info().Int("count", len(newData)).Msg("set data")
+	r.logger.Info().Int("count", len(newData)).Msg("updated")
 }
 
 func (r *DSMRepo) getRetriver() (dataRetriever, error) {

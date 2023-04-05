@@ -61,6 +61,6 @@ func (sr *ScriptRecorder) Record(result *Result) error {
 	}
 	sr.Logger.Info().
 		Str("output", string(out)).
-		Msg("recorded results")
+		Msg("completed")
 	return nil
 }
