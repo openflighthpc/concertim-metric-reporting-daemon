@@ -1,0 +1,10 @@
+{
+  "unspecified": {
+    "unspecified": {
+      "comp200": "not:hacor:device:200",
+      "comp201": "not:hacor:device:201",
+      "comp202": "not:hacor:device:202",
+      "comp203": "not:hacor:device:203"
+    }
+  }
+}

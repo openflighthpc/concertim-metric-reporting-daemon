@@ -39,6 +39,9 @@ func main() {
 		log.Fatal().Err(err).Msg("Unable to create retrieval.poller")
 	}
 
+	dsmRepo := NewDSMRepo(log.Logger, config.DSM)
+	processor := NewProcessor(log.Logger, dsmRepo)
+
 	go func() {
 		err = poller.Start(pollChan)
 		if err != nil {
@@ -47,18 +50,9 @@ func main() {
 	}()
 
 	for grids := range pollChan {
-		log.Info().Int("len", len(grids)).Msg("Got grids")
-		for _, grid := range grids {
-			for _, cluster := range grid.Clusters {
-				for _, host := range cluster.Hosts {
-					log.Info().
-						Str("grid", grid.Name).
-						Str("cluster", cluster.Name).
-						Str("host", host.Name).
-						Int("metric.count", len(host.Metrics)).
-						Msg("got host")
-				}
-			}
+		err := processor.Process(grids)
+		if err != nil {
+			log.Err(err).Msg("Processing metrics")
 		}
 
 	}

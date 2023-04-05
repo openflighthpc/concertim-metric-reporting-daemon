@@ -13,6 +13,7 @@ import (
 // Config is the configuration struct for the app.
 type Config struct {
 	LogLevel  string `yaml:"log_level"`
+	DSM       `yaml:"dsm"`
 	Retrieval `yaml:"retrieval"`
 }
 
@@ -22,6 +23,11 @@ type Retrieval struct {
 	Port     int           `yaml:"port"`
 	Sleep    time.Duration `yaml:"sleep"`
 	Testdata string        `yaml:"testdata"`
+}
+
+type DSM struct {
+	Retriever string `yaml:"retriever"`
+	Path      string `yaml:"path"`
 }
 
 // DefaultPaths contains the default paths used to search for a config file.
