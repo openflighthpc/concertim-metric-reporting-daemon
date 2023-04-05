@@ -4,6 +4,7 @@ require 'dalli'
 require 'dalli/client'
 require 'json'
 require 'time'
+require 'active_support/core_ext/hash/keys'
 require '/data/private/share/rails/ct-visualisation-app/core/app/lib/phoenix/cache/locking'
 
 class Run
@@ -20,9 +21,9 @@ class Run
     puts "updating #{hosts.length} hosts..."
     hosts.each do |host|
       locked_modify(host["memcache_key"]) do |o|
-        o["metrics"] = host["metrics"]
+        o[:metrics] = host["metrics"].deep_symbolize_keys
         unless host["mtime"].nil?
-          o["mtime"] = host["mtime"]
+          o[:mtime] = host["mtime"]
         end
       end
     end
