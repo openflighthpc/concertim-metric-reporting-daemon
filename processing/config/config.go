@@ -26,12 +26,14 @@ type Retrieval struct {
 	Testdata string        `yaml:"testdata"`
 }
 
+// DSM is the configuration for retrieving the ganglia data source map to
+// device memcache key.
 type DSM struct {
 	Retriever string `yaml:"retriever"`
 	Path      string `yaml:"path"`
 }
 
-// Retrieval is the configuration for retrieving the ganglia XML.
+// Recorder is the configuration for recording the processed results.
 type Recorder struct {
 	Path string `yaml:"path"`
 }

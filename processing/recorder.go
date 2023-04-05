@@ -53,10 +53,9 @@ func (sr *ScriptRecorder) Record(result *Result) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
 			if strings.Contains(exitErr.Error(), sr.Path) || strings.Contains(string(exitErr.Stderr), sr.Path) {
-				return errors.Wrapf(exitErr, "%s: %s:", msg, exitErr.Stderr)
-			} else {
-				return errors.Wrapf(exitErr, "%s: %s: %s:", msg, sr.Path, exitErr.Stderr)
+				return errors.Wrapf(exitErr, "%s: %s", msg, exitErr.Stderr)
 			}
+			return errors.Wrapf(exitErr, "%s: %s: %s", msg, sr.Path, exitErr.Stderr)
 		}
 		return errors.Wrap(err, msg)
 	}

@@ -85,9 +85,9 @@ func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
 	for _, g := range grids {
 		for _, c := range g.Clusters {
 			for _, h := range c.Hosts {
-				numHosts += 1
+				numHosts++
 				for range h.Metrics {
-					numMetrics += 1
+					numMetrics++
 				}
 			}
 		}
@@ -106,10 +106,9 @@ func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetrieve
 			path:   config.Testdata,
 			logger: logger,
 		}, nil
-	} else {
-		return &tcpRetriever{
-			addr:   fmt.Sprintf("%s:%d", config.IP, config.Port),
-			logger: logger,
-		}, nil
 	}
+	return &tcpRetriever{
+		addr:   fmt.Sprintf("%s:%d", config.IP, config.Port),
+		logger: logger,
+	}, nil
 }

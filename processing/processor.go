@@ -50,7 +50,7 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 	for _, gGrid := range grids {
 		if gGrid.Name != "unspecified" {
 			p.logger.Warn().Str("grid", gGrid.Name).Msg("ignoring")
-			result.numIgnoredGrids += 1
+			result.numIgnoredGrids++
 			continue
 		}
 		p.logger.Debug().
@@ -60,7 +60,7 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 		for _, gCluster := range gGrid.Clusters {
 			if gCluster.Name != "unspecified" {
 				p.logger.Warn().Str("cluster", gCluster.Name).Msg("ignoring")
-				result.numIgnoredClusters += 1
+				result.numIgnoredClusters++
 				continue
 			}
 			p.logger.Debug().
@@ -80,7 +80,7 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 						Str("host", gHost.Name).
 						Stringer("dsm", dsm).
 						Msg("ignoring")
-					result.numIgnoredHosts += 1
+					result.numIgnoredHosts++
 					continue
 				}
 				p.logger.Debug().
@@ -132,7 +132,9 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 }
 
 type (
-	MetricName  string
+	// MetricName exists to document some function signatures.
+	MetricName string
+	// MemcacheKey exists to document some function signatures.
 	MemcacheKey string
 )
 
@@ -178,15 +180,17 @@ func (r *Result) AddMetric(mckey MemcacheKey, metric Metric) {
 	}
 	r.HostsByMetric[metricName] = append(hosts, mckey)
 	r.UniqueMetrics[metricName] = metric
-	r.numMetrics += 1
+	r.numMetrics++
 }
 
+// MarshalJSON implements the encoding/json.Marshaler interface.
+//
+// It is used here to provide a custom serialisation for UniqueMetrics.
 func (r *Result) MarshalJSON() ([]byte, error) {
 	uniqMetricNames := make([]Metric, 0, len(r.UniqueMetrics))
 	for _, val := range r.UniqueMetrics {
 		uniqMetricNames = append(uniqMetricNames, val)
 	}
-
 	return json.Marshal(&struct {
 		HostsByMetric map[MetricName][]MemcacheKey `json:"hosts_by_metric"`
 		Hosts         []Host                       `json:"hosts"`
@@ -198,6 +202,7 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// Host is the domain model for a host.
 type Host struct {
 	Name        string                `json:"name,omitempty"`
 	MemcacheKey string                `json:"memcache_key,omitempty"`
@@ -207,6 +212,7 @@ type Host struct {
 	Mtime *time.Time `json:"mtime,omitempty"`
 }
 
+// Metric is the domain model for a metric.
 type Metric struct {
 	Name      string `json:"name,omitempty"`
 	Datatype  string `json:"datatype,omitempty"`
