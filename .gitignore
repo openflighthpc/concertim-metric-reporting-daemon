@@ -5,6 +5,7 @@
 *.so
 *.dylib
 concertim-metric-reporting-daemon
+metric-reporting-daemon
 
 # Test binary, built with `go test -c`
 *.test
@@ -20,3 +21,6 @@ go.work
 
 # Temp files
 /tmp
+
+# Build aretefacts
+metric-reporting-daemon.tgz

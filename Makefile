@@ -2,6 +2,9 @@ BIN_NAME = metric-reporting-daemon
 EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/device-name-to-data_source_map.rb
 TARFILE = $(BIN_NAME).tgz
 
+.PHONY: all
+all: package
+
 build:
 	go build -o $(BIN_NAME)
 
