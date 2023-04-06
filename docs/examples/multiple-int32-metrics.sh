@@ -7,17 +7,12 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
+# This script creates multiple int32 metrics for a single host.
 
-# This script creates a single metric for a single host.  The host is given
-# below.  This name needs to be known to Concertim and needs to be for
-# something that can have metrics assigned to it, such as a rack, chassis,
-# device, power strip or sensor.  Valid names for the demo data include:
-# `Rack-1`, `HP-Blade-01`, `comp001`, `pdu01` or `temp01`.
-#
-# The rack and device API will contain an endpoint to list valid names.  For
-# now you can obtain them from the Concertim UI.
+# The name of the host should match the name of the one of the devices created
+# via the device API. The rack and device API contains an endpoint to list
+# valid names.  See the example scripts in the ct-visualisation-app repository.
 HOST=${1:-comp001}
-
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -35,7 +30,7 @@ report_metric() {
 
   body=$(jq --null-input \
     --arg datatype "int32" \
-    --arg name "ct.mrd.${name}" \
+    --arg name "${name}" \
     --arg value "${value}" \
     --arg units " " \
     --arg slope "both" \
@@ -51,7 +46,7 @@ report_metric() {
 }
 
 
-# Reporting multiple metrics for a host involves make a separate request to
+# Reporting multiple metrics for a host involves making a separate request to
 # report each metric.
 #
 # Here we collect all metrics into an associative array, loop over the array

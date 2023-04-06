@@ -7,16 +7,19 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-
-# This script creates a single metric for a single host.  The host is given
-# below.  This name needs to be known to Concertim and needs to be for
-# something that can have metrics assigned to it, such as a rack, chassis,
-# device, power strip or sensor.  Valid names for the demo data include:
-# `Rack-1`, `HP-Blade-01`, `comp001`, `pdu01` or `temp01`.
+# This script creates a single string metric for a single host.  The name of
+# the host should match the name of the one of the devices created via the
+# device API.
 #
-# The rack and device API will contain an endpoint to list valid names.  For
-# now you can obtain them from the Concertim UI.
+# The rack and device API contains an endpoint to list valid names.  See the
+# example scripts in the ct-visualisation-app repository.
 HOST=${1:-comp001}
+
+# The name of the metric being reported.
+METRIC=${2:-caffeine.more}
+
+# The value of the metric being reported.
+VALUE=${3:-yes}
 
 
 # An auth token is required for creating metrics.  One can be generated with
@@ -29,18 +32,23 @@ fi
 
 
 # Use `jq` to construct a JSON body request.
-#
-# The name is prefixed with `ct.mrd`.  There is no need for such a prefix,
-# however prefixing with `ct.` groups the metric with other user-defined
-# metrics on the device's metric page.
 BODY=$(jq --null-input \
   --arg datatype "string" \
-  --arg name "ct.mrd.caffeine.more" \
-  --arg value "yes" \
+  --arg name ${METRIC} \
+  --arg value ${VALUE} \
   --arg units " " \
   --arg slope "zero" \
   --arg ttl 3600 \
-  '{"type": $datatype, "name": $name, "value": $value, "units": $units, "slope": $slope, "ttl": $ttl|tonumber}'
+  '
+{
+  "type": $datatype,
+  "name": $name,
+  "value": $value,
+  "units": $units,
+  "slope": $slope,
+  "ttl": $ttl|tonumber
+}
+'
 )
 
 
