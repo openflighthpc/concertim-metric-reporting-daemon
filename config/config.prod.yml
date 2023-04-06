@@ -43,11 +43,11 @@ dsm:
   retriever: "script"
 
   # See "retriever" comment for what this means.
-  path: "/data/private/share/daemons/metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
+  path: "/data/private/share/daemons/ct-metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
   sleep: 60
 
 log_level: info
-shared_secret_file: "/data/private/share/daemons/metric-reporting-daemon/config/secret"
+shared_secret_file: "/data/private/share/daemons/ct-metric-reporting-daemon/config/secret"

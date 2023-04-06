@@ -24,7 +24,7 @@ retrieval:
 recorder:
   # The path of an executable script that reads JSON from stdin in and saves
   # the results to Memcache using Ruby Marshal to serialize.
-  path: "/data/private/share/daemons/metric-reporting-daemon/processing/libexec/results-to-memcache.rb"
+  path: "/data/private/share/daemons/ct-metric-processing-daemon/libexec/results-to-memcache.rb"
 
 # Configuration for obtaining the data source map.
 #
@@ -48,6 +48,6 @@ dsm:
   retriever: "script"
 
   # See "retriever" comment for what this means.
-  path: "/data/private/share/daemons/metric-reporting-daemon/processing/libexec/dsm-to-memcache-key.rb"
+  path: "/data/private/share/daemons/ct-metric-processing-daemon/libexec/dsm-to-memcache-key.rb"
 
 log_level: info
