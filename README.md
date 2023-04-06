@@ -17,8 +17,10 @@ getting started with development.
 
 ## Deployment
 
-See the [deployment docs](docs/DEPLOYMENT.md) for details on building and
-deploying Concertim Metric Reporting Daemon.
+Concertim Metric Reporting Daemon is deployed as part of the Concertim
+appliance using the [Concertim ansible
+playbook](https://github.com/alces-flight/concertim-ansible-playbook).
+
 
 # Copyright and License
 
