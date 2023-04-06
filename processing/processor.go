@@ -14,10 +14,10 @@ import (
 //
 // It produces three different views of the metrics:
 //
-// 1. A list of unique metrics.
-// 2. For each unique metric, a list of which devices are currently reporting
-//    that metric.
-// 3. For each host a map from metric name to that metric.
+//  1. A list of unique metrics.
+//  2. For each unique metric, a list of which devices are currently reporting
+//     that metric.
+//  3. For each host a map from metric name to that metric.
 //
 // These views are currently, recorded in memcache by Recorder.
 type Processor struct {
