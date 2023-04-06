@@ -1,5 +1,5 @@
-BIN_NAME = ct-metric-reporting-daemon
-EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/device-name-to-data_source_map.rb
+BIN_NAME = ct-metric-processing-daemon
+EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/dsm-to-memcache-key.rb libexec/results-to-memcache.rb
 TARFILE = $(BIN_NAME).tgz
 
 .PHONY: all
