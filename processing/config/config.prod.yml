@@ -12,7 +12,7 @@ retrieval:
   # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
   # `1h10m20s` for one hour ten minutes and twenty seconds.
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 30s
+  sleep: 15s
 
 # Configuration for storing the processed results.
 #
