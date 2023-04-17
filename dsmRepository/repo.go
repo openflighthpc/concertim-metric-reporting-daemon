@@ -86,9 +86,10 @@ func (r *Repo) runUpdateTimer() {
 	}
 
 	go func() {
+		r.logger.Debug().Dur("period", r.config.Sleep).Msg("Starting periodic retreival")
 		for {
 			retrieve()
-			time.Sleep(time.Duration(r.config.Sleep) * time.Second)
+			time.Sleep(r.config.Sleep)
 		}
 	}()
 }

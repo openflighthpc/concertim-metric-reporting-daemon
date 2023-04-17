@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -38,9 +39,9 @@ type GDS struct {
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
-	Retriever string `yaml:"retriever"`
-	Path      string `yaml:"path"`
-	Sleep     int    `yaml:"sleep"`
+	Retriever string        `yaml:"retriever"`
+	Path      string        `yaml:"path"`
+	Sleep     time.Duration `yaml:"sleep"`
 }
 
 // DefaultPaths contains the default paths used to search for a config file.

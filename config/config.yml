@@ -47,7 +47,11 @@ dsm:
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
-  sleep: 60
+  #
+  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
+  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 30s
 
 log_level: debug
 shared_secret_file: "./config/secret.dev"
