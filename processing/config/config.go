@@ -40,8 +40,8 @@ type Recorder struct {
 
 // DefaultPaths contains the default paths used to search for a config file.
 var DefaultPaths = []string{
-	"/data/private/share/daemons/ct-metric-processing-daemon/config/config.yml",
 	"./config/config.yml",
+	"/data/private/share/daemons/ct-metric-processing-daemon/config/config.yml",
 }
 
 // FromFile parses the given file path and returns a Config.

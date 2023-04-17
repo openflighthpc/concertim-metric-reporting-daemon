@@ -12,7 +12,7 @@ retrieval:
   # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
   # `1h10m20s` for one hour ten minutes and twenty seconds.
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 10s
+  sleep: 15s
 
   # If this values is given and is not an empty string, the ganglia XML will be
   # read from this file instead of polling the gmetad server.  In this case the
@@ -39,10 +39,14 @@ dsm:
   #
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.
+  #
+  # Use these values when not running on a dev concertim appliance.
   retriever: "file"
-
-  # See "retriever" comment for what this means.
   path: "./config/dsm.json"
+  #
+  # Use these values when running on a dev concertim appliance.
+  # retriever: "script"
+  # path: "./libexec/dsm-to-memcache-key.rb"
 
 # Configuration for storing the processed results.
 #
