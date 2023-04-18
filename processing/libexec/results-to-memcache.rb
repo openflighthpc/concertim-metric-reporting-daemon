@@ -5,7 +5,7 @@ require 'dalli/client'
 require 'json'
 require 'time'
 require 'active_support/core_ext/hash/keys'
-require '/data/private/share/rails/ct-visualisation-app/core/app/lib/phoenix/cache/locking'
+require '/opt/concertim/opt/ct-visualisation-app/core/app/lib/phoenix/cache/locking'
 
 class Run
   include Phoenix::Cache::Locking
