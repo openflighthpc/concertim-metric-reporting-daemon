@@ -36,7 +36,7 @@ dsm:
   retriever: "script"
 
   # See "retriever" comment for what this means.
-  path: "/data/private/share/daemons/ct-metric-processing-daemon/libexec/dsm-to-memcache-key.rb"
+  path: "/opt/concertim/opt/ct-metric-processing-daemon/libexec/dsm-to-memcache-key.rb"
 
 # Configuration for storing the processed results.
 #
@@ -48,7 +48,6 @@ dsm:
 recorder:
   # The path of an executable script that reads JSON from stdin in and saves
   # the results to Memcache using Ruby Marshal to serialize.
-  path: "/data/private/share/daemons/ct-metric-processing-daemon/libexec/results-to-memcache.rb"
-
+  path: "/opt/concertim/opt/ct-metric-processing-daemon/libexec/results-to-memcache.rb"
 
 log_level: info

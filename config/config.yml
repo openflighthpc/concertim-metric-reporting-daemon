@@ -59,4 +59,4 @@ dsm:
 
 log_level: debug
 shared_secret_file: "./config/secret.dev"
-#shared_secret_file: "/data/private/share/daemons/ct-metric-reporting-daemon/config/secret"
+#shared_secret_file: "/opt/concertim/etc/secret"
