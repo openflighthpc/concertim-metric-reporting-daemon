@@ -47,7 +47,7 @@ type DSM struct {
 // DefaultPaths contains the default paths used to search for a config file.
 var DefaultPaths = []string{
 	"./config/config.yml",
-	"/data/private/share/daemons/ct-metric-reporting-daemon/config/config.yml",
+	"/opt/concertim/opt/ct-metric-reporting-daemon/config/config.yml",
 }
 
 // FromFile parses the given file path and returns a Config.
