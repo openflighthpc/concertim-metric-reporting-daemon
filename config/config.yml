@@ -42,12 +42,12 @@ dsm:
   # prints JSON to stdout in the same format as above.
   #
   # Use these values when not running on a dev concertim appliance.
-  retriever: "file"
-  path: "./config/dsm.json"
+  #retriever: "file"
+  #path: "./config/dsm.json"
   #
   # Use these values when running on a dev concertim appliance.
-  # retriever: "script"
-  # path: "./libexec/device-name-to-data_source_map.rb"
+  retriever: "script"
+  path: "./libexec/device-name-to-data_source_map.rb"
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
@@ -58,5 +58,5 @@ dsm:
   sleep: 30s
 
 log_level: debug
-shared_secret_file: "./config/secret.dev"
-#shared_secret_file: "/opt/concertim/etc/secret"
+#shared_secret_file: "./config/secret.dev"
+shared_secret_file: "/opt/concertim/etc/secret"
