@@ -78,8 +78,8 @@ func (s *Server) addRoutes() chi.Router {
 
 type putMetricRequest struct {
 	Name  string `json:"name"  validate:"required,notblank"`
-	Val   any    `json:"value" validate:"required,notblank"`
-	Units string `json:"units" validate:"required"`
+	Val   any    `json:"value" validate:"required"`
+	Units string `json:"units"`
 	Type  string `json:"type"  validate:"required,oneof=string int8 uint8 int16 uint16 int32 uint32 float double"`
 	Slope string `json:"slope" validate:"required,oneof=zero positive negative both derivative"`
 	TTL   int    `json:"ttl"   validate:"required,min=1"`
@@ -96,7 +96,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		// The correct response has already been sent by parseJSONBody.
 		return
 	}
-	metric, err := domainMetricFromPutMetric(*putMetric)
+	metric, err := domainMetricFromPutMetric(*putMetric, s.logger)
 	if err != nil {
 		BadRequest(rw, r, err, "")
 		return

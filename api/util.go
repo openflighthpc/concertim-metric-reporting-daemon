@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -53,6 +54,34 @@ func init() {
 	})
 	if err != nil {
 		panic(err)
+	}
+
+	validate.RegisterStructValidation(valueIsValidType, putMetricRequest{})
+
+	err = validate.RegisterTranslation("isvalidtype", trans, func(ut ut.Translator) error {
+		return ut.Add("isvalidtype", "{0} is not valid for type", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("isvalidtype", fe.Field())
+		return t
+	})
+	if err != nil {
+		panic(err)
+	}
+}
+
+func valueIsValidType(sl validator.StructLevel) {
+	putMetric := sl.Current().Interface().(putMetricRequest)
+
+	metricType, err := domain.ParseMetricType(putMetric.Type)
+	if err != nil {
+		// No need to report an error for the value.  One will be
+		// reported for the type.
+		return
+	}
+	_, err = domain.ParseMetricVal(putMetric.Val, metricType)
+	if err != nil {
+		value, _, _ := sl.ExtractType(sl.Current().FieldByName("Val"))
+		sl.ReportError(putMetric.Val, "value", "Val", "isvalidtype", value.String())
 	}
 }
 
