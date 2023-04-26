@@ -58,10 +58,10 @@ func init() {
 
 	validate.RegisterStructValidation(valueIsValidType, putMetricRequest{})
 
-	err = validate.RegisterTranslation("isvalidtype", trans, func(ut ut.Translator) error {
-		return ut.Add("isvalidtype", "{0} is not valid for type", true)
+	err = validate.RegisterTranslation("validtype", trans, func(ut ut.Translator) error {
+		return ut.Add("validtype", "{0} is not valid for type {1}", true)
 	}, func(ut ut.Translator, fe validator.FieldError) string {
-		t, _ := ut.T("isvalidtype", fe.Field())
+		t, _ := ut.T("validtype", fe.Field(), fe.Param())
 		return t
 	})
 	if err != nil {
@@ -80,8 +80,7 @@ func valueIsValidType(sl validator.StructLevel) {
 	}
 	_, err = domain.ParseMetricVal(putMetric.Val, metricType)
 	if err != nil {
-		value, _, _ := sl.ExtractType(sl.Current().FieldByName("Val"))
-		sl.ReportError(putMetric.Val, "value", "Val", "isvalidtype", value.String())
+		sl.ReportError(putMetric.Val, "value", "Val", "validtype", metricType.String())
 	}
 }
 

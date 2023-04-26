@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -167,30 +168,37 @@ func Test_SimpleValidations(t *testing.T) {
 func Test_InvalidValueTypesAreInvalid(t *testing.T) {
 	tests := []struct {
 		name string
+		typ  string
 		doc  string
 	}{
 		{
 			name: "strings are not int32",
+			typ:  "int32",
 			doc:  `{"type": "int32", "name": "foo", "value": "a string", "units": "", "slope": "both", "ttl": 60}`,
 		},
 		{
 			name: "floats are not int32",
+			typ:  "int32",
 			doc:  `{"type": "int32", "name": "foo", "value": 3.14, "units": "", "slope": "both", "ttl": 60}`,
 		},
 		{
 			name: "strings are not doubles",
+			typ:  "double",
 			doc:  `{"type": "double", "name": "foo", "value": "a string", "units": "", "slope": "both", "ttl": 60}`,
 		},
 		{
 			name: "ints are not strings",
+			typ:  "string",
 			doc:  `{"type": "string", "name": "foo", "value": 10, "units": "", "slope": "both", "ttl": 60}`,
 		},
 		{
 			name: "floats are not strings",
+			typ:  "string",
 			doc:  `{"type": "string", "name": "foo", "value": 3.14, "units": "", "slope": "both", "ttl": 60}`,
 		},
 		{
 			name: "negative numbers are not uint32",
+			typ:  "uint32",
 			doc:  `{"type": "uint32", "name": "foo", "value": -1, "units": "", "slope": "both", "ttl": 60}`,
 		},
 	}
@@ -209,9 +217,9 @@ func Test_InvalidValueTypesAreInvalid(t *testing.T) {
 			assert.ErrorAs(t, err, &validationErrs)
 			assert.Len(t, validationErrs, 1)
 			for _, fieldErr := range validationErrs {
-				assert.Equal(t, "isvalidtype", fieldErr.Tag())
+				assert.Equal(t, "validtype", fieldErr.Tag())
 				assert.Equal(t, "value", fieldErr.Field())
-				assert.Equal(t, "value is not valid for type", fieldErr.Translate(trans))
+				assert.Equal(t, fmt.Sprintf("value is not valid for type %s", tt.typ), fieldErr.Translate(trans))
 			}
 		})
 	}
