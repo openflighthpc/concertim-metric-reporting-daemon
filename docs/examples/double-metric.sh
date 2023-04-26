@@ -7,19 +7,19 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script creates a single string metric for a single host.  The name of
-# the host should match the name of the one of the devices created via the
-# device API.
-#
-# The rack and device API contains an endpoint to list valid names.  See the
-# example scripts in the ct-visualisation-app repository.
+# This script creates a single double metric for a single host.
+
+# The name of the host should match the name of the one of the devices created
+# via the device API. The rack and device API contains an endpoint to list
+# valid names.  See the example scripts in the ct-visualisation-app repository.
 HOST=${1:-comp001}
 
-# The name of the metric being reported.
-METRIC=${2:-caffeine.more}
+# The name of the metric we are reporting.
+METRIC=${2:-caffeine.max}
 
-# The value of the metric being reported.
-VALUE=${3:-yes}
+# We use `shuf` and `bc` to generate a random float, in this case between 0 and 10
+# inclusive.
+VALUE=${3:-$(printf '%s%s\n' $(shuf -i 0-9 -n 1) $(echo "scale=4; $RANDOM/32768" | bc ))}
 
 
 # An auth token is required for creating metrics.  One can be generated with
@@ -33,17 +33,17 @@ fi
 
 # Use `jq` to construct a JSON body request.
 BODY=$(jq --null-input \
-  --arg datatype "string" \
+  --arg datatype "double" \
   --arg name ${METRIC} \
   --arg value ${VALUE} \
   --arg units "" \
-  --arg slope "zero" \
+  --arg slope "both" \
   --arg ttl 3600 \
   '
 {
   "type": $datatype,
   "name": $name,
-  "value": $value,
+  "value": $value|tonumber,
   "units": $units,
   "slope": $slope,
   "ttl": $ttl|tonumber
@@ -58,3 +58,4 @@ curl -s -k \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
   -X PUT "${BASE_URL}/${HOST}/metrics" \
   -d "${BODY}"
+

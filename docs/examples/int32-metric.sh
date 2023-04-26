@@ -2,6 +2,7 @@
 
 set -e
 set -o pipefail
+# set -x
 
 # The base URL against which relative URLs are constructed.
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
@@ -21,6 +22,9 @@ METRIC=${2:-caffeine.level}
 # inclusive.
 VALUE=${3:-$(shuf -i 12-24 -n 1)}
 
+# The units of the metric we are reporting.
+UNITS="${4}"
+
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -36,7 +40,7 @@ BODY=$(jq --null-input \
   --arg datatype "int32" \
   --arg name ${METRIC} \
   --arg value ${VALUE} \
-  --arg units " " \
+  --arg units "${UNITS}" \
   --arg slope "both" \
   --arg ttl 3600 \
   '
