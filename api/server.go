@@ -79,7 +79,7 @@ func (s *Server) addRoutes() chi.Router {
 type putMetricRequest struct {
 	Name  string `json:"name"  validate:"required,notblank"`
 	Val   any    `json:"value" validate:"required"`
-	Units string `json:"units"`
+	Units string `json:"units" validate:"excludesall=<>'\"&"`
 	Type  string `json:"type"  validate:"required,oneof=string int8 uint8 int16 uint16 int32 uint32 float double"`
 	Slope string `json:"slope" validate:"required,oneof=zero positive negative both derivative"`
 	TTL   int    `json:"ttl"   validate:"required,min=1"`

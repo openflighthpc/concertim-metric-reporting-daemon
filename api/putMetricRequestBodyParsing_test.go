@@ -133,11 +133,18 @@ func Test_SimpleValidations(t *testing.T) {
 			doc:    `{"type": "int32", "name": "foo", "value": 1, "units": " ", "slope": "both", "ttl": 0}`,
 		},
 		{
-			name:   "ttl must be oneof ...",
+			name:   "ttl must be 1 or greater",
 			tags:   []string{"min"},
 			field:  "ttl",
 			detail: "ttl must be 1 or greater",
 			doc:    `{"type": "int32", "name": "foo", "value": 1, "units": " ", "slope": "both", "ttl": -1}`,
+		},
+		{
+			name:   "units cannot contain ...",
+			tags:   []string{"min"},
+			field:  "units",
+			detail: "units cannot contain any of the following characters '<>'\"&'",
+			doc:    `{"type": "int32", "name": "foo", "value": 1, "units": "<", "slope": "both", "ttl": 1}`,
 		},
 	}
 
