@@ -32,7 +32,7 @@ report_metric() {
     --arg datatype "int32" \
     --arg name "${name}" \
     --arg value "${value}" \
-    --arg units " " \
+    --arg units "" \
     --arg slope "both" \
     --arg ttl 3600 \
     '{"type": $datatype, "name": $name, "value": $value|tonumber, "units": $units, "slope": $slope, "ttl": $ttl|tonumber}'

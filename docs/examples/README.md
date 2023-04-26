@@ -54,11 +54,19 @@ will default to `comp001`, `METRIC_NAME` defaults to `caffeine.more` and
 ```
 
 Report a single int32 metric for a device. If `DEVICE_NAME` is not given it
-will default to `comp001`, `METRIC_NAME` defaults to `caffeine.level` and
-`VALUE` to a random integer between 12 and 24.
+will default to `comp001`, `METRIC_NAME` defaults to `caffeine.level`,
+`VALUE` to a random integer between 12 and 24 and `UNIT` to `""`.
 
 ```
-./int32-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE]]]
+./int32-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE [UNIT]]]]
+```
+
+Report a single double metric for a device. If `DEVICE_NAME` is not given it
+will default to `comp001`, `METRIC_NAME` defaults to `caffeine.max` and
+`VALUE` to a random double between 0 and 10.
+
+```
+./double-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE]]]
 ```
 
 Report multiple int32 metrics for a device.  If `DEVICE_NAME` is not given it

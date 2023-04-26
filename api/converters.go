@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/rs/zerolog"
 )
 
-func domainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {
+func domainMetricFromPutMetric(src putMetricRequest, logger zerolog.Logger) (domain.Metric, error) {
 	var err error
 	var dst domain.Metric
 	dst.Name = src.Name
@@ -20,8 +21,10 @@ func domainMetricFromPutMetric(src putMetricRequest) (domain.Metric, error) {
 	}
 	dst.Val, err = domain.ParseMetricVal(src.Val, dst.Type)
 	if err != nil {
+		logger.Debug().Err(err).Any("input", src.Val).Stringer("type", dst.Type).Msg("parsing metric failed")
 		return domain.Metric{}, err
 	}
+	logger.Debug().Any("input", src.Val).Stringer("type", dst.Type).Str("result", dst.Val).Msg("converted metric value")
 	dst.Slope, err = domain.ParseMetricSlope(src.Slope)
 	if err != nil {
 		return domain.Metric{}, err

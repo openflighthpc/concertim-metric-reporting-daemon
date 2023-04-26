@@ -8,6 +8,8 @@ package domain
 
 import (
 	"fmt"
+	"math"
+	"reflect"
 	"time"
 )
 
@@ -56,38 +58,37 @@ var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")
 // ParseMetricVal attempts to parse the given value according to the given
 // metric type.  If successful, the value will be returned as a string.
 func ParseMetricVal(val any, metricType MetricType) (string, error) {
-	switch v := val.(type) {
-	case string:
-		if metricType == MetricTypeString {
-			return v, nil
-		}
-		if v, ok := val.(float64); ok {
-			return "", fmt.Errorf("%f is %w sbe glcr %s", v, ErrInvalidMetricVal, metricType)
-		}
-		return "", fmt.Errorf("%s is %w for type %s", val, ErrInvalidMetricVal, metricType)
-	case float64:
-		if metricType == MetricTypeString {
-			return "", fmt.Errorf("%f is %w for type %s", val, ErrInvalidMetricVal, metricType)
-		}
-		return parseFloat64ToMetricType(v, metricType)
-	case nil:
-		return "", fmt.Errorf("null is %w", ErrInvalidMetricVal)
-	default:
-		return "", fmt.Errorf("%s is %w", val, ErrInvalidMetricVal)
-	}
-}
+	value := reflect.ValueOf(val)
+	const epsilon = 1e-9 // Margin of error for converting floats to ints.
 
-func parseFloat64ToMetricType(val float64, metricType MetricType) (string, error) {
 	switch metricType {
-	case MetricTypeInt8,
-		MetricTypeUint8,
-		MetricTypeInt16,
-		MetricTypeUint16,
-		MetricTypeInt32,
-		MetricTypeUint32:
-		return fmt.Sprintf("%d", int(val)), nil
+	case MetricTypeString:
+		if value.Kind() == reflect.String {
+			return fmt.Sprint(value), nil
+		}
 	case MetricTypeFloat, MetricTypeDouble:
-		return fmt.Sprintf("%f", val), nil
+		if value.CanFloat() {
+			return fmt.Sprintf("%f", value.Float()), nil
+		}
+	case MetricTypeInt8, MetricTypeInt16, MetricTypeInt32:
+		if !value.CanFloat() {
+			break
+		}
+		intPart, frac := math.Modf(math.Abs(value.Float()))
+		if math.Abs(frac) < epsilon {
+			return fmt.Sprintf("%d", int(intPart)), nil
+		}
+	case MetricTypeUint8, MetricTypeUint16, MetricTypeUint32:
+		if !value.CanFloat() || math.Signbit(value.Float()) {
+			break
+		}
+		intPart, frac := math.Modf(math.Abs(value.Float()))
+		if math.Abs(frac) < epsilon {
+			return fmt.Sprintf("%d", int(intPart)), nil
+		}
+	default:
+		return "", fmt.Errorf("%s is %w", metricType, ErrInvalidMetricType)
+
 	}
-	return "", nil
+	return "", fmt.Errorf("%s is %w", val, ErrInvalidMetricVal)
 }
