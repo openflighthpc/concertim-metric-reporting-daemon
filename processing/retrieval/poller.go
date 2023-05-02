@@ -54,11 +54,11 @@ func (r *Poller) Start(gridChan chan<- []Grid) error {
 	for {
 		xml, err := r.xmlRetriever.retrieve()
 		if err != nil {
-			return err
+			r.logger.Err(err).Send()
 		}
 		grids, err := r.parseXML(xml)
 		if err != nil {
-			return err
+			r.logger.Err(err).Send()
 		}
 		r.logRetrieved(xml, grids)
 		gridChan <- grids
