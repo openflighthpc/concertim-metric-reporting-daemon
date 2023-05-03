@@ -46,7 +46,7 @@ end
 
 puts "reading results from stdin..."
 results = JSON.parse(STDIN.read)
-address = "localhost:11211"
+address = ARGV.first || "localhost:11211"
 Run.new(address, results).call
 
 exit 0

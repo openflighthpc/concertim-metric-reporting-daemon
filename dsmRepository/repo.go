@@ -103,6 +103,7 @@ func (r *Repo) getRetriver() dataRetriever {
 		}
 	case "script":
 		return &Script{
+			Args:   r.config.Args,
 			Path:   r.config.Path,
 			Logger: r.logger.With().Str("component", "dsm-data-retriever").Logger(),
 		}

@@ -29,13 +29,15 @@ type Retrieval struct {
 // DSM is the configuration for retrieving the ganglia data source map to
 // device memcache key.
 type DSM struct {
-	Retriever string `yaml:"retriever"`
-	Path      string `yaml:"path"`
+	Retriever string   `yaml:"retriever"`
+	Path      string   `yaml:"path"`
+	Args      []string `yaml:"args"`
 }
 
 // Recorder is the configuration for recording the processed results.
 type Recorder struct {
-	Path string `yaml:"path"`
+	Path string   `yaml:"path"`
+	Args []string `yaml:"args"`
 }
 
 // DefaultPaths contains the default paths used to search for a config file.

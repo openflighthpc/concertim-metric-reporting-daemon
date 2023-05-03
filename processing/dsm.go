@@ -82,6 +82,7 @@ func (r *DSMRepo) getRetriver() (dataRetriever, error) {
 		}, nil
 	case "script":
 		return &scriptRetriever{
+			args:   r.config.Args,
 			path:   r.config.Path,
 			logger: r.logger,
 		}, nil
@@ -116,13 +117,19 @@ func (j *jsonFileRetreiver) getNewData() (map[DSM]MemcacheKey, error) {
 }
 
 type scriptRetriever struct {
+	args   []string
 	path   string
 	logger zerolog.Logger
 }
 
 func (sr *scriptRetriever) getNewData() (map[DSM]MemcacheKey, error) {
-	sr.logger.Debug().Str("path", sr.path).Msg("retrieving")
-	out, err := exec.Command(sr.path).Output()
+	args := sr.args
+	if args == nil {
+		args = []string{}
+	}
+	cmd := exec.Command(sr.path, args...)
+	sr.logger.Debug().Str("cmd", cmd.String()).Msg("retrieving")
+	out, err := cmd.Output()
 	if err != nil {
 		msg := "executing script"
 		if !strings.Contains(err.Error(), sr.path) {

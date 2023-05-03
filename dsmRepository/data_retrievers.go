@@ -11,12 +11,19 @@ import (
 // Script retrieves the data source map by running the script
 // specified at Path.
 type Script struct {
+	Args   []string
 	Path   string
 	Logger zerolog.Logger
 }
 
 func (e *Script) getNewData() (map[string]string, error) {
-	out, err := exec.Command(e.Path).Output()
+	args := e.Args
+	if args == nil {
+		args = []string{}
+	}
+	cmd := exec.Command(e.Path, args...)
+	e.Logger.Debug().Str("cmd", cmd.String()).Msg("running")
+	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
