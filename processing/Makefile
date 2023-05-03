@@ -1,5 +1,5 @@
 BIN_NAME = ct-metric-processing-daemon
-EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/dsm-to-memcache-key.rb libexec/results-to-memcache.rb
+EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/dsm-to-memcache-key.rb libexec/results-to-memcache.rb libexec/phoenix-cache-locking.rb
 TARFILE = $(BIN_NAME).tgz
 
 .PHONY: all

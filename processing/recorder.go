@@ -22,6 +22,7 @@ type Recorder interface {
 // The processed metrics are converted to JSON and sent to the script over
 // standard input.
 type ScriptRecorder struct {
+	Args   []string
 	Path   string
 	Logger zerolog.Logger
 }
@@ -29,6 +30,7 @@ type ScriptRecorder struct {
 // NewScriptRecorder returns a new ScriptRecorder.
 func NewScriptRecorder(logger zerolog.Logger, config config.Recorder) *ScriptRecorder {
 	return &ScriptRecorder{
+		Args:   config.Args,
 		Path:   config.Path,
 		Logger: logger.With().Str("component", "recorder").Logger(),
 	}
@@ -45,7 +47,12 @@ func (sr *ScriptRecorder) Record(result *Result) error {
 	if err := enc.Encode(result); err != nil {
 		return errors.Wrap(err, "encoding results")
 	}
-	cmd := exec.Command(sr.Path)
+	args := sr.Args
+	if args == nil {
+		args = []string{}
+	}
+	cmd := exec.Command(sr.Path, args...)
+	sr.Logger.Debug().Str("cmd", cmd.String()).Msg("recording")
 	cmd.Stdin = bytes.NewReader(buf.Bytes())
 	out, err := cmd.Output()
 	if err != nil {

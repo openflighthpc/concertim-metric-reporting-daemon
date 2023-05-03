@@ -39,11 +39,16 @@ dsm:
   #   {"comp001": "comp001.concertim.alces-flight.com", ...}
   #
   # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.
+  # prints JSON to stdout in the same format as above.  "args" can be set to an
+  # array of arguments passed to the executable.
   retriever: "script"
 
   # See "retriever" comment for what this means.
   path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
+
+  # CLI arguments passed to the above script.  For the above script, a single
+  # argument is given, which is the address of the memcache server.
+  args: ["localhost:11211"]
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.

@@ -38,7 +38,8 @@ dsm:
   #   {"unspecified": {"unspecified": {"comp001": "hacor:device:2", ...}}}
   #
   # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.
+  # prints JSON to stdout in the same format as above.  "args" can be set to an
+  # array of arguments passed to the executable.
   #
   # Use these values when not running on a dev concertim appliance.
   #retriever: "file"
@@ -47,6 +48,7 @@ dsm:
   # Use these values when running on a dev concertim appliance.
   retriever: "script"
   path: "./libexec/dsm-to-memcache-key.rb"
+  args: ["localhost:11211"]
 
 # Configuration for storing the processed results.
 #
@@ -59,5 +61,7 @@ recorder:
   # The path of an executable script that reads JSON from stdin in and saves
   # the results to Memcache using Ruby Marshal to serialize.
   path: "./libexec/results-to-memcache.rb"
+  # CLI args passed to the above script.  The first arg is the memcache address.
+  args: ["localhost:11211"]
 
 log_level: info

@@ -4,7 +4,7 @@ require 'dalli'
 require 'dalli/client'
 require 'json'
 
-address = "localhost:11211"
+address = ARGV.first || "localhost:11211"
 STDERR.puts "connecting to #{address}..."
 mc = Dalli::Client.new(address, { serializer: Marshal })
 

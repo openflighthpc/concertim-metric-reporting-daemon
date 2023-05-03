@@ -39,7 +39,8 @@ dsm:
   #   {"comp001": "comp001.concertim.alces-flight.com", ...}
   #
   # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.
+  # prints JSON to stdout in the same format as above.  "args" can be set to an
+  # array of arguments passed to the executable.
   #
   # Use these values when not running on a dev concertim appliance.
   #retriever: "file"
@@ -48,6 +49,7 @@ dsm:
   # Use these values when running on a dev concertim appliance.
   retriever: "script"
   path: "./libexec/device-name-to-data_source_map.rb"
+  args: ["localhost:11211"]
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.

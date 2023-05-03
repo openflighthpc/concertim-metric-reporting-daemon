@@ -41,6 +41,7 @@ type GDS struct {
 type DSM struct {
 	Retriever string        `yaml:"retriever"`
 	Path      string        `yaml:"path"`
+	Args      []string      `yaml:"args"`
 	Sleep     time.Duration `yaml:"sleep"`
 }
 
