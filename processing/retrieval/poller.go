@@ -51,17 +51,22 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 // Start periodically retrieves the ganglia XML, parses it and sends the
 // results to the gridChan channel.
 func (r *Poller) Start(gridChan chan<- []Grid) error {
-	for {
+	oneLoop := func() {
 		xml, err := r.xmlRetriever.retrieve()
 		if err != nil {
 			r.logger.Err(err).Send()
+			return
 		}
 		grids, err := r.parseXML(xml)
 		if err != nil {
 			r.logger.Err(err).Send()
+			return
 		}
 		r.logRetrieved(xml, grids)
 		gridChan <- grids
+	}
+	for {
+		oneLoop()
 		time.Sleep(r.config.Sleep)
 	}
 }
