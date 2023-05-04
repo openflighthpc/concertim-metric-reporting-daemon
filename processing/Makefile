@@ -3,12 +3,13 @@ EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/dsm-to-memcac
 TARFILE = $(BIN_NAME).tgz
 
 .PHONY: all
-all: package
+all: $(TARFILE)
 
-build:
-	go build -o $(BIN_NAME)
+.PHONY: $(BIN_NAME)
+$(BIN_NAME):
+	go build  -o $(BIN_NAME) ../cmd/processing/
 
-package: build $(EXTRA_FILES)
+$(TARFILE): $(BIN_NAME) $(EXTRA_FILES)
 	tar czf $(TARFILE) $(BIN_NAME) $(EXTRA_FILES) \
 		--transform "s/config.prod.yml/config.yml/" \
 		--transform "s/^/$(BIN_NAME)\//"

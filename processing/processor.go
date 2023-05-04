@@ -1,4 +1,5 @@
-package main
+// Package processing collects stuff about processing.
+package processing
 
 import (
 	"encoding/json"

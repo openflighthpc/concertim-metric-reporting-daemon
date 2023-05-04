@@ -1,9 +1,11 @@
-// The main package.
+// Package main runs the ganglia metric retriever, the metric processor and the
+// metric reporter.
 package main
 
 import (
 	"os"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/retrieval"
 	"github.com/rs/zerolog"
@@ -40,9 +42,9 @@ func main() {
 		log.Fatal().Err(err).Msg("Unable to create retrieval.poller")
 	}
 
-	dsmRepo := NewDSMRepo(log.Logger, config.DSM)
-	processor := NewProcessor(log.Logger, dsmRepo)
-	recorder := NewScriptRecorder(log.Logger, config.Recorder)
+	dsmRepo := processing.NewDSMRepo(log.Logger, config.DSM)
+	processor := processing.NewProcessor(log.Logger, dsmRepo)
+	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
 
 	go func() {
 		err = poller.Start(pollChan)
