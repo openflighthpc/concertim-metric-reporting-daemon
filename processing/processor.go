@@ -8,7 +8,7 @@ import (
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/retrieval"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )

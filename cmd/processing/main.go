@@ -8,7 +8,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/retrieval"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
