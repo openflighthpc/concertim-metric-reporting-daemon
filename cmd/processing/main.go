@@ -5,6 +5,7 @@ package main
 import (
 	"os"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/retrieval"
@@ -42,7 +43,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Unable to create retrieval.poller")
 	}
 
-	dsmRepo := processing.NewDSMRepo(log.Logger, config.DSM)
+	dsmRepo := dsmRepository.New(log.Logger, config.DSM)
 	processor := processing.NewProcessor(log.Logger, dsmRepo)
 	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
 

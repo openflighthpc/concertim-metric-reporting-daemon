@@ -101,7 +101,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
+	err = s.app.AddMetric(metric, domain.Hostname(chi.URLParam(r, "deviceName")))
 	if errors.Is(err, domain.UnknownHost) {
 		body := ErrorsPayload{
 			Status: http.StatusNotFound,

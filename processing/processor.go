@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/retrieval"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -22,12 +24,12 @@ import (
 //
 // These views are currently, recorded in memcache by Recorder.
 type Processor struct {
-	dsmRepo *DSMRepo
+	dsmRepo *dsmRepository.Repo
 	logger  zerolog.Logger
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(logger zerolog.Logger, dsmRepo *DSMRepo) *Processor {
+func NewProcessor(logger zerolog.Logger, dsmRepo *dsmRepository.Repo) *Processor {
 	return &Processor{
 		dsmRepo: dsmRepo,
 		logger:  logger.With().Str("component", "processor").Logger(),
@@ -70,12 +72,12 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 				Int("count", len(gCluster.Hosts)).
 				Msg("processing hosts")
 			for _, gHost := range gCluster.Hosts {
-				dsm := DSM{
+				dsm := domain.DSM{
 					GridName:    gGrid.Name,
 					ClusterName: gCluster.Name,
 					HostName:    gHost.Name,
 				}
-				memcacheKey, ok := p.dsmRepo.Get(dsm)
+				memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
 				if !ok {
 					p.logger.Debug().
 						Str("host", gHost.Name).
@@ -109,7 +111,7 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 						continue
 					}
 					ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
-					result.AddMetric(MemcacheKey(memcacheKey), ctMetric)
+					result.AddMetric(domain.MemcacheKey(memcacheKey), ctMetric)
 				}
 				if len(ctHost.Metrics) > 0 {
 					now := time.Now()
@@ -142,7 +144,7 @@ type MetricName string
 type Result struct {
 	// HostsByMetric is a map from a metric's name to a list of hosts that
 	// currently have a fresh value for that metric.
-	HostsByMetric map[MetricName][]MemcacheKey `json:"hosts_by_metric"`
+	HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
 
 	// UniqueMetrics is a set of unique metrics by name.
 	UniqueMetrics map[MetricName]Metric
@@ -161,18 +163,18 @@ type Result struct {
 // NewResult returns a new empty *Result.
 func NewResult() *Result {
 	return &Result{
-		HostsByMetric: map[MetricName][]MemcacheKey{},
+		HostsByMetric: map[MetricName][]domain.MemcacheKey{},
 		UniqueMetrics: map[MetricName]Metric{},
 	}
 }
 
 // AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
 // should be the memcache key for the host that reported the metric.
-func (r *Result) AddMetric(mckey MemcacheKey, metric Metric) {
+func (r *Result) AddMetric(mckey domain.MemcacheKey, metric Metric) {
 	metricName := MetricName(metric.Name)
 	hosts, ok := r.HostsByMetric[metricName]
 	if !ok {
-		hosts = make([]MemcacheKey, 0)
+		hosts = make([]domain.MemcacheKey, 0)
 		r.HostsByMetric[metricName] = hosts
 	}
 	r.HostsByMetric[metricName] = append(hosts, mckey)
@@ -189,7 +191,7 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 		uniqMetricNames = append(uniqMetricNames, val)
 	}
 	return json.Marshal(&struct {
-		HostsByMetric map[MetricName][]MemcacheKey `json:"hosts_by_metric"`
+		HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
 		Hosts         []Host                       `json:"hosts"`
 		UniqueMetrics []Metric                     `json:"unique_metrics"`
 	}{
@@ -202,7 +204,7 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 // Host is the domain model for a host.
 type Host struct {
 	Name        string                `json:"name,omitempty"`
-	MemcacheKey MemcacheKey           `json:"memcache_key,omitempty"`
+	MemcacheKey domain.MemcacheKey           `json:"memcache_key,omitempty"`
 	Metrics     map[MetricName]Metric `json:"metrics"`
 	// Use a pointer for Mtime so that the json marshalling will omit when
 	// empty.

@@ -34,10 +34,15 @@ type MetricModel struct {
 //
 // goverter:converter
 // goverter:extend ConvertTime
+// goverter:extend DSMNameToDSM
 type Converter interface {
+	// goverter:map Name DeviceName
+	// goverter:map DSM.HostName DSMName
 	ModelFromDomainHost(source domain.Host) HostModel
 	ModelFromDomainMetric(source domain.Metric) MetricModel
 	DomainFromModelMetric(source MetricModel) domain.Metric
+	// goverter:map DeviceName Name
+	// goverter:map DSMName DSM
 	// goverter:mapExtend Metrics DefaultMetrics
 	DomainFromModelHost(source HostModel) domain.Host
 }
@@ -60,4 +65,14 @@ func ConvertTime(source time.Time) time.Time {
 // the repository.
 func DefaultMetrics() []domain.Metric {
 	return make([]domain.Metric, 0)
+}
+
+// DSMNameToDSM builds a domain.DSM from a HostModel.DSMName.
+func DSMNameToDSM(hName string) domain.DSM {
+	dsm := domain.DSM{
+		GridName:    "unspecified",
+		ClusterName: "unspecified",
+		HostName:    hName,
+	}
+	return dsm
 }

@@ -2,9 +2,12 @@ package dsmRepository
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
@@ -16,7 +19,7 @@ type Script struct {
 	Logger zerolog.Logger
 }
 
-func (e *Script) getNewData() (map[string]string, error) {
+func (e *Script) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	args := e.Args
 	if args == nil {
 		args = []string{}
@@ -25,7 +28,7 @@ func (e *Script) getNewData() (map[string]string, error) {
 	e.Logger.Debug().Str("cmd", cmd.String()).Msg("running")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	parser := Parser{Logger: e.Logger}
 	return parser.parseJSON(out)
@@ -38,39 +41,103 @@ type JSONFileRetreiver struct {
 	Logger zerolog.Logger
 }
 
-func (j *JSONFileRetreiver) getNewData() (map[string]string, error) {
+func (j *JSONFileRetreiver) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	data, err := ioutil.ReadFile(j.Path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	parser := Parser{Logger: j.Logger}
 	return parser.parseJSON(data)
 }
 
 // Parser parses the data provided by a dataRetriever into a
-// map[string]string.
-//
-// The data is expected to be a JSON object with string keys as the device
-// name and string values as the device's map to host.
+// map[domain.Hostname]domain.DSM and a map[domain.DSM]domain.MemcacheKey.
 type Parser struct {
 	Logger zerolog.Logger
 }
 
-func (p *Parser) parseJSON(data []byte) (map[string]string, error) {
+func (p *Parser) parseJSON(data []byte) (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	var raw interface{}
+
+	hostnameMap := map[domain.Hostname]domain.DSM{}
+	memcacheMap := map[domain.DSM]domain.MemcacheKey{}
+
 	err := json.Unmarshal(data, &raw)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	bar := raw.(map[string]interface{})
-	newData := map[string]string{}
-	for deviceName, mapToHost := range bar {
-		mapToHostStr, ok := mapToHost.(string)
+	rawMap := raw.(map[string]interface{})
+	for key, nestedMap := range rawMap {
+		if key == "hostnameMap" {
+			hostnameMap, err = p.parseHostnameMap(nestedMap)
+			if err != nil {
+				return nil, nil, errors.Wrap(err, "parsing hostnameMap")
+			}
+		} else if key == "memcacheMap" {
+			memcacheMap, err = p.parseMemcacheMap(nestedMap)
+			if err != nil {
+				return nil, nil, errors.Wrap(err, "parsing memcacheMap")
+			}
+		} else {
+			return nil, nil, fmt.Errorf("unknown key %s", key)
+		}
+	}
+
+	return hostnameMap, memcacheMap, nil
+}
+
+func (p *Parser) parseHostnameMap(data any) (map[domain.Hostname]domain.DSM, error) {
+	p.Logger.Debug().Any("data", data).Msg("parsing hostnameMap")
+	hostMap := data.(map[string]interface{})
+	newData := map[domain.Hostname]domain.DSM{}
+	for hostname, mapToHost := range hostMap {
+		hName, ok := mapToHost.(string)
 		if !ok {
 			p.Logger.Warn().Interface("mapToHost", mapToHost).Msg("Could not convert to string")
 			continue
 		}
-		newData[deviceName] = mapToHostStr
+		dsm := domain.DSM{
+			GridName:    "unspecified",
+			ClusterName: "unspecified",
+			HostName:    hName,
+		}
+		newData[domain.Hostname(hostname)] = dsm
 	}
 	return newData, nil
+}
+
+func (p *Parser) parseMemcacheMap(data any) (map[domain.DSM]domain.MemcacheKey, error) {
+	p.Logger.Debug().Any("data", data).Msg("parsing memcacheMap")
+	dsmMap := map[domain.DSM]domain.MemcacheKey{}
+
+	gridMap, ok := data.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("unexpected type for gridMap")
+	}
+
+	for gName, clusterMap := range gridMap {
+		clusterMap, ok := clusterMap.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("unexpected type for clusterMap")
+		}
+		for cName, hostMap := range clusterMap {
+			hostMap, ok := hostMap.(map[string]any)
+			if !ok {
+				return nil, fmt.Errorf("unexpected type for hostMap")
+			}
+			for hName, memcacheKey := range hostMap {
+				memcacheKey, ok := memcacheKey.(string)
+				if !ok {
+					return nil, fmt.Errorf("not of expected type")
+				}
+				dsm := domain.DSM{
+					GridName:    gName,
+					ClusterName: cName,
+					HostName:    hName,
+				}
+				dsmMap[dsm] = domain.MemcacheKey(memcacheKey)
+			}
+		}
+	}
+	return dsmMap, nil
 }

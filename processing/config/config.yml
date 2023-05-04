@@ -47,8 +47,16 @@ dsm:
   #
   # Use these values when running on a dev concertim appliance.
   retriever: "script"
-  path: "./libexec/dsm-to-memcache-key.rb"
+  path: "../libexec/device-name-to-data_source_map.rb"
   args: ["localhost:11211"]
+
+  # The data source map is periodically updated using the configured
+  # retriever.  This value sets the time to sleep between runs.
+  #
+  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
+  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 30s
 
 # Configuration for storing the processed results.
 #

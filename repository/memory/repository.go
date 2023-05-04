@@ -22,30 +22,30 @@ type Repo struct {
 
 // PutHost implements the Repository interface.
 func (mr *Repo) PutHost(host domain.Host) error {
-	mr.logger.Debug().Str("host", host.DeviceName).Msg("Putting host")
+	mr.logger.Debug().Stringer("host", host.Name).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	mr.hosts[host.DeviceName] = conv.ModelFromDomainHost(host)
+	mr.hosts[host.Name.String()] = conv.ModelFromDomainHost(host)
 	return nil
 }
 
 func (mr *Repo) isHostStored(host domain.Host) bool {
-	_, ok := mr.hosts[host.DeviceName]
+	_, ok := mr.hosts[host.Name.String()]
 	return ok
 }
 
 // PutMetric implements the Repository interface.
 func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
-	mr.logger.Debug().Str("host", host.DeviceName).Str("metric", metric.Name).Msg("Putting metric")
+	mr.logger.Debug().Stringer("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return fmt.Errorf("%w: %s", domain.UnknownHost, host.DeviceName)
+		return fmt.Errorf("%w: %s", domain.UnknownHost, host.Name)
 	}
-	metrics, ok := mr.metrics[host.DeviceName]
+	metrics, ok := mr.metrics[host.Name.String()]
 	if !ok {
 		metrics = make(map[string]MetricModel, 0)
-		mr.metrics[host.DeviceName] = metrics
+		mr.metrics[host.Name.String()] = metrics
 	}
 	metrics[metric.Name] = conv.ModelFromDomainMetric(metric)
 	return nil
@@ -68,10 +68,10 @@ func (mr *Repo) GetAll() []domain.Host {
 }
 
 // GetHost implements the Repository interface.
-func (mr *Repo) GetHost(hostName string) (domain.Host, bool) {
+func (mr *Repo) GetHost(hostName domain.Hostname) (domain.Host, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	host, ok := mr.hosts[hostName]
+	host, ok := mr.hosts[hostName.String()]
 	if !ok {
 		return domain.Host{}, false
 	}

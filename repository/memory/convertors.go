@@ -11,8 +11,8 @@ type ConverterImpl struct{}
 
 func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.Host {
 	var domainHost domain.Host
-	domainHost.DeviceName = source.DeviceName
-	domainHost.DSMName = source.DSMName
+	domainHost.Name = domain.Hostname(source.DeviceName)
+	domainHost.DSM = DSMNameToDSM(source.DSMName)
 	domainHost.Reported = ConvertTime(source.Reported)
 	domainHost.DMax = time.Duration(source.DMax)
 	domainHost.Metrics = DefaultMetrics()
@@ -31,8 +31,8 @@ func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.Metric 
 }
 func (c *ConverterImpl) ModelFromDomainHost(source domain.Host) HostModel {
 	var memoryHostModel HostModel
-	memoryHostModel.DeviceName = source.DeviceName
-	memoryHostModel.DSMName = source.DSMName
+	memoryHostModel.DeviceName = string(source.Name)
+	memoryHostModel.DSMName = source.DSM.HostName
 	memoryHostModel.Reported = ConvertTime(source.Reported)
 	memoryHostModel.DMax = time.Duration(source.DMax)
 	return memoryHostModel

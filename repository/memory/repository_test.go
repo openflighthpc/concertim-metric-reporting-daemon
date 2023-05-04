@@ -17,6 +17,14 @@ func init() {
 	log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
 }
 
+func dsm_for(hostname string) domain.DSM {
+	return domain.DSM{
+		GridName:    "unspecified",
+		ClusterName: "unspecified",
+		HostName:    hostname,
+	}
+}
+
 func Test_NewRepoIsEmpty(t *testing.T) {
 	repo := New(log.Logger)
 	hosts := repo.GetAll()
@@ -36,10 +44,11 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			name: "Adding one host",
 			hosts: []domain.Host{
 				{
-					DeviceName: "comp10",
-					Reported:   time.Now(),
-					DMax:       10,
-					Metrics:    []domain.Metric{},
+					Name:     "comp10",
+					DSM:      dsm_for("comp10"),
+					Reported: time.Now(),
+					DMax:     10,
+					Metrics:  []domain.Metric{},
 				},
 			},
 		},
@@ -47,16 +56,18 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			name: "Adding two hosts",
 			hosts: []domain.Host{
 				{
-					DeviceName: "comp10",
-					Reported:   time.Now(),
-					DMax:       10,
-					Metrics:    []domain.Metric{},
+					Name:     "comp10",
+					DSM:      dsm_for("comp10"),
+					Reported: time.Now(),
+					DMax:     10,
+					Metrics:  []domain.Metric{},
 				},
 				{
-					DeviceName: "comp20",
-					Reported:   time.Now(),
-					DMax:       20,
-					Metrics:    []domain.Metric{},
+					Name:     "comp20",
+					DSM:      dsm_for("comp20"),
+					Reported: time.Now(),
+					DMax:     20,
+					Metrics:  []domain.Metric{},
 				},
 			},
 		},
@@ -73,7 +84,7 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			hosts := repo.GetAll()
 			assert.Empty(hosts)
 			for _, host := range tt.hosts {
-				h, ok := repo.GetHost(host.DeviceName)
+				h, ok := repo.GetHost(host.Name)
 				assert.False(ok)
 				assert.Equal(domain.Host{}, h)
 			}
@@ -91,7 +102,7 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 				assert.Contains(tt.hosts, host)
 			}
 			for _, host := range tt.hosts {
-				h, ok := repo.GetHost(host.DeviceName)
+				h, ok := repo.GetHost(host.Name)
 				assert.True(ok)
 				assert.Equal(host, h)
 			}
@@ -102,15 +113,15 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 	tests := []struct {
 		name    string
-		hosts   map[string]domain.Host
-		metrics map[string][]domain.Metric
+		hosts   map[domain.Hostname]domain.Host
+		metrics map[domain.Hostname][]domain.Metric
 	}{
 		{
 			name: "Adding multiple metrics for a single host",
-			hosts: map[string]domain.Host{
-				"comp10": {DeviceName: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
+			hosts: map[domain.Hostname]domain.Host{
+				"comp10": {Name: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
 			},
-			metrics: map[string][]domain.Metric{
+			metrics: map[domain.Hostname][]domain.Metric{
 				"comp10": {
 					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 					{Name: "temp", Val: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
@@ -119,11 +130,11 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 		},
 		{
 			name: "Adding different metrics for different hosts",
-			hosts: map[string]domain.Host{
-				"comp10": {DeviceName: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
-				"comp20": {DeviceName: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
+			hosts: map[domain.Hostname]domain.Host{
+				"comp10": {Name: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
+				"comp20": {Name: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
 			},
-			metrics: map[string][]domain.Metric{
+			metrics: map[domain.Hostname][]domain.Metric{
 				"comp10": {
 					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
@@ -134,11 +145,11 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 		},
 		{
 			name: "Adding different metrics for different hosts",
-			hosts: map[string]domain.Host{
-				"comp10": {DeviceName: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
-				"comp20": {DeviceName: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
+			hosts: map[domain.Hostname]domain.Host{
+				"comp10": {Name: "comp10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
+				"comp20": {Name: "comp20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
 			},
-			metrics: map[string][]domain.Metric{
+			metrics: map[domain.Hostname][]domain.Metric{
 				"comp10": {
 					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
@@ -177,9 +188,9 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 			hosts = repo.GetAll()
 			assert.Len(hosts, len(tt.hosts))
 			for _, host := range hosts {
-				assert.Contains(tt.hosts, host.DeviceName)
+				assert.Contains(tt.hosts, host.Name)
 				assert.Equal(
-					sortMetrics(tt.metrics[host.DeviceName]),
+					sortMetrics(tt.metrics[host.Name]),
 					sortMetrics(host.Metrics),
 				)
 			}
@@ -198,7 +209,7 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	// Setup
 	assert := assert.New(t)
 	repo := New(log.Logger)
-	host := domain.Host{DeviceName: "comp01", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
+	host := domain.Host{Name: "comp01", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
 	metric := domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"}
 
 	// Preconditions
@@ -218,7 +229,7 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 	// Setup
 	assert := assert.New(t)
 	repo := New(log.Logger)
-	host := domain.Host{DeviceName: "comp01", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
+	host := domain.Host{Name: "comp01", DSM: dsm_for("comp01"), Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
 	err := repo.PutHost(host)
 	assert.NoError(err)
 

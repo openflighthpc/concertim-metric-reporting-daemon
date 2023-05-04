@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"gopkg.in/yaml.v3"
+
+	topConfig "github.com/alces-flight/concertim-metric-reporting-daemon/config"
 )
 
 // Config is the configuration struct for the app.
 type Config struct {
 	LogLevel  string `yaml:"log_level"`
-	DSM       `yaml:"dsm"`
+	DSM       topConfig.DSM `yaml:"dsm"`
 	Retrieval `yaml:"retrieval"`
 	Recorder  `yaml:"recorder"`
 }
@@ -24,14 +26,6 @@ type Retrieval struct {
 	Port     int           `yaml:"port"`
 	Sleep    time.Duration `yaml:"sleep"`
 	Testdata string        `yaml:"testdata"`
-}
-
-// DSM is the configuration for retrieving the ganglia data source map to
-// device memcache key.
-type DSM struct {
-	Retriever string   `yaml:"retriever"`
-	Path      string   `yaml:"path"`
-	Args      []string `yaml:"args"`
 }
 
 // Recorder is the configuration for recording the processed results.
