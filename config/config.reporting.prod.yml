@@ -32,11 +32,8 @@ dsm:
   # The type of retriever to use for obtaining the data source map look up
   # table.  Either "file" or "script".
   #
-  # If "file", "path" should be set to the path to a JSON file containing an
-  # object with device names as the keys and the device's map to host as the
-  # value, e.g.,
-  #
-  #   {"comp001": "comp001.concertim.alces-flight.com", ...}
+  # If "file", "path" should be set to the path to a JSON file.  See
+  # ./testdata/dsm.json for an example.
   #
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.  "args" can be set to an

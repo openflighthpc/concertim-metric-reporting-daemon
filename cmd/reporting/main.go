@@ -25,8 +25,11 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-var memprofile = flag.String("memprofile", "", "write mem profile to file")
+var (
+	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	memprofile = flag.String("memprofile", "", "write mem profile to file")
+	configFile = flag.String("config-file", config.DefaultPath, "path to config file")
+)
 
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
@@ -45,6 +48,14 @@ func setLogLevel(config *config.Config) {
 	zerolog.SetGlobalLevel(level)
 }
 
+func loadConfig() (*config.Config, error) {
+	if *configFile == "" {
+		return config.FromFile(config.DefaultPath)
+	} else {
+		return config.FromFile(*configFile)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if *cpuprofile != "" {
@@ -58,10 +69,9 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
-
-	config, err := config.FromFile(config.DefaultPaths)
+	config, err := loadConfig()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to parse config file")
+		log.Fatal().Err(err).Msg("loading config failed")
 	}
 	setLogLevel(config)
 	repository := memory.New(log.Logger)

@@ -4,12 +4,12 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"time"
 
 	"gopkg.in/yaml.v3"
 
 	topConfig "github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/pkg/errors"
 )
 
 // Config is the configuration struct for the app.
@@ -34,36 +34,19 @@ type Recorder struct {
 	Args []string `yaml:"args"`
 }
 
-// DefaultPaths contains the default paths used to search for a config file.
-var DefaultPaths = []string{
-	"./config/config.yml",
-	"/opt/concertim/opt/ct-metric-processing-daemon/config/config.yml",
-}
+// DefaultPath is the path to the default config file.
+const DefaultPath string = "/opt/concertim/opt/ct-metric-processing-daemon/config/config.yml"
 
 // FromFile parses the given file path and returns a Config.
-func FromFile(paths []string) (*Config, error) {
-	path, err := findConfigFile(paths)
-	if err != nil {
-		return nil, err
-	}
+func FromFile(path string) (*Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "loading config")
 	}
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("loading config from %s", path))
 	}
 	return &config, nil
-}
-
-func findConfigFile(paths []string) (string, error) {
-	for _, path := range paths {
-		_, err := os.Stat(path)
-		if err == nil {
-			return path, nil
-		}
-	}
-	return "", fmt.Errorf("Unable to find config file")
 }

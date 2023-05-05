@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
@@ -13,6 +14,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 )
+
+var configFile = flag.String("config-file", config.DefaultPath, "path to config file")
 
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
@@ -31,8 +34,17 @@ func setLogLevel(config *config.Config) {
 	zerolog.SetGlobalLevel(level)
 }
 
+func loadConfig() (*config.Config, error) {
+	if *configFile == "" {
+		return config.FromFile(config.DefaultPath)
+	} else {
+		return config.FromFile(*configFile)
+	}
+}
+
 func main() {
-	config, err := config.FromFile(config.DefaultPaths)
+	flag.Parse()
+	config, err := loadConfig()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to parse config file")
 	}

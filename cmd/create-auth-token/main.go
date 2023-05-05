@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -9,8 +10,19 @@ import (
 	"github.com/go-chi/jwtauth/v5"
 )
 
+var configFile = flag.String("config-file", config.DefaultPath, "path to config file")
+
+func loadConfig() (*config.Config, error) {
+	if *configFile == "" {
+		return config.FromFile(config.DefaultPath)
+	} else {
+		return config.FromFile(*configFile)
+	}
+}
+
 func main() {
-	config, err := config.FromFile(config.DefaultPaths)
+	flag.Parse()
+	config, err := loadConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to load config: %s\n", err.Error())
 		os.Exit(1)

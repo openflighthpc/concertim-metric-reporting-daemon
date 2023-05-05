@@ -1,3 +1,6 @@
+# Configuration suitable for running on the dev VM.  It makes requests to
+# remote services to use real data.
+
 # Configuration for the HTTP API.
 api:
   # The address of the network interface to listen on.
@@ -32,19 +35,12 @@ dsm:
   # The type of retriever to use for obtaining the data source map look up
   # table.  Either "file" or "script".
   #
-  # If "file", "path" should be set to the path to a JSON file containing an
-  # object with device names as the keys and the device's map to host as the
-  # value, e.g.,
-  #
-  #   {"comp001": "comp001.concertim.alces-flight.com", ...}
+  # If "file", "path" should be set to the path to a JSON file.  See
+  # ./testdata/dsm.json for an example.
   #
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.  "args" can be set to an
   # array of arguments passed to the executable.
-  #
-  # Use these values when not running on a dev concertim appliance.
-  #retriever: "file"
-  #path: "./config/dsm.json"
   #
   # Use these values when running on a dev concertim appliance.
   retriever: "script"
@@ -59,6 +55,5 @@ dsm:
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
   sleep: 30s
 
-log_level: debug
-#shared_secret_file: "./config/secret.dev"
+log_level: info
 shared_secret_file: "/opt/concertim/etc/secret"
