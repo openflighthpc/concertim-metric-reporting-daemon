@@ -71,6 +71,7 @@ func (mr *Repo) GetAll() []domain.Host {
 func (mr *Repo) GetHost(hostName domain.Hostname) (domain.Host, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
+	mr.logger.Debug().Stringer("host", hostName).Msg("Getting host")
 	host, ok := mr.hosts[hostName.String()]
 	if !ok {
 		return domain.Host{}, false

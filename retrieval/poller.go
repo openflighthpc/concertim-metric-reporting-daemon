@@ -35,14 +35,15 @@ type Poller struct {
 
 // New returns a new Poller.
 func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
+	logger = logger.With().Str("component", "metric-retriever").Logger()
 	xmlRetriever, err := getXMLRetriver(logger, config)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "getting xml retriever")
 	}
 
 	return &Poller{
 		config:       config,
-		logger:       logger.With().Str("component", "metric-retriever").Logger(),
+		logger:       logger,
 		xmlRetriever: xmlRetriever,
 		// stopChan:  make(chan struct{}),
 	}, nil

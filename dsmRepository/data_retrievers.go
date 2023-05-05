@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os/exec"
+	"strings"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/pkg/errors"
@@ -25,10 +26,18 @@ func (e *Script) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]do
 		args = []string{}
 	}
 	cmd := exec.Command(e.Path, args...)
-	e.Logger.Debug().Str("cmd", cmd.String()).Msg("running")
+	e.Logger.Debug().Str("cmd", cmd.String()).Msg("retrieving json")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, nil, err
+		msg := "executing script"
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			if strings.Contains(exitErr.Error(), e.Path) || strings.Contains(string(exitErr.Stderr), e.Path) {
+				return nil, nil, errors.Wrapf(exitErr, "%s: %s", msg, exitErr.Stderr)
+			}
+			return nil, nil, errors.Wrapf(exitErr, "%s: %s: %s", msg, e.Path, exitErr.Stderr)
+		}
+		return nil, nil, errors.Wrap(err, msg)
 	}
 	parser := Parser{Logger: e.Logger}
 	return parser.parseJSON(out)
@@ -42,9 +51,14 @@ type JSONFileRetreiver struct {
 }
 
 func (j *JSONFileRetreiver) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+	j.Logger.Debug().Str("path", j.Path).Msg("retrieving json")
 	data, err := ioutil.ReadFile(j.Path)
 	if err != nil {
-		return nil, nil, err
+		msg := "reading JSON file"
+		if !strings.Contains(err.Error(), j.Path) {
+			msg = fmt.Sprintf("%s: %s", msg, j.Path)
+		}
+		return nil, nil, errors.Wrap(err, msg)
 	}
 	parser := Parser{Logger: j.Logger}
 	return parser.parseJSON(data)
@@ -57,6 +71,7 @@ type Parser struct {
 }
 
 func (p *Parser) parseJSON(data []byte) (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+	p.Logger.Debug().Int("bytes", len(data)).Msg("parsing JSON")
 	var raw interface{}
 
 	hostnameMap := map[domain.Hostname]domain.DSM{}
@@ -128,7 +143,7 @@ func (p *Parser) parseMemcacheMap(data any) (map[domain.DSM]domain.MemcacheKey, 
 			for hName, memcacheKey := range hostMap {
 				memcacheKey, ok := memcacheKey.(string)
 				if !ok {
-					return nil, fmt.Errorf("not of expected type")
+					return nil, fmt.Errorf("unexpected type for memcacheKey")
 				}
 				dsm := domain.DSM{
 					GridName:    gName,

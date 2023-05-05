@@ -3,6 +3,8 @@ package domain
 import (
 	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // AddMetric adds the given metric for the specified host to the repository.
@@ -14,16 +16,16 @@ func (app *Application) AddMetric(metric Metric, hostName Hostname) error {
 		var err error
 		host, err = app.addHost(hostName)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "adding host")
 		}
 	}
 	host.Reported = time.Now()
 	err := app.Repo.PutHost(host)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "updating host")
 	}
 	err = app.Repo.PutMetric(host, metric)
-	return err
+	return errors.Wrap(err, "putting metric")
 }
 
 // addHost creates a new Host and adds it to the Repository.

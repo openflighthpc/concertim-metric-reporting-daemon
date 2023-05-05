@@ -56,21 +56,14 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 			result.numIgnoredGrids++
 			continue
 		}
-		p.logger.Debug().
-			Str("grid", gGrid.Name).
-			Int("count", len(gGrid.Clusters)).
-			Msg("processing clusters")
+		logProcessingClusters(p.logger, gGrid)
 		for _, gCluster := range gGrid.Clusters {
 			if gCluster.Name != "unspecified" {
 				p.logger.Warn().Str("cluster", gCluster.Name).Msg("ignoring")
 				result.numIgnoredClusters++
 				continue
 			}
-			p.logger.Debug().
-				Str("grid", gGrid.Name).
-				Str("cluster", gCluster.Name).
-				Int("count", len(gCluster.Hosts)).
-				Msg("processing hosts")
+			logProcessingHosts(p.logger, gGrid, gCluster)
 			for _, gHost := range gCluster.Hosts {
 				dsm := domain.DSM{
 					GridName:    gGrid.Name,
@@ -79,35 +72,21 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 				}
 				memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
 				if !ok {
-					p.logger.Debug().
-						Str("host", gHost.Name).
-						Stringer("dsm", dsm).
-						Msg("ignoring")
+					logIgnoringHost(p.logger, gHost, dsm)
 					result.numIgnoredHosts++
 					continue
 				}
-				p.logger.Debug().
-					Str("grid", gGrid.Name).
-					Str("cluster", gCluster.Name).
-					Str("host", gHost.Name).
-					Int("count", len(gHost.Metrics)).
-					Msg("processing metrics")
+				logProcessingMetrics(p.logger, gGrid, gCluster, gHost)
 				ctHost := Host{
 					Name:        gHost.Name,
 					MemcacheKey: memcacheKey,
 					Metrics:     make(map[MetricName]Metric),
 				}
 				for _, gMetric := range gHost.Metrics {
-					p.logger.Debug().
-						Str("grid", gGrid.Name).
-						Str("cluster", gCluster.Name).
-						Str("host", gHost.Name).
-						Str("metric", gMetric.Name).
-						Msg("processing metric")
-
+					logProcessingMetric(p.logger, gGrid, gCluster, gHost, gMetric)
 					ctMetric, err := MetricFromGanglia(now, gMetric)
 					if err != nil {
-						p.logger.Err(err).Msg("failed")
+						p.logger.Warn().Err(err).Msg("failed")
 						continue
 					}
 					ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
@@ -121,7 +100,52 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 			}
 		}
 	}
-	p.logger.Info().
+	logProcessResults(p.logger, result)
+	return result, nil
+}
+
+func logProcessingClusters(logger zerolog.Logger, gGrid retrieval.Grid) {
+	logger.Debug().
+		Str("grid", gGrid.Name).
+		Int("count", len(gGrid.Clusters)).
+		Msg("processing clusters")
+}
+
+func logProcessingHosts(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster) {
+	logger.Debug().
+		Str("grid", gGrid.Name).
+		Str("cluster", gCluster.Name).
+		Int("count", len(gCluster.Hosts)).
+		Msg("processing hosts")
+}
+
+func logIgnoringHost(logger zerolog.Logger, gHost retrieval.Host, dsm domain.DSM) {
+	logger.Debug().
+		Str("host", gHost.Name).
+		Stringer("dsm", dsm).
+		Msg("ignoring")
+}
+
+func logProcessingMetrics(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster, gHost retrieval.Host) {
+	logger.Debug().
+		Str("grid", gGrid.Name).
+		Str("cluster", gCluster.Name).
+		Str("host", gHost.Name).
+		Int("count", len(gHost.Metrics)).
+		Msg("processing metrics")
+}
+
+func logProcessingMetric(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster, gHost retrieval.Host, gMetric retrieval.Metric) {
+	logger.Debug().
+		Str("grid", gGrid.Name).
+		Str("cluster", gCluster.Name).
+		Str("host", gHost.Name).
+		Str("metric", gMetric.Name).
+		Msg("processing metric")
+}
+
+func logProcessResults(logger zerolog.Logger, result *Result) {
+	logger.Info().
 		Dict("processed", zerolog.Dict().
 			Int("hosts", len(result.Hosts)).
 			Int("metrics", result.numMetrics).
@@ -131,7 +155,6 @@ func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
 			Int("clusters", result.numIgnoredClusters).
 			Int("hosts", result.numIgnoredHosts)).
 		Msg("completed")
-	return result, nil
 }
 
 // MetricName exists to document some function signatures.

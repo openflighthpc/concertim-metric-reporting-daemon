@@ -2,10 +2,10 @@
 package gds
 
 import (
-	"errors"
 	"fmt"
 	"net"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
@@ -35,14 +35,13 @@ func New(logger zerolog.Logger, app *domain.Application, config config.GDS) (*Se
 	}
 	generator, err := newOutputGenerator(realClock{}, config)
 	if err != nil {
-		logger.Error().Err(err).Msg("Unable to create output generator")
-		return nil, err
+		return nil, errors.Wrap(err, "creating gds output generator")
 	}
 	return &Server{
 		addr:      addr,
 		app:       app,
 		generator: generator,
-		logger:    logger.With().Str("component", "gds").Logger(),
+		logger:    logger.With().Str("component", "ganglia-server").Logger(),
 		stopChan:  make(chan struct{}),
 		tcpServer: nil,
 	}, nil
@@ -53,10 +52,10 @@ func New(logger zerolog.Logger, app *domain.Application, config config.GDS) (*Se
 func (gds *Server) ListenAndServe() error {
 	listener, err := net.ListenTCP("tcp", gds.addr)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "starting gds server")
 	}
 	gds.tcpServer = listener
-	gds.logger.Info().Stringer("address", gds.addr).Msg("Listenting")
+	gds.logger.Info().Stringer("address", gds.addr).Msg("Listening")
 	go func() {
 		<-gds.stopChan
 		if err := gds.tcpServer.Close(); err != nil && !errors.Is(err, net.ErrClosed) {
@@ -66,7 +65,7 @@ func (gds *Server) ListenAndServe() error {
 	for {
 		conn, err := gds.tcpServer.Accept()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "gds accepting connection")
 		}
 		gds.logger.Info().Stringer("from", conn.RemoteAddr()).Msg("Accepted connection")
 		go func() {
