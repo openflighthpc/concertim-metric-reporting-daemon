@@ -14,7 +14,7 @@ import (
 
 // Config is the configuration struct for the app.
 type Config struct {
-	LogLevel  string `yaml:"log_level"`
+	LogLevel  string        `yaml:"log_level"`
 	DSM       topConfig.DSM `yaml:"dsm"`
 	Retrieval `yaml:"retrieval"`
 	Recorder  `yaml:"recorder"`

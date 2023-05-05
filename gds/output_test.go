@@ -93,28 +93,28 @@ func parseXML(theXML []byte) error {
 }
 
 func dsm_for(hostname string) domain.DSM {
-  return domain.DSM {
-    GridName: "unspecified",
-    ClusterName: "unspecified",
-    HostName: hostname,
-  }
+	return domain.DSM{
+		GridName:    "unspecified",
+		ClusterName: "unspecified",
+		HostName:    hostname,
+	}
 }
 
 func clusterWithoutMetrics() []domain.Host {
 	return []domain.Host{
 		{
-			Name: "comp10",
-			DSM:    dsm_for("comp10.cluster.local"),
-			Reported:   fakeClock{}.Now(),
-			DMax:       10 * time.Second,
-			Metrics:    []domain.Metric{},
+			Name:     "comp10",
+			DSM:      dsm_for("comp10.cluster.local"),
+			Reported: fakeClock{}.Now(),
+			DMax:     10 * time.Second,
+			Metrics:  []domain.Metric{},
 		},
 		{
-			Name: "comp20",
-			DSM:    dsm_for("comp20.cluster.local"),
-			Reported:   fakeClock{}.Now(),
-			DMax:       20 * time.Second,
-			Metrics:    []domain.Metric{},
+			Name:     "comp20",
+			DSM:      dsm_for("comp20.cluster.local"),
+			Reported: fakeClock{}.Now(),
+			DMax:     20 * time.Second,
+			Metrics:  []domain.Metric{},
 		},
 	}
 }
@@ -171,10 +171,10 @@ func goldenValue(t *testing.T, goldenFile string) string {
 func clusterWithXML() []domain.Host {
 	return []domain.Host{
 		{
-			Name: "\"</HOST>",
-			DSM:    dsm_for("\"</HOST>.cluster.local"),
-			Reported:   fakeClock{}.Now(),
-			DMax:       10 * time.Second,
+			Name:     "\"</HOST>",
+			DSM:      dsm_for("\"</HOST>.cluster.local"),
+			Reported: fakeClock{}.Now(),
+			DMax:     10 * time.Second,
 			Metrics: []domain.Metric{{
 				Name:  "\"</NAME>",
 				Val:   "\"</VAL>",

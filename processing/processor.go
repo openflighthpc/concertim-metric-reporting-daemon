@@ -192,8 +192,8 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 	}
 	return json.Marshal(&struct {
 		HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
-		Hosts         []Host                       `json:"hosts"`
-		UniqueMetrics []Metric                     `json:"unique_metrics"`
+		Hosts         []Host                              `json:"hosts"`
+		UniqueMetrics []Metric                            `json:"unique_metrics"`
 	}{
 		HostsByMetric: r.HostsByMetric,
 		Hosts:         r.Hosts,
@@ -204,7 +204,7 @@ func (r *Result) MarshalJSON() ([]byte, error) {
 // Host is the domain model for a host.
 type Host struct {
 	Name        string                `json:"name,omitempty"`
-	MemcacheKey domain.MemcacheKey           `json:"memcache_key,omitempty"`
+	MemcacheKey domain.MemcacheKey    `json:"memcache_key,omitempty"`
 	Metrics     map[MetricName]Metric `json:"metrics"`
 	// Use a pointer for Mtime so that the json marshalling will omit when
 	// empty.
