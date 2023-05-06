@@ -16,8 +16,10 @@ type Config struct {
 	LogLevel         string `yaml:"log_level"`
 	SharedSecretFile string `yaml:"shared_secret_file"`
 	API              `yaml:"api"`
-	GDS              `yaml:"gds"`
 	DSM              `yaml:"dsm"`
+	GDS              `yaml:"gds"`
+	Recorder         `yaml:"recorder"`
+	Retrieval        `yaml:"retrieval"`
 }
 
 // API is the configuration for the HTTP API component.
@@ -42,6 +44,20 @@ type DSM struct {
 	Path      string        `yaml:"path"`
 	Args      []string      `yaml:"args"`
 	Sleep     time.Duration `yaml:"sleep"`
+}
+
+// Retrieval is the configuration for retrieving the ganglia XML.
+type Retrieval struct {
+	IP       string        `yaml:"ip"`
+	Port     int           `yaml:"port"`
+	Sleep    time.Duration `yaml:"sleep"`
+	Testdata string        `yaml:"testdata"`
+}
+
+// Recorder is the configuration for recording the processed results.
+type Recorder struct {
+	Path string   `yaml:"path"`
+	Args []string `yaml:"args"`
 }
 
 // DefaultPath is the path to the default config file.

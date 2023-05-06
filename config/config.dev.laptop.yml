@@ -1,0 +1,132 @@
+# Configuration suitable for running on your development laptop.  It uses fake,
+# aka canned data instead of making requests to remote servcies.
+
+# Configuration for the HTTP API.
+api:
+  # The address of the network interface to listen on.
+  ip: "127.0.0.1"
+
+  # The port to listen on.
+  port: 3000
+
+# Configuration for the gangali data source server.
+gds:
+  # The address of the network interface to listen on.
+  ip: "127.0.0.1"
+
+  # The port to listen on.
+  port: 8678
+
+  # The cluster name to use in the ganglia output.
+  clusterName: "unspecified"
+
+  # The source to use in the ganglia output.
+  metricSource: "ct-metric-reporting-daemon"
+
+  # The time in seconds that a host should remain "fresh" for.
+  #
+  # If the last metric for a host was reported more than `hostTTL` seconds
+  # ago, the host and all of its metrics are considered stale and no longer
+  # included in the metric stream.
+  hostTTL: 180
+
+# Configuration for generating the data source map lookup.
+dsm:
+  # The type of retriever to use for obtaining the data source map look up
+  # table.  Either "file" or "script".
+  #
+  # If "file", "path" should be set to the path to a JSON file.  See
+  # ./testdata/dsm.json for an example.
+  #
+  # If "script" it should be set to the path of an executable script that
+  # prints JSON to stdout in the same format as above.  "args" can be set to an
+  # array of arguments passed to the executable.
+  #
+  # Use these values when not running on a concertim appliance.
+  retriever: "file"
+  path: "./testdata/dsm.json"
+
+  # The data source map is periodically updated using the configured
+  # retriever.  This value sets the time to sleep between runs.
+  #
+  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
+  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 30s
+
+# Configuration for retrieving metrics from gmetad.
+retrieval:
+  # The IP address, or hostname, of the gmetad server to poll for metrics.
+  ip: localhost
+
+  # The port of the gmetad server to poll for metrics.
+  port: 8651
+
+  # The metrics are periodically retrieved from the gmetad source.  This is the
+  # minimum duration to sleep between polls.
+  #
+  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
+  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 15s
+
+  # If this values is given and is not an empty string, the ganglia XML will be
+  # read from this file instead of polling the gmetad server.  In this case the
+  # IP add port will be ignored.  Relative paths are relative to the working
+  # directory of the running process.
+  # testdata: "./testdata/ganglia-small.xml"
+  testdata: "./testdata/ganglia.xml"
+
+# Configuration for storing the processed results.
+#
+# Currently there is an expectation that the results will be stored in Memcache
+# using the Ruby Marshal serialization format.  Golang has poor support for
+# serializing and de-serializing Ruby Marshal, so we use a Ruby script to do
+# this instead.  The Ruby script is supplied with the processed results as JSON
+# via stdin.
+recorder:
+  # The path of an executable script that reads JSON from stdin in and saves
+  # the results to Memcache using Ruby Marshal to serialize.
+  path: "./libexec/results-to-memcache-faker.rb"
+  # CLI args passed to the above script.  The first arg is the memcache address.
+  args: ["localhost:11211"]
+
+# Configuration for retrieving metrics from gmetad.
+retrieval:
+  # The IP address, or hostname, of the gmetad server to poll for metrics.
+  ip: localhost
+
+  # The port of the gmetad server to poll for metrics.
+  port: 8651
+
+  # The metrics are periodically retrieved from the gmetad source.  This is the
+  # minimum duration to sleep between polls.
+  #
+  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
+  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  sleep: 15s
+
+  # If this values is given and is not an empty string, the ganglia XML will be
+  # read from this file instead of polling the gmetad server.  In this case the
+  # IP add port will be ignored.  Relative paths are relative to the working
+  # directory of the running process.
+  # testdata: "./testdata/ganglia-small.xml"
+  testdata: "./testdata/ganglia.xml"
+
+# Configuration for storing the processed results.
+#
+# Currently there is an expectation that the results will be stored in Memcache
+# using the Ruby Marshal serialization format.  Golang has poor support for
+# serializing and de-serializing Ruby Marshal, so we use a Ruby script to do
+# this instead.  The Ruby script is supplied with the processed results as JSON
+# via stdin.
+recorder:
+  # The path of an executable script that reads JSON from stdin in and saves
+  # the results to Memcache using Ruby Marshal to serialize.
+  path: "./libexec/results-to-memcache-faker.rb"
+  # CLI args passed to the above script.  The first arg is the memcache address.
+  args: ["localhost:11211"]
+
+log_level: info
+shared_secret_file: "./testdata/secret.dev"

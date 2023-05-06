@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )

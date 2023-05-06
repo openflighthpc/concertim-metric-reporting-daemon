@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/processing/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/html/charset"
@@ -51,7 +51,7 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 
 // Start periodically retrieves the ganglia XML, parses it and sends the
 // results to the gridChan channel.
-func (r *Poller) Start(gridChan chan<- []Grid) error {
+func (r *Poller) Start(gridChan chan<- []Grid) {
 	oneLoop := func() {
 		xml, err := r.xmlRetriever.retrieve()
 		if err != nil {

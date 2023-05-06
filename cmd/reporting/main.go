@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"net"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
@@ -22,7 +22,9 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 )
 
 var (
@@ -98,6 +100,13 @@ func main() {
 			log.Fatal().Err(err).Msg("gds.Server.ListenAndServe")
 		}
 	}()
+	go func() {
+		err := runMetricProcessor(config, dsmRepo)
+		if err != nil {
+			log.Fatal().Err(err).Msg("running metric processor")
+		}
+	}()
+
 	gracefulExitSigs := []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP}
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, gracefulExitSigs...)
@@ -126,4 +135,28 @@ func main() {
 		f.Close() //nolint:errcheck
 		return
 	}
+}
+
+func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo) error {
+	pollChan := make(chan []retrieval.Grid)
+	poller, err := retrieval.New(log.Logger, config.Retrieval)
+	if err != nil {
+		return errors.Wrap(err, "creating retrieval poller")
+	}
+	processor := processing.NewProcessor(log.Logger, dsmRepo)
+	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
+
+	go func() { poller.Start(pollChan) }()
+
+	for grids := range pollChan {
+		results, err := processor.Process(grids)
+		if err != nil {
+			log.Error().Err(err).Msg("processing metrics")
+		}
+		err = recorder.Record(results)
+		if err != nil {
+			log.Error().Err(err).Msg("recording results")
+		}
+	}
+	return nil
 }
