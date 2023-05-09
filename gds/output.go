@@ -9,6 +9,7 @@ import (
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/pkg/errors"
 )
 
 //go:embed output.tmpl
@@ -73,7 +74,7 @@ func newOutputGenerator(clock clock, config config.GDS) (*outputGenerator, error
 		Funcs(funcMap).
 		Parse(string(outputTemplateBytes))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "parsing template")
 	}
 	og.template = outputTemplate
 	return &og, nil
@@ -94,7 +95,7 @@ func (g *outputGenerator) generate(hosts []domain.Host) ([]byte, error) {
 	}
 	err := g.template.Execute(&buf, cluster)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "executing template")
 	}
 	return buf.Bytes(), nil
 }

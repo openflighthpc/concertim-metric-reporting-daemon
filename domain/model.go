@@ -29,15 +29,41 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
+// Hostname exists to document some function signatures.
+type Hostname string
+
+// String implements the Stringer interface.
+func (m Hostname) String() string {
+	return string(m)
+}
+
+// DSM represents a Ganglia identifier for a host.
+type DSM struct {
+	GridName    string
+	ClusterName string
+	HostName    string
+}
+
+// String implements the Stringer interface.
+func (d DSM) String() string {
+	return fmt.Sprintf("%s/%s/%s", d.GridName, d.ClusterName, d.HostName)
+}
+
+// MemcacheKey exists to document some function signatures.
+type MemcacheKey string
+
+// String implements the Stringer interface.
+func (m MemcacheKey) String() string {
+	return string(m)
+}
+
 // Host is the domain model representing a host.
 type Host struct {
-	// XXX Consider Name HostName for better documentation of what we key maps
-	// off of.
-	DeviceName string
-	DSMName    string
-	Reported   time.Time
-	DMax       time.Duration
-	Metrics    []Metric
+	Name     Hostname
+	DSM      DSM
+	Reported time.Time
+	DMax     time.Duration
+	Metrics  []Metric
 }
 
 // Metric is the domain model representing a single metric.

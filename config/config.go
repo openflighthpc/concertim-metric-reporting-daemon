@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -17,8 +16,10 @@ type Config struct {
 	LogLevel         string `yaml:"log_level"`
 	SharedSecretFile string `yaml:"shared_secret_file"`
 	API              `yaml:"api"`
-	GDS              `yaml:"gds"`
 	DSM              `yaml:"dsm"`
+	GDS              `yaml:"gds"`
+	Recorder         `yaml:"recorder"`
+	Retrieval        `yaml:"retrieval"`
 }
 
 // API is the configuration for the HTTP API component.
@@ -45,26 +46,33 @@ type DSM struct {
 	Sleep     time.Duration `yaml:"sleep"`
 }
 
-// DefaultPaths contains the default paths used to search for a config file.
-var DefaultPaths = []string{
-	"./config/config.yml",
-	"/opt/concertim/opt/ct-metric-reporting-daemon/config/config.yml",
+// Retrieval is the configuration for retrieving the ganglia XML.
+type Retrieval struct {
+	IP       string        `yaml:"ip"`
+	Port     int           `yaml:"port"`
+	Sleep    time.Duration `yaml:"sleep"`
+	Testdata string        `yaml:"testdata"`
 }
 
+// Recorder is the configuration for recording the processed results.
+type Recorder struct {
+	Path string   `yaml:"path"`
+	Args []string `yaml:"args"`
+}
+
+// DefaultPath is the path to the default config file.
+const DefaultPath string = "/opt/concertim/opt/ct-metric-reporting-daemon/config/config.yml"
+
 // FromFile parses the given file path and returns a Config.
-func FromFile(paths []string) (*Config, error) {
-	path, err := findConfigFile(paths)
-	if err != nil {
-		return nil, err
-	}
+func FromFile(path string) (*Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "loading config")
 	}
 	var config Config
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, fmt.Sprintf("loading config from %s", path))
 	}
 	secret, err := ioutil.ReadFile(config.SharedSecretFile)
 	if err != nil {
@@ -72,14 +80,4 @@ func FromFile(paths []string) (*Config, error) {
 	}
 	config.API.JWTSecret = bytes.TrimRight(secret, "\n")
 	return &config, nil
-}
-
-func findConfigFile(paths []string) (string, error) {
-	for _, path := range paths {
-		_, err := os.Stat(path)
-		if err == nil {
-			return path, nil
-		}
-	}
-	return "", fmt.Errorf("Unable to find config file")
 }

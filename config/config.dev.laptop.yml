@@ -1,7 +1,10 @@
+# Configuration suitable for running on your development laptop.  It uses fake,
+# aka canned data instead of making requests to remote servcies.
+
 # Configuration for the HTTP API.
 api:
   # The address of the network interface to listen on.
-  ip: "0.0.0.0"
+  ip: "127.0.0.1"
 
   # The port to listen on.
   port: 3000
@@ -38,14 +41,10 @@ dsm:
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.  "args" can be set to an
   # array of arguments passed to the executable.
-  retriever: "script"
-
-  # See "retriever" comment for what this means.
-  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
-
-  # CLI arguments passed to the above script.  For the above script, a single
-  # argument is given, which is the address of the memcache server.
-  args: ["localhost:11211"]
+  #
+  # Use these values when not running on a concertim appliance.
+  retriever: "file"
+  path: "./testdata/dsm.json"
 
   # The data source map is periodically updated using the configured
   # retriever.  This value sets the time to sleep between runs.
@@ -71,6 +70,13 @@ retrieval:
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
   sleep: 15s
 
+  # If this values is given and is not an empty string, the ganglia XML will be
+  # read from this file instead of polling the gmetad server.  In this case the
+  # IP add port will be ignored.  Relative paths are relative to the working
+  # directory of the running process.
+  # testdata: "./testdata/ganglia-small.xml"
+  testdata: "./testdata/ganglia.xml"
+
 # Configuration for storing the processed results.
 #
 # Currently there is an expectation that the results will be stored in Memcache
@@ -81,9 +87,9 @@ retrieval:
 recorder:
   # The path of an executable script that reads JSON from stdin in and saves
   # the results to Memcache using Ruby Marshal to serialize.
-  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/results-to-memcache.rb"
+  path: "./libexec/results-to-memcache-faker.rb"
   # CLI args passed to the above script.  The first arg is the memcache address.
   args: ["localhost:11211"]
 
 log_level: info
-shared_secret_file: "/opt/concertim/etc/secret"
+shared_secret_file: "./testdata/secret.dev"

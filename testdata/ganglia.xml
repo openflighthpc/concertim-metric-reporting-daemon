@@ -322,6 +322,18 @@
 </METRIC>
 </HOST>
 <HOST NAME="comp102" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
 </HOST>
 <HOST NAME="comp232" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
 <METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
@@ -506,6 +518,18 @@
 </METRIC>
 </HOST>
 <HOST NAME="comp101" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
 </HOST>
 <HOST NAME="comp213" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
 <METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
@@ -522,6 +546,18 @@
 </METRIC>
 </HOST>
 <HOST NAME="comp104" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
 </HOST>
 <HOST NAME="comp230" IP="" REPORTED="1680199814" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
 <METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
@@ -734,6 +770,18 @@
 </METRIC>
 </HOST>
 <HOST NAME="comp103" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
 </HOST>
 <HOST NAME="comp229" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
 <METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">

@@ -33,7 +33,7 @@ func NewServer(logger zerolog.Logger, app *domain.Application, config config.API
 	return &Server{
 		app:       app,
 		config:    config,
-		logger:    logger.With().Str("component", "api").Logger(),
+		logger:    logger.With().Str("component", "http-api").Logger(),
 		tokenAuth: jwtauth.New("HS256", config.JWTSecret, nil),
 	}
 }
@@ -47,7 +47,7 @@ func (s *Server) ListenAndServe() error {
 		Handler:      s.addRoutes(),
 	}
 	s.httpServer = &server
-	s.logger.Info().Str("address", server.Addr).Msg("API server listening")
+	s.logger.Info().Str("address", server.Addr).Msg("Listening")
 	return server.ListenAndServe()
 }
 
@@ -101,7 +101,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = s.app.AddMetric(metric, chi.URLParam(r, "deviceName"))
+	err = s.app.AddMetric(metric, domain.Hostname(chi.URLParam(r, "deviceName")))
 	if errors.Is(err, domain.UnknownHost) {
 		body := ErrorsPayload{
 			Status: http.StatusNotFound,
@@ -111,7 +111,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	} else if err != nil {
 		logger := hlog.FromRequest(r)
-		logger.Debug().Err(err).Msg("adding metric")
+		logger.Debug().Err(err).Send()
 		renderJSON("", http.StatusInternalServerError, rw)
 		return
 	}

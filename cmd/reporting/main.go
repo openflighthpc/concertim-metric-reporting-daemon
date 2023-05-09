@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"net"
 	"net/http"
@@ -13,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
@@ -22,11 +22,16 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 )
 
-var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
-var memprofile = flag.String("memprofile", "", "write mem profile to file")
+var (
+	cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	memprofile = flag.String("memprofile", "", "write mem profile to file")
+	configFile = flag.String("config-file", config.DefaultPath, "path to config file")
+)
 
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
@@ -45,6 +50,14 @@ func setLogLevel(config *config.Config) {
 	zerolog.SetGlobalLevel(level)
 }
 
+func loadConfig() (*config.Config, error) {
+	if *configFile == "" {
+		return config.FromFile(config.DefaultPath)
+	} else {
+		return config.FromFile(*configFile)
+	}
+}
+
 func main() {
 	flag.Parse()
 	if *cpuprofile != "" {
@@ -58,10 +71,9 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
-
-	config, err := config.FromFile(config.DefaultPaths)
+	config, err := loadConfig()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to parse config file")
+		log.Fatal().Err(err).Msg("loading config failed")
 	}
 	setLogLevel(config)
 	repository := memory.New(log.Logger)
@@ -88,6 +100,13 @@ func main() {
 			log.Fatal().Err(err).Msg("gds.Server.ListenAndServe")
 		}
 	}()
+	go func() {
+		err := runMetricProcessor(config, dsmRepo)
+		if err != nil {
+			log.Fatal().Err(err).Msg("running metric processor")
+		}
+	}()
+
 	gracefulExitSigs := []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP}
 	sigint := make(chan os.Signal, 1)
 	signal.Notify(sigint, gracefulExitSigs...)
@@ -116,4 +135,28 @@ func main() {
 		f.Close() //nolint:errcheck
 		return
 	}
+}
+
+func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo) error {
+	pollChan := make(chan []retrieval.Grid)
+	poller, err := retrieval.New(log.Logger, config.Retrieval)
+	if err != nil {
+		return errors.Wrap(err, "creating retrieval poller")
+	}
+	processor := processing.NewProcessor(log.Logger, dsmRepo)
+	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
+
+	go func() { poller.Start(pollChan) }()
+
+	for grids := range pollChan {
+		results, err := processor.Process(grids)
+		if err != nil {
+			log.Error().Err(err).Msg("processing metrics")
+		}
+		err = recorder.Record(results)
+		if err != nil {
+			log.Error().Err(err).Msg("recording results")
+		}
+	}
+	return nil
 }

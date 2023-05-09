@@ -1,17 +1,22 @@
-BIN_NAME = ct-metric-reporting-daemon
-EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/device-name-to-data_source_map.rb
-TARFILE = $(BIN_NAME).tgz
+EXE = ct-metric-reporting-daemon
+EXTRA_FILES = config/config.prod.yml LICENSE.txt README.md libexec/device-name-to-data_source_map.rb libexec/results-to-memcache.rb libexec/phoenix-cache-locking.rb
+TARFILE = $(EXE).tgz
 
 .PHONY: all
-all: package
+all: $(TARFILE)
 
-build:
-	go build -o $(BIN_NAME)
+.PHONY: $(EXE)
+$(EXE):
+	go build  -o $(EXE) ./cmd/reporting/
 
-package: build $(EXTRA_FILES)
-	tar czf $(TARFILE) $(BIN_NAME) $(EXTRA_FILES) \
+$(TARFILE): $(EXE) $(EXTRA_FILES)
+	tar czf $(TARFILE) $(EXE) $(EXTRA_FILES) \
 		--transform "s/config.prod.yml/config.yml/" \
-		--transform "s/^/$(BIN_NAME)\//"
+		--transform "s/^/$(EXE)\//"
 
+.PHONY: package
+package: $(TARFILE)
+
+.PHONY: clean
 clean:
-	rm -f $(BIN_NAME) $(TARFILE)
+	rm -f $(EXE) $(TARFILE)
