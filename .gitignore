@@ -5,7 +5,6 @@
 *.so
 *.dylib
 ct-metric-reporting-daemon
-ct-metric-processing-daemon
 
 # Test binary, built with `go test -c`
 *.test
@@ -24,4 +23,3 @@ go.work
 
 # Build aretefacts
 ct-metric-reporting-daemon.tgz
-ct-metric-processing-daemon.tgz

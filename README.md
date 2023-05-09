@@ -1,16 +1,15 @@
-# Alces Concertim Metric Reporting and Processing Daemons
+# Alces Concertim Metric Reporting and Processing Daemon
 
 ## Overview
 
-This repository contains two daemons.
-
 Concertim Metric Reporting Daemon (ct-metric-reporting-daemon) provides a HTTP
-API for metrics to be reported to Concertim and exposes reported metrics to
-Ganglia's Gmetad via TCP.
+API for metrics to be reported to Concertim.
 
-Concertim Metric Processing Daemon (ct-metric-processing-daemon) periodically
-polls Ganglia's Gmetad server for metrics, creates useful views of those
-metrics and places the most recent views in memcache.
+It exposes reported metrics to Ganglia's Gmetad via TCP, it periodically polls
+Ganglia's Gmetad server for metrics, creates useful views of those metrics and
+places the most recent views in memcache.
+
+The use of Ganglia's Gmetad creates RRD files and expires old metrics.
 
 ## Usage
 
