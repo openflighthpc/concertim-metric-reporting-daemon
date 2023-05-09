@@ -4,10 +4,12 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"runtime/pprof"
 	"syscall"
 	"time"
@@ -33,6 +35,18 @@ var (
 	configFile = flag.String("config-file", config.DefaultPath, "path to config file")
 )
 
+var Usage = func() {
+	cmd := path.Base(os.Args[0])
+	w := flag.CommandLine.Output()
+	fmt.Fprintf(w, "Usage: %s [OPTION]... [COMMAND]\n", cmd)
+	fmt.Fprintf(w, "\nThe commands are:\n\n")
+	fmt.Fprintf(w, "\tversion\t print version\n")
+	fmt.Fprintf(w, "\nThe options are:\n\n")
+	flag.PrintDefaults()
+}
+
+var version string
+
 func init() {
 	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
 	isatty := err == nil
@@ -40,6 +54,7 @@ func init() {
 		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
 		log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
 	}
+	flag.Usage = Usage
 }
 
 func setLogLevel(config *config.Config) {
@@ -60,6 +75,16 @@ func loadConfig() (*config.Config, error) {
 
 func main() {
 	flag.Parse()
+	if flag.Arg(0) == "version" {
+		cmd := path.Base(os.Args[0])
+		w := flag.CommandLine.Output()
+		fmt.Fprintf(w, "%s version %s\n", cmd, version)
+		os.Exit(0)
+	} else if len(flag.Args()) > 0 {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
 		if err != nil {
