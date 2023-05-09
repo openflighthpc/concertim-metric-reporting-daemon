@@ -14,6 +14,9 @@ $(TARFILE): $(EXE) $(EXTRA_FILES)
 		--transform "s/config.prod.yml/config.yml/" \
 		--transform "s/^/$(EXE)\//"
 
+.PHONY: package
+package: $(TARFILE)
+
 .PHONY: clean
 clean:
 	rm -f $(EXE) $(TARFILE)
