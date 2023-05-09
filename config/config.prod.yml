@@ -81,7 +81,7 @@ retrieval:
 recorder:
   # The path of an executable script that reads JSON from stdin in and saves
   # the results to Memcache using Ruby Marshal to serialize.
-  path: "/opt/concertim/opt/ct-metric-processing-daemon/libexec/results-to-memcache.rb"
+  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/results-to-memcache.rb"
   # CLI args passed to the above script.  The first arg is the memcache address.
   args: ["localhost:11211"]
 

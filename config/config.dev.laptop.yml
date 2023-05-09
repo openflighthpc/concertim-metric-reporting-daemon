@@ -91,42 +91,5 @@ recorder:
   # CLI args passed to the above script.  The first arg is the memcache address.
   args: ["localhost:11211"]
 
-# Configuration for retrieving metrics from gmetad.
-retrieval:
-  # The IP address, or hostname, of the gmetad server to poll for metrics.
-  ip: localhost
-
-  # The port of the gmetad server to poll for metrics.
-  port: 8651
-
-  # The metrics are periodically retrieved from the gmetad source.  This is the
-  # minimum duration to sleep between polls.
-  #
-  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
-  # `1h10m20s` for one hour ten minutes and twenty seconds.
-  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 15s
-
-  # If this values is given and is not an empty string, the ganglia XML will be
-  # read from this file instead of polling the gmetad server.  In this case the
-  # IP add port will be ignored.  Relative paths are relative to the working
-  # directory of the running process.
-  # testdata: "./testdata/ganglia-small.xml"
-  testdata: "./testdata/ganglia.xml"
-
-# Configuration for storing the processed results.
-#
-# Currently there is an expectation that the results will be stored in Memcache
-# using the Ruby Marshal serialization format.  Golang has poor support for
-# serializing and de-serializing Ruby Marshal, so we use a Ruby script to do
-# this instead.  The Ruby script is supplied with the processed results as JSON
-# via stdin.
-recorder:
-  # The path of an executable script that reads JSON from stdin in and saves
-  # the results to Memcache using Ruby Marshal to serialize.
-  path: "./libexec/results-to-memcache-faker.rb"
-  # CLI args passed to the above script.  The first arg is the memcache address.
-  args: ["localhost:11211"]
-
 log_level: info
 shared_secret_file: "./testdata/secret.dev"
