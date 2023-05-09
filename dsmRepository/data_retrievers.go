@@ -108,7 +108,10 @@ func (p *Parser) parseHostnameMap(data any) (map[domain.Hostname]domain.DSM, err
 	for hostname, mapToHost := range hostMap {
 		hName, ok := mapToHost.(string)
 		if !ok {
-			p.Logger.Warn().Interface("mapToHost", mapToHost).Msg("Could not convert to string")
+			p.Logger.Warn().
+				Str("hostname", hostname).
+				Interface("mapToHost", mapToHost).
+				Msg("Could not convert to string")
 			continue
 		}
 		dsm := domain.DSM{
