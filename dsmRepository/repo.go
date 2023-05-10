@@ -18,6 +18,7 @@ import (
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -29,6 +30,7 @@ type Repo struct {
 	hostnameMap map[domain.Hostname]domain.DSM
 	memcacheMap map[domain.DSM]domain.MemcacheKey
 	mux         sync.Mutex
+	Ticker      *ticker.Ticker
 	logger      zerolog.Logger
 }
 
@@ -41,14 +43,23 @@ type dataRetriever interface {
 //
 // See domain.DataSourceMapRepository interface for more details.
 func (r *Repo) GetDSM(hostname domain.Hostname) (domain.DSM, bool) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
-	dsm, ok := r.hostnameMap[hostname]
+	dsm, ok := r.getDSM(hostname)
+	if !ok && r.Ticker.TickNow() {
+		time.Sleep(r.config.Duration)
+		dsm, ok = r.getDSM(hostname)
+	}
 	if !ok {
 		r.logger.Debug().Stringer("lookup", hostname).Msg("not found")
 	} else {
 		r.logger.Debug().Stringer("lookup", hostname).Stringer("dsm", dsm).Msg("found")
 	}
+	return dsm, ok
+}
+
+func (r *Repo) getDSM(hostname domain.Hostname) (domain.DSM, bool) {
+	r.mux.Lock()
+	defer r.mux.Unlock()
+	dsm, ok := r.hostnameMap[hostname]
 	return dsm, ok
 }
 
@@ -93,9 +104,10 @@ func New(logger zerolog.Logger, config config.DSM) *Repo {
 		hostnameMap: map[domain.Hostname]domain.DSM{},
 		memcacheMap: map[domain.DSM]domain.MemcacheKey{},
 		mux:         sync.Mutex{},
+		Ticker:      ticker.NewTicker(config.Frequency, config.Throttle),
 		logger:      logger.With().Str("component", "dsm-repo").Logger(),
 	}
-	r.runUpdateTimer()
+	r.runPeriodicUpdate()
 	return r
 }
 
@@ -110,15 +122,15 @@ func (r *Repo) setData(newHostMap map[domain.Hostname]domain.DSM, newMecacheMap 
 		Msg("updated")
 }
 
-func (r *Repo) runUpdateTimer() {
+func (r *Repo) runPeriodicUpdate() {
 	go func() {
-		r.logger.Debug().Dur("period", r.config.Sleep).Msg("Starting periodic retreival")
+		r.logger.Debug().Dur("frequency", r.config.Frequency).Msg("Starting periodic retreival")
 		for {
+			<-r.Ticker.C
 			err := r.Update()
 			if err != nil {
 				r.logger.Warn().Err(err).Msg("periodic update failed")
 			}
-			time.Sleep(r.config.Sleep)
 		}
 	}()
 }

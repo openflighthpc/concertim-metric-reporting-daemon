@@ -11,31 +11,34 @@ import (
 // time.Ticker is reset with its existing duration.  The reasons that a call to
 // TickNow might not cause a successful tick are documented with that method.
 type Ticker struct {
-	C        <-chan time.Time
-	c        chan<- time.Time
-	throttle time.Duration
-	interval time.Duration
-	lastTick time.Time
-	stopped  bool
-	ticker   *time.Ticker
+	C         <-chan time.Time
+	c         chan<- time.Time
+	throttle  time.Duration
+	frequency time.Duration
+	lastTick  time.Time
+	stopped   bool
+	ticker    *time.Ticker
 }
 
-// NewTicker returns a Ticker which ticks with the given interval and throttles
+// NewTicker returns a Ticker which ticks with the given frequency and throttles
 // any calls to TickNow with the given throttle.
-func NewTicker(interval, throttle time.Duration) *Ticker {
-	if interval <= 0 {
-		panic(errors.New("non-positive interval for NewTicker"))
+func NewTicker(frequency, throttle time.Duration) *Ticker {
+	if frequency <= 0 {
+		panic(errors.New("non-positive frequency for NewTicker"))
+	}
+	if throttle <= 0 {
+		panic(errors.New("non-positive throttle for NewTicker"))
 	}
 	// Buffer a single tick if the client is not listening.  Any additional
 	// ticks are dropped on the floor.
 	c := make(chan time.Time, 1)
 	t := &Ticker{
-		C:        c,
-		c:        c,
-		throttle: throttle,
-		interval: interval,
-		stopped:  false,
-		ticker:   time.NewTicker(interval),
+		C:         c,
+		c:         c,
+		throttle:  throttle,
+		frequency: frequency,
+		stopped:   false,
+		ticker:    time.NewTicker(frequency),
 	}
 	go func() {
 		for {
@@ -70,10 +73,10 @@ func (t *Ticker) Stop() {
 	t.ticker.Stop()
 }
 
-// Resume resumes the ticker.  It will tick the previously given interval.
+// Resume resumes the ticker.  It will tick the previously given frequency.
 func (t *Ticker) Resume() {
 	t.stopped = false
-	t.ticker.Reset(t.interval)
+	t.ticker.Reset(t.frequency)
 }
 
 // tick does a non-blocking send of the given time to t.c. Returns true if the

@@ -40,10 +40,12 @@ type GDS struct {
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
-	Retriever string        `yaml:"retriever"`
-	Path      string        `yaml:"path"`
 	Args      []string      `yaml:"args"`
-	Sleep     time.Duration `yaml:"sleep"`
+	Duration  time.Duration `yaml:"duration"`
+	Frequency time.Duration `yaml:"frequency"`
+	Path      string        `yaml:"path"`
+	Retriever string        `yaml:"retriever"`
+	Throttle  time.Duration `yaml:"throttle"`
 }
 
 // Retrieval is the configuration for retrieving the ganglia XML.
