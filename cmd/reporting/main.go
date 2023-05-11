@@ -126,7 +126,7 @@ func main() {
 		}
 	}()
 	go func() {
-		err := runMetricProcessor(config, dsmRepo)
+		err := runMetricProcessor(config, dsmRepo, gdsServer)
 		if err != nil {
 			log.Fatal().Err(err).Msg("running metric processor")
 		}
@@ -162,7 +162,7 @@ func main() {
 	}
 }
 
-func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo) error {
+func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsServer *gds.Server) error {
 	pollChan := make(chan []retrieval.Grid)
 	poller, err := retrieval.New(log.Logger, config.Retrieval)
 	if err != nil {
@@ -172,6 +172,15 @@ func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo) erro
 	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
 
 	go func() { poller.Start(pollChan) }()
+
+	// Each time we report metrics to gmetad, kick the processing loop.
+	go func() {
+		for {
+			<-gdsServer.AcceptedChan
+			time.Sleep(10 * time.Millisecond)
+			poller.Ticker.TickNow()
+		}
+	}()
 
 	for grids := range pollChan {
 		results, err := processor.Process(grids)

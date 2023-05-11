@@ -6,9 +6,9 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
-	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/html/charset"
@@ -30,6 +30,7 @@ type xmlRetriever interface {
 type Poller struct {
 	config       config.Retrieval
 	logger       zerolog.Logger
+	Ticker       *ticker.Ticker
 	xmlRetriever xmlRetriever
 }
 
@@ -44,8 +45,8 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 	return &Poller{
 		config:       config,
 		logger:       logger,
+		Ticker:       ticker.NewTicker(config.Frequency, config.Throttle),
 		xmlRetriever: xmlRetriever,
-		// stopChan:  make(chan struct{}),
 	}, nil
 }
 
@@ -67,8 +68,8 @@ func (r *Poller) Start(gridChan chan<- []Grid) {
 		gridChan <- grids
 	}
 	for {
+		<-r.Ticker.C
 		oneLoop()
-		time.Sleep(r.config.Sleep)
 	}
 }
 

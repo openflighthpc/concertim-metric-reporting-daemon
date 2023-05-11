@@ -40,18 +40,21 @@ type GDS struct {
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
-	Retriever string        `yaml:"retriever"`
-	Path      string        `yaml:"path"`
 	Args      []string      `yaml:"args"`
-	Sleep     time.Duration `yaml:"sleep"`
+	Duration  time.Duration `yaml:"duration"`
+	Frequency time.Duration `yaml:"frequency"`
+	Path      string        `yaml:"path"`
+	Retriever string        `yaml:"retriever"`
+	Throttle  time.Duration `yaml:"throttle"`
 }
 
 // Retrieval is the configuration for retrieving the ganglia XML.
 type Retrieval struct {
-	IP       string        `yaml:"ip"`
-	Port     int           `yaml:"port"`
-	Sleep    time.Duration `yaml:"sleep"`
-	Testdata string        `yaml:"testdata"`
+	Frequency time.Duration `yaml:"frequency"`
+	IP        string        `yaml:"ip"`
+	Port      int           `yaml:"port"`
+	Testdata  string        `yaml:"testdata"`
+	Throttle  time.Duration `yaml:"throttle"`
 }
 
 // Recorder is the configuration for recording the processed results.

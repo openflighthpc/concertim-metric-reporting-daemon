@@ -47,13 +47,36 @@ dsm:
   # argument is given, which is the address of the memcache server.
   args: ["localhost:11211"]
 
-  # The data source map is periodically updated using the configured
-  # retriever.  This value sets the time to sleep between runs.
+  # The data source map is periodically updated using the configured retriever.
+  # `frequency` specifies the frequency of the periodic updating.
   #
-  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
-  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Certain events can cause the data source map to update outside of its
+  # periodic updating.  To prevent over consumption of resources, the updates
+  # can be throttled such that no two updates will occur within `throttle` of
+  # each other.
+  #
+  # Both the `frequency` and `throttle` values require a number and unit, e.g.,
+  # `60s` for sixty seconds or `1h10m20s` for one hour ten minutes and twenty
+  # seconds.
+  #
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 30s
+  frequency: 30s
+  throttle: 5s
+
+  # Estimate of how long it takes for the updater to run.
+  #
+  # If the DSM needs updating outside of its periodic updating, (for instance
+  # when receiving a request to report a metric), the updating goroutine sleeps
+  # for this duration and assumes that the update will have completed in that
+  # duration.
+  #
+  # This adds a delay of `duration` to API calls to report a metric when the
+  # host is not yet known.
+  #
+  # If this values is too small, it may temporarily result in metrics being
+  # incorrectly rejected due to an unknown host.  Those metrics will eventually
+  # be accepted.
+  duration: 10ms
 
 # Configuration for retrieving metrics from gmetad.
 retrieval:
@@ -63,13 +86,21 @@ retrieval:
   # The port of the gmetad server to poll for metrics.
   port: 8651
 
-  # The metrics are periodically retrieved from the gmetad source.  This is the
-  # minimum duration to sleep between polls.
+  # The metrics are periodically retrieved from the gmetad source. `frequency`
+  # specifies the frequency of the periodic updating.
   #
-  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
-  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Certain events can cause the metrics to be retrieved outside of its
+  # periodic updating.  To prevent over consumption of resources, the updates
+  # can be throttled such that no two updates will occur within `throttle` of
+  # each other.
+  #
+  # Both the `frequency` and `throttle` values require a number and unit, e.g.,
+  # `60s` for sixty seconds or `1h10m20s` for one hour ten minutes and twenty
+  # seconds.
+  #
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 15s
+  frequency: 15s
+  throttle: 5s
 
 # Configuration for storing the processed results.
 #
