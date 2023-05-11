@@ -52,10 +52,10 @@ func NewTicker(frequency, throttle time.Duration) *Ticker {
 // TickNow makes an attempt to immediately tick. The attempt to tick may be
 // unsuccessful for three reasons:
 //
-// 1. The ticker has been stopped and not resumed.
-// 2. The ticker has ticked within throttle of the call to TickNow.
-// 3. The client is not currently waiting on the chan and there is already a
-//    queued tick.
+//  1. The ticker has been stopped and not resumed.
+//  2. The ticker has ticked within throttle of the call to TickNow.
+//  3. The client is not currently waiting on the chan and there is already a
+//     queued tick.
 func (t *Ticker) TickNow() bool {
 	if !t.stopped && time.Since(t.lastTick) > t.throttle {
 		if t.tick(time.Now()) {
