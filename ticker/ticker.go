@@ -2,6 +2,7 @@ package ticker
 
 import (
 	"errors"
+	"sync/atomic"
 	"time"
 )
 
@@ -15,7 +16,7 @@ type Ticker struct {
 	c         chan<- time.Time
 	throttle  time.Duration
 	frequency time.Duration
-	lastTick  time.Time
+	lastTick  int64
 	stopped   bool
 	ticker    *time.Ticker
 }
@@ -57,7 +58,8 @@ func NewTicker(frequency, throttle time.Duration) *Ticker {
 //  3. The client is not currently waiting on the chan and there is already a
 //     queued tick.
 func (t *Ticker) TickNow() bool {
-	if !t.stopped && time.Since(t.lastTick) > t.throttle {
+	timeSinceLastTick := time.Since(time.UnixMicro(atomic.LoadInt64(&t.lastTick)))
+	if !t.stopped && timeSinceLastTick > t.throttle {
 		if t.tick(time.Now()) {
 			t.Resume()
 			return true
@@ -84,7 +86,7 @@ func (t *Ticker) Resume() {
 func (t *Ticker) tick(tt time.Time) bool {
 	select {
 	case t.c <- tt:
-		t.lastTick = tt
+		atomic.StoreInt64(&t.lastTick, tt.UnixMicro())
 		return true
 	default:
 	}
