@@ -76,7 +76,7 @@ dsm:
   # If this values is too small, it may temporarily result in metrics being
   # incorrectly rejected due to an unknown host.  Those metrics will eventually
   # be accepted.
-  duration: 10ms
+  duration: 75ms
 
 # Configuration for retrieving metrics from gmetad.
 retrieval:
