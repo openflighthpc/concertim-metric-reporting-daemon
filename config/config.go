@@ -50,10 +50,11 @@ type DSM struct {
 
 // Retrieval is the configuration for retrieving the ganglia XML.
 type Retrieval struct {
-	IP       string        `yaml:"ip"`
-	Port     int           `yaml:"port"`
-	Sleep    time.Duration `yaml:"sleep"`
-	Testdata string        `yaml:"testdata"`
+	Frequency time.Duration `yaml:"frequency"`
+	IP        string        `yaml:"ip"`
+	Port      int           `yaml:"port"`
+	Testdata  string        `yaml:"testdata"`
+	Throttle  time.Duration `yaml:"throttle"`
 }
 
 // Recorder is the configuration for recording the processed results.

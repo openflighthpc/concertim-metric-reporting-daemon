@@ -86,13 +86,21 @@ retrieval:
   # The port of the gmetad server to poll for metrics.
   port: 8651
 
-  # The metrics are periodically retrieved from the gmetad source.  This is the
-  # minimum duration to sleep between polls.
+  # The metrics are periodically retrieved from the gmetad source. `frequency`
+  # specifies the frequency of the periodic updating.
   #
-  # A valid entry requires a number and unit, e.g., `60s` for sixty seconds or
-  # `1h10m20s` for one hour ten minutes and twenty seconds.
+  # Certain events can cause the metrics to be retrieved outside of its
+  # periodic updating.  To prevent over consumption of resources, the updates
+  # can be throttled such that no two updates will occur within `throttle` of
+  # each other.
+  #
+  # Both the `frequency` and `throttle` values require a number and unit, e.g.,
+  # `60s` for sixty seconds or `1h10m20s` for one hour ten minutes and twenty
+  # seconds.
+  #
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  sleep: 15s
+  frequency: 15s
+  throttle: 5s
 
 # Configuration for storing the processed results.
 #
