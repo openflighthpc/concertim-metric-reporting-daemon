@@ -9,6 +9,13 @@ api:
   # The port to listen on.
   port: 3000
 
+  # Timeout for server to process a request.
+  #
+  # Requires a number and unit, e.g., `60s` for sixty seconds or `1h10m20s` for
+  # one hour ten minutes and twenty seconds.
+  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
+  timeout: 100ms
+
 # Configuration for the gangali data source server.
 gds:
   # The address of the network interface to listen on.
@@ -75,7 +82,7 @@ dsm:
   # If this values is too small, it may temporarily result in metrics being
   # incorrectly rejected due to an unknown host.  Those metrics will eventually
   # be accepted.
-  duration: 10ms
+  duration: 75ms
 
 # Configuration for retrieving metrics from gmetad.
 retrieval:
