@@ -177,7 +177,7 @@ func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsS
 	go func() {
 		for {
 			<-gdsServer.AcceptedChan
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(config.Retrieval.PostGmetadDelay)
 			poller.Ticker.TickNow()
 		}
 	}()

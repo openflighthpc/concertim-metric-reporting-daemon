@@ -102,6 +102,12 @@ retrieval:
   frequency: 15s
   throttle: 5s
 
+  # After gmetad has requested metrics from us, we request metrics from gmetad.
+  # This value configures the delay between the two.  We want to provide enough
+  # time for gmetad to have processed the metrics, but don't want to wait too
+  # long as we want the metrics to be available to IRV as soon as possible.
+  post_gmetad_delay: 500ms
+
 # Configuration for storing the processed results.
 #
 # Currently there is an expectation that the results will be stored in Memcache

@@ -101,6 +101,12 @@ retrieval:
   frequency: 30s
   throttle: 10s
 
+  # After gmetad has requested metrics from us, we request metrics from gmetad.
+  # This value configures the delay between the two.  We want to provide enough
+  # time for gmetad to have processed the metrics, but don't want to wait too
+  # long as we want the metrics to be available to IRV as soon as possible.
+  post_gmetad_delay: 500ms
+
   # If this values is given and is not an empty string, the ganglia XML will be
   # read from this file instead of polling the gmetad server.  In this case the
   # IP add port will be ignored.  Relative paths are relative to the working

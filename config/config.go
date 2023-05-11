@@ -50,6 +50,7 @@ type DSM struct {
 
 // Retrieval is the configuration for retrieving the ganglia XML.
 type Retrieval struct {
+	PostGmetadDelay     time.Duration `yaml:"post_gmetad_delay"`
 	Frequency time.Duration `yaml:"frequency"`
 	IP        string        `yaml:"ip"`
 	Port      int           `yaml:"port"`
