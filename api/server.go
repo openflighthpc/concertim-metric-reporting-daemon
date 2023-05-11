@@ -42,8 +42,8 @@ func NewServer(logger zerolog.Logger, app *domain.Application, config config.API
 func (s *Server) ListenAndServe() error {
 	server := http.Server{
 		Addr:         fmt.Sprintf("%s:%d", s.config.IP, s.config.Port),
-		ReadTimeout:  time.Millisecond * 100,
-		WriteTimeout: time.Millisecond * 100,
+		ReadTimeout:  s.config.Timeout,
+		WriteTimeout: s.config.Timeout,
 		Handler:      s.addRoutes(),
 	}
 	s.httpServer = &server

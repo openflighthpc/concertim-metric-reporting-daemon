@@ -24,9 +24,10 @@ type Config struct {
 
 // API is the configuration for the HTTP API component.
 type API struct {
-	IP        string `yaml:"ip"`
-	Port      int    `yaml:"port"`
-	JWTSecret []byte `yaml:"-"`
+	IP        string        `yaml:"ip"`
+	JWTSecret []byte        `yaml:"-"`
+	Port      int           `yaml:"port"`
+	Timeout   time.Duration `yaml:"timeout"`
 }
 
 // GDS is the configuration for the Ganglia Data Source server component.
@@ -50,12 +51,12 @@ type DSM struct {
 
 // Retrieval is the configuration for retrieving the ganglia XML.
 type Retrieval struct {
-	PostGmetadDelay     time.Duration `yaml:"post_gmetad_delay"`
-	Frequency time.Duration `yaml:"frequency"`
-	IP        string        `yaml:"ip"`
-	Port      int           `yaml:"port"`
-	Testdata  string        `yaml:"testdata"`
-	Throttle  time.Duration `yaml:"throttle"`
+	PostGmetadDelay time.Duration `yaml:"post_gmetad_delay"`
+	Frequency       time.Duration `yaml:"frequency"`
+	IP              string        `yaml:"ip"`
+	Port            int           `yaml:"port"`
+	Testdata        string        `yaml:"testdata"`
+	Throttle        time.Duration `yaml:"throttle"`
 }
 
 // Recorder is the configuration for recording the processed results.
