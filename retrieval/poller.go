@@ -51,8 +51,8 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 }
 
 // Start periodically retrieves the ganglia XML, parses it and sends the
-// results to the gridChan channel.
-func (r *Poller) Start(gridChan chan<- []Grid) {
+// results to the hostsChan channel.
+func (r *Poller) Start(hostsChan chan<- []Host) {
 	oneLoop := func() {
 		xml, err := r.xmlRetriever.retrieve()
 		if err != nil {
@@ -65,7 +65,8 @@ func (r *Poller) Start(gridChan chan<- []Grid) {
 			return
 		}
 		r.logRetrieved(xml, grids)
-		gridChan <- grids
+		hosts := r.extractHosts(grids)
+		hostsChan <- hosts
 	}
 	for {
 		<-r.Ticker.C
@@ -118,4 +119,28 @@ func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetrieve
 		addr:   fmt.Sprintf("%s:%d", config.IP, config.Port),
 		logger: logger,
 	}, nil
+}
+
+func (r *Poller) extractHosts(grids []Grid) []Host {
+	r.logger.Debug().Int("count", len(grids)).Msg("filtering grids")
+	hosts := make([]Host, 0)
+	for _, grid := range grids {
+		if grid.Name != r.config.GridName {
+			r.logger.Warn().Str("grid", grid.Name).Msg("ignoring")
+			continue
+		}
+		r.logger.Debug().
+			Str("grid", grid.Name).
+			Int("count", len(grid.Clusters)).
+			Msg("filtering clusters")
+		for _, cluster := range grid.Clusters {
+			if cluster.Name != r.config.ClusterName {
+				r.logger.Warn().Str("cluster", cluster.Name).Msg("ignoring")
+				continue
+			}
+			hosts = append(hosts, cluster.Hosts...)
+		}
+	}
+
+	return hosts
 }

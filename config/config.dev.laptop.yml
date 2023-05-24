@@ -92,6 +92,14 @@ retrieval:
   # The port of the gmetad server to poll for metrics.
   port: 8651
 
+  # The ganglia grid from which to retrieve clusters.  All other grids are
+  # ignored.
+  gridName: "unspecified"
+
+  # The ganglia cluster from which to retrieve hosts.  All other clusters are
+  # ignored.
+  clusterName: "unspecified"
+
   # The metrics are periodically retrieved from the gmetad source. `frequency`
   # specifies the frequency of the periodic updating.
   #

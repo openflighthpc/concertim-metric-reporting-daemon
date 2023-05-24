@@ -163,12 +163,12 @@ func main() {
 }
 
 func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsServer *gds.Server) error {
-	pollChan := make(chan []retrieval.Grid)
+	pollChan := make(chan []retrieval.Host)
 	poller, err := retrieval.New(log.Logger, config.Retrieval)
 	if err != nil {
 		return errors.Wrap(err, "creating retrieval poller")
 	}
-	processor := processing.NewProcessor(log.Logger, dsmRepo)
+	processor := processing.NewProcessor(log.Logger, dsmRepo, config.Retrieval.GridName, config.Retrieval.ClusterName)
 	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
 
 	go func() { poller.Start(pollChan) }()
@@ -182,8 +182,8 @@ func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsS
 		}
 	}()
 
-	for grids := range pollChan {
-		results, err := processor.Process(grids)
+	for hosts := range pollChan {
+		results, err := processor.Process(hosts)
 		if err != nil {
 			log.Error().Err(err).Msg("processing metrics")
 		}

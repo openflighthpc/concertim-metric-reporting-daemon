@@ -24,124 +24,82 @@ import (
 //
 // These views are currently, recorded in memcache by Recorder.
 type Processor struct {
-	dsmRepo *dsmRepository.Repo
-	logger  zerolog.Logger
+	clusterName string
+	dsmRepo     *dsmRepository.Repo
+	gridName    string
+	logger      zerolog.Logger
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(logger zerolog.Logger, dsmRepo *dsmRepository.Repo) *Processor {
+func NewProcessor(logger zerolog.Logger, dsmRepo *dsmRepository.Repo, gridName, clusterName string) *Processor {
 	return &Processor{
-		dsmRepo: dsmRepo,
-		logger:  logger.With().Str("component", "processor").Logger(),
+		clusterName: clusterName,
+		dsmRepo:     dsmRepo,
+		gridName:    gridName,
+		logger:      logger.With().Str("component", "processor").Logger(),
 	}
 }
 
 // Process processes the provided ganglia metrics and returns a *Result struct
 // containing the results of the processing run.
 //
-// Any grids or clusters with a name other than "unspecified" are ignored.
-// This allows (with suitable configuration) Ganglia's gmond to run and
-// collect metrics for localhost without storing them in memcache.
-func (p *Processor) Process(grids []retrieval.Grid) (*Result, error) {
+// Any grids with a name other than "unspecified" or clusters with a name other
+// than the GDS is configured with are ignored. This allows (with suitable
+// configuration) Ganglia's gmond to run and collect metrics for localhost
+// without storing them in memcache.
+func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
 	now := time.Now().Unix()
 	err := p.dsmRepo.Update()
 	if err != nil {
 		p.logger.Warn().Err(err).Msg("using stale DSM data")
 	}
 	result := NewResult()
-	p.logger.Debug().Int("count", len(grids)).Msg("processing grids")
-	for _, gGrid := range grids {
-		if gGrid.Name != "unspecified" {
-			p.logger.Warn().Str("grid", gGrid.Name).Msg("ignoring")
-			result.numIgnoredGrids++
+	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")
+	for _, gHost := range hosts {
+		dsm := domain.DSM{
+			GridName:    p.gridName,
+			ClusterName: p.clusterName,
+			HostName:    gHost.Name,
+		}
+		memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
+		if !ok {
+			p.logger.Debug().
+				Str("host", gHost.Name).
+				Stringer("dsm", dsm).
+				Msg("ignoring")
+			result.numIgnoredHosts++
 			continue
 		}
-		logProcessingClusters(p.logger, gGrid)
-		for _, gCluster := range gGrid.Clusters {
-			if gCluster.Name != "unspecified" {
-				p.logger.Warn().Str("cluster", gCluster.Name).Msg("ignoring")
-				result.numIgnoredClusters++
+		p.logger.Debug().
+			Str("host", gHost.Name).
+			Int("count", len(gHost.Metrics)).
+			Msg("processing metrics")
+		ctHost := Host{
+			Name:        gHost.Name,
+			MemcacheKey: memcacheKey,
+			Metrics:     make(map[MetricName]Metric),
+		}
+		for _, gMetric := range gHost.Metrics {
+			p.logger.Debug().
+				Str("host", gHost.Name).
+				Str("metric", gMetric.Name).
+				Msg("processing metric")
+			ctMetric, err := MetricFromGanglia(now, gMetric)
+			if err != nil {
+				p.logger.Warn().Err(err).Msg("failed")
 				continue
 			}
-			logProcessingHosts(p.logger, gGrid, gCluster)
-			for _, gHost := range gCluster.Hosts {
-				dsm := domain.DSM{
-					GridName:    gGrid.Name,
-					ClusterName: gCluster.Name,
-					HostName:    gHost.Name,
-				}
-				memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
-				if !ok {
-					logIgnoringHost(p.logger, gHost, dsm)
-					result.numIgnoredHosts++
-					continue
-				}
-				logProcessingMetrics(p.logger, gGrid, gCluster, gHost)
-				ctHost := Host{
-					Name:        gHost.Name,
-					MemcacheKey: memcacheKey,
-					Metrics:     make(map[MetricName]Metric),
-				}
-				for _, gMetric := range gHost.Metrics {
-					logProcessingMetric(p.logger, gGrid, gCluster, gHost, gMetric)
-					ctMetric, err := MetricFromGanglia(now, gMetric)
-					if err != nil {
-						p.logger.Warn().Err(err).Msg("failed")
-						continue
-					}
-					ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
-					result.AddMetric(domain.MemcacheKey(memcacheKey), ctMetric)
-				}
-				if len(ctHost.Metrics) > 0 {
-					now := time.Now()
-					ctHost.Mtime = &now
-				}
-				result.Hosts = append(result.Hosts, ctHost)
-			}
+			ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
+			result.AddMetric(domain.MemcacheKey(memcacheKey), ctMetric)
 		}
+		if len(ctHost.Metrics) > 0 {
+			now := time.Now()
+			ctHost.Mtime = &now
+		}
+		result.Hosts = append(result.Hosts, ctHost)
 	}
 	logProcessResults(p.logger, result)
 	return result, nil
-}
-
-func logProcessingClusters(logger zerolog.Logger, gGrid retrieval.Grid) {
-	logger.Debug().
-		Str("grid", gGrid.Name).
-		Int("count", len(gGrid.Clusters)).
-		Msg("processing clusters")
-}
-
-func logProcessingHosts(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster) {
-	logger.Debug().
-		Str("grid", gGrid.Name).
-		Str("cluster", gCluster.Name).
-		Int("count", len(gCluster.Hosts)).
-		Msg("processing hosts")
-}
-
-func logIgnoringHost(logger zerolog.Logger, gHost retrieval.Host, dsm domain.DSM) {
-	logger.Debug().
-		Str("host", gHost.Name).
-		Stringer("dsm", dsm).
-		Msg("ignoring")
-}
-
-func logProcessingMetrics(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster, gHost retrieval.Host) {
-	logger.Debug().
-		Str("grid", gGrid.Name).
-		Str("cluster", gCluster.Name).
-		Str("host", gHost.Name).
-		Int("count", len(gHost.Metrics)).
-		Msg("processing metrics")
-}
-
-func logProcessingMetric(logger zerolog.Logger, gGrid retrieval.Grid, gCluster retrieval.Cluster, gHost retrieval.Host, gMetric retrieval.Metric) {
-	logger.Debug().
-		Str("grid", gGrid.Name).
-		Str("cluster", gCluster.Name).
-		Str("host", gHost.Name).
-		Str("metric", gMetric.Name).
-		Msg("processing metric")
 }
 
 func logProcessResults(logger zerolog.Logger, result *Result) {
@@ -151,8 +109,6 @@ func logProcessResults(logger zerolog.Logger, result *Result) {
 			Int("metrics", result.numMetrics).
 			Int("unique metrics", len(result.UniqueMetrics))).
 		Dict("ignored", zerolog.Dict().
-			Int("grids", result.numIgnoredGrids).
-			Int("clusters", result.numIgnoredClusters).
 			Int("hosts", result.numIgnoredHosts)).
 		Msg("completed")
 }
@@ -177,10 +133,8 @@ type Result struct {
 
 	// numMetrics keeps track of the total metrics processed for logging.  Other
 	// logged information is derived from the other attributes.
-	numMetrics         int
-	numIgnoredGrids    int
-	numIgnoredClusters int
-	numIgnoredHosts    int
+	numMetrics      int
+	numIgnoredHosts int
 }
 
 // NewResult returns a new empty *Result.
