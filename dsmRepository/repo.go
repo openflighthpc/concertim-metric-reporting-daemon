@@ -39,7 +39,7 @@ type dataRetriever interface {
 	getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error)
 }
 
-// GetDSMDSM returns the data source map for the given host name.
+// GetDSM returns the data source map for the given host name.
 //
 // See domain.DataSourceMapRepository interface for more details.
 func (r *Repo) GetDSM(hostname domain.Hostname) (domain.DSM, bool) {
