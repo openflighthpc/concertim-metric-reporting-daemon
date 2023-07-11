@@ -22,30 +22,30 @@ type Repo struct {
 
 // PutHost implements the Repository interface.
 func (mr *Repo) PutHost(host domain.Host) error {
-	mr.logger.Debug().Stringer("host", host.Name).Msg("Putting host")
+	mr.logger.Debug().Stringer("host", host.Id).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	mr.hosts[host.Name.String()] = conv.ModelFromDomainHost(host)
+	mr.hosts[host.Id.String()] = conv.ModelFromDomainHost(host)
 	return nil
 }
 
 func (mr *Repo) isHostStored(host domain.Host) bool {
-	_, ok := mr.hosts[host.Name.String()]
+	_, ok := mr.hosts[host.Id.String()]
 	return ok
 }
 
 // PutMetric implements the Repository interface.
 func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
-	mr.logger.Debug().Stringer("host", host.Name).Str("metric", metric.Name).Msg("Putting metric")
+	mr.logger.Debug().Stringer("host", host.Id).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return fmt.Errorf("%w: %s", domain.UnknownHost, host.Name)
+		return fmt.Errorf("%w: %s", domain.UnknownHost, host.Id)
 	}
-	metrics, ok := mr.metrics[host.Name.String()]
+	metrics, ok := mr.metrics[host.Id.String()]
 	if !ok {
 		metrics = make(map[string]MetricModel, 0)
-		mr.metrics[host.Name.String()] = metrics
+		mr.metrics[host.Id.String()] = metrics
 	}
 	metrics[metric.Name] = conv.ModelFromDomainMetric(metric)
 	return nil
@@ -58,7 +58,7 @@ func (mr *Repo) GetAll() []domain.Host {
 	mr.logger.Debug().Msg("Getting all data")
 	hosts := make([]domain.Host, 0, len(mr.hosts))
 	for _, h := range mr.hosts {
-		metrics := mr.metrics[h.DeviceName]
+		metrics := mr.metrics[h.DeviceId]
 		logHostAndMetrics(mr.logger, h, metrics)
 		host := domainHostFromModelHostAndMetrics(h, metrics)
 		hosts = append(hosts, host)
@@ -68,11 +68,11 @@ func (mr *Repo) GetAll() []domain.Host {
 }
 
 // GetHost implements the Repository interface.
-func (mr *Repo) GetHost(hostName domain.Hostname) (domain.Host, bool) {
+func (mr *Repo) GetHost(hostId domain.HostId) (domain.Host, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
-	mr.logger.Debug().Stringer("host", hostName).Msg("Getting host")
-	host, ok := mr.hosts[hostName.String()]
+	mr.logger.Debug().Stringer("host", hostId).Msg("Getting host")
+	host, ok := mr.hosts[hostId.String()]
 	if !ok {
 		return domain.Host{}, false
 	}
@@ -92,7 +92,7 @@ func New(logger zerolog.Logger) *Repo {
 
 func logHostAndMetrics(log zerolog.Logger, h HostModel, metrics map[string]MetricModel) {
 	log.Debug().
-		Str("host", h.DeviceName).
+		Str("host", h.DeviceId).
 		Int("metric.count", len(metrics)).
 		Func(func(e *zerolog.Event) {
 			metricNames := []string{}

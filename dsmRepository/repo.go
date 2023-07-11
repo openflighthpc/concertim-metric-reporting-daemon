@@ -26,40 +26,40 @@ import (
 // Repo is an in-memory repository of device names to data source maps to
 // host.
 type Repo struct {
-	config      config.DSM
-	hostnameMap map[domain.Hostname]domain.DSM
-	memcacheMap map[domain.DSM]domain.MemcacheKey
-	mux         sync.Mutex
-	Ticker      *ticker.Ticker
-	logger      zerolog.Logger
+	config           config.DSM
+	hostIdToDSM      map[domain.HostId]domain.DSM
+	dsmToMemcacheKey map[domain.DSM]domain.MemcacheKey
+	mux              sync.Mutex
+	Ticker           *ticker.Ticker
+	logger           zerolog.Logger
 }
 
 // DataRetriever is an interface for retrieving updated data for the Repo.
 type dataRetriever interface {
-	getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error)
+	getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error)
 }
 
 // GetDSM returns the data source map for the given host name.
 //
 // See domain.DataSourceMapRepository interface for more details.
-func (r *Repo) GetDSM(hostname domain.Hostname) (domain.DSM, bool) {
-	dsm, ok := r.getDSM(hostname)
+func (r *Repo) GetDSM(hostId domain.HostId) (domain.DSM, bool) {
+	dsm, ok := r.getDSM(hostId)
 	if !ok && r.Ticker.TickNow() {
 		time.Sleep(r.config.Duration)
-		dsm, ok = r.getDSM(hostname)
+		dsm, ok = r.getDSM(hostId)
 	}
 	if !ok {
-		r.logger.Debug().Stringer("lookup", hostname).Msg("not found")
+		r.logger.Debug().Stringer("lookup", hostId).Msg("not found")
 	} else {
-		r.logger.Debug().Stringer("lookup", hostname).Stringer("dsm", dsm).Msg("found")
+		r.logger.Debug().Stringer("lookup", hostId).Stringer("dsm", dsm).Msg("found")
 	}
 	return dsm, ok
 }
 
-func (r *Repo) getDSM(hostname domain.Hostname) (domain.DSM, bool) {
+func (r *Repo) getDSM(hostId domain.HostId) (domain.DSM, bool) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	dsm, ok := r.hostnameMap[hostname]
+	dsm, ok := r.hostIdToDSM[hostId]
 	return dsm, ok
 }
 
@@ -70,7 +70,7 @@ func (r *Repo) getDSM(hostname domain.Hostname) (domain.DSM, bool) {
 func (r *Repo) GetMemcacheKey(dsm domain.DSM) (domain.MemcacheKey, bool) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	memcacheKey, ok := r.memcacheMap[dsm]
+	memcacheKey, ok := r.dsmToMemcacheKey[dsm]
 	if !ok {
 		r.logger.Debug().Stringer("lookup", dsm).Msg("not found")
 	} else {
@@ -88,11 +88,11 @@ func (r *Repo) Update() error {
 	if err != nil {
 		return errors.Wrap(err, "updating DSM")
 	}
-	newHostMap, newMecacheMap, err := retriever.getNewData()
+	newHostIdToDSM, newDSMToMemcacheKey, err := retriever.getNewData()
 	if err != nil {
 		return errors.Wrap(err, "updating DSM")
 	}
-	r.setData(newHostMap, newMecacheMap)
+	r.setData(newHostIdToDSM, newDSMToMemcacheKey)
 	return nil
 }
 
@@ -100,25 +100,25 @@ func (r *Repo) Update() error {
 // retriever can do so.
 func New(logger zerolog.Logger, config config.DSM) *Repo {
 	r := &Repo{
-		config:      config,
-		hostnameMap: map[domain.Hostname]domain.DSM{},
-		memcacheMap: map[domain.DSM]domain.MemcacheKey{},
-		mux:         sync.Mutex{},
-		Ticker:      ticker.NewTicker(config.Frequency, config.Throttle),
-		logger:      logger.With().Str("component", "dsm-repo").Logger(),
+		config:           config,
+		hostIdToDSM:      map[domain.HostId]domain.DSM{},
+		dsmToMemcacheKey: map[domain.DSM]domain.MemcacheKey{},
+		mux:              sync.Mutex{},
+		Ticker:           ticker.NewTicker(config.Frequency, config.Throttle),
+		logger:           logger.With().Str("component", "dsm-repo").Logger(),
 	}
 	r.runPeriodicUpdate()
 	return r
 }
 
-func (r *Repo) setData(newHostMap map[domain.Hostname]domain.DSM, newMecacheMap map[domain.DSM]domain.MemcacheKey) {
+func (r *Repo) setData(newHostIdToDSM map[domain.HostId]domain.DSM, newDSMToMemcacheKey map[domain.DSM]domain.MemcacheKey) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	r.hostnameMap = newHostMap
-	r.memcacheMap = newMecacheMap
+	r.hostIdToDSM = newHostIdToDSM
+	r.dsmToMemcacheKey = newDSMToMemcacheKey
 	r.logger.Info().
-		Int("hostmap.count", len(newHostMap)).
-		Int("memcachemap.count", len(newMecacheMap)).
+		Int("hostIdToDSM.count", len(newHostIdToDSM)).
+		Int("dsmToMemcacheKey.count", len(newDSMToMemcacheKey)).
 		Msg("updated")
 }
 

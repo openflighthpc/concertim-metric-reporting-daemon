@@ -103,14 +103,14 @@ func dsm_for(hostname string) domain.DSM {
 func clusterWithoutMetrics() []domain.Host {
 	return []domain.Host{
 		{
-			Name:     "comp10",
+			Id:       "10",
 			DSM:      dsm_for("comp10.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     10 * time.Second,
 			Metrics:  []domain.Metric{},
 		},
 		{
-			Name:     "comp20",
+			Id:       "20",
 			DSM:      dsm_for("comp20.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     20 * time.Second,
@@ -171,7 +171,7 @@ func goldenValue(t *testing.T, goldenFile string) string {
 func clusterWithXML() []domain.Host {
 	return []domain.Host{
 		{
-			Name:     "\"</HOST>",
+			Id:       "\"</HOST>",
 			DSM:      dsm_for("\"</HOST>.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     10 * time.Second,

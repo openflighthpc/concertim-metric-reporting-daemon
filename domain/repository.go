@@ -24,22 +24,20 @@ type Repository interface {
 	// with all of their Metrics.
 	GetAll() []Host
 
-	GetHost(Hostname) (Host, bool)
+	GetHost(HostId) (Host, bool)
 }
 
 // DataSourceMapRepository is the interface for looking up a device's data
-// source map to host from its device name.
+// source map to host from its device id.
 type DataSourceMapRepository interface {
-	// GetDSM returns the data source map for the given host name.
+	// GetDSM returns the data source map for the given host id.
 	//
-	// deviceName is a user-friendly name used in the display of the
-	// appliance.  The returned DSM may or may not be user-friendly it
-	// is used only internally.  Examples of the mapping are below.
+	// deviceId is the device's concertim ID. The returned DSM may or may
+	// not be user-friendly it is used only internally.
+	// mapping are below.
 	//
-	// * comp001      -> unspecified/unspecified/comp01.concertim.alces-flight.com
-	// * tempsensor01 -> unspecified/unspecified/sensor-dd5fb19b50624b33e1c5e4d5003714f4
-	// * pdu01        -> unspecified/unspecified/rack_2__powerstrip__startu42__1669827901
-	GetDSM(deviceName Hostname) (dsm DSM, ok bool)
+	// * 1 -> unspecified/unspecified/hacor:device:1
+	GetDSM(deviceId HostId) (dsm DSM, ok bool)
 
 	// GetMemcacheKey returns the memcache key for the given data source map.
 	GetMemcacheKey(dsm DSM) (MemcacheKey, bool)

@@ -70,7 +70,7 @@ func (s *Server) addRoutes() chi.Router {
 		r.Use(jwtauth.Verifier(s.tokenAuth))
 		r.Use(jwtauth.Authenticator)
 
-		r.Put("/{deviceName}/metrics", s.putMetricHandler)
+		r.Put("/{deviceId}/metrics", s.putMetricHandler)
 	})
 
 	return r
@@ -101,7 +101,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		BadRequest(rw, r, err, "")
 		return
 	}
-	err = s.app.AddMetric(metric, domain.Hostname(chi.URLParam(r, "deviceName")))
+	err = s.app.AddMetric(metric, domain.HostId(chi.URLParam(r, "deviceId")))
 	if errors.Is(err, domain.UnknownHost) {
 		body := ErrorsPayload{
 			Status: http.StatusNotFound,

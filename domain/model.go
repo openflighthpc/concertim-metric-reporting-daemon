@@ -29,11 +29,11 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
-// Hostname exists to document some function signatures.
-type Hostname string
+// HostId exists to document some function signatures.
+type HostId string
 
 // String implements the Stringer interface.
-func (m Hostname) String() string {
+func (m HostId) String() string {
 	return string(m)
 }
 
@@ -59,7 +59,7 @@ func (m MemcacheKey) String() string {
 
 // Host is the domain model representing a host.
 type Host struct {
-	Name     Hostname
+	Id       HostId
 	DSM      DSM
 	Reported time.Time
 	DMax     time.Duration

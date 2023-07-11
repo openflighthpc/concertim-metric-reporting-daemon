@@ -12,10 +12,10 @@ var conv Converter = &ConverterImpl{}
 
 // HostModel is the format of a host as stored in this repository.
 type HostModel struct {
-	DeviceName string
-	DSMName    string
-	Reported   time.Time
-	DMax       time.Duration
+	DeviceId string
+	DSMName  string
+	Reported time.Time
+	DMax     time.Duration
 }
 
 // MetricModel is the format of a metric as stored in this repository.
@@ -36,12 +36,12 @@ type MetricModel struct {
 // goverter:extend ConvertTime
 // goverter:extend DSMNameToDSM
 type Converter interface {
-	// goverter:map Name DeviceName
+	// goverter:map Id DeviceId
 	// goverter:map DSM.HostName DSMName
 	ModelFromDomainHost(source domain.Host) HostModel
 	ModelFromDomainMetric(source domain.Metric) MetricModel
 	DomainFromModelMetric(source MetricModel) domain.Metric
-	// goverter:map DeviceName Name
+	// goverter:map DeviceId Id
 	// goverter:map DSMName DSM
 	// goverter:mapExtend Metrics DefaultMetrics
 	DomainFromModelHost(source HostModel) domain.Host

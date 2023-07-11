@@ -1,6 +1,6 @@
 # Base URL
 
-When the metric reporting daemon is running on a Concertim MIA appliance available at, say, `command.concertim.alces-flight.com`, its URL will be `https://command.concertim.alces-flight.com/mrd`.  When running locally during development the URL will be `http://localhost:3000`.
+When the metric reporting daemon is running on a Concertim appliance available at, say, `command.concertim.alces-flight.com`, its URL will be `https://command.concertim.alces-flight.com/mrd`.  When running locally during development the URL will be `http://localhost:3000`.
 
 All URL paths in this document are relative to this URL.
 
@@ -8,7 +8,7 @@ All URL paths in this document are relative to this URL.
 
 Requests to report metrics should be authenticated with a JWT token, see the Authentication section below for more details.
 
-A metric is reported to the URL `/:device/metrics` where `:device` is the name of a device already known to Concertim MIA, e.g., `comp001` or `Rack-1`.
+A metric is reported to the URL `/:device_id/metrics` where `:device_id` is the ID of a device already known to Concertim, e.g., `1`.
 
 The body is a JSON document containing the keys, `name`, `value`, `units`, `type`, `slope` and `ttl`.
 
@@ -50,7 +50,7 @@ Authorization: Bearer <TOKEN>
 
 The error format is loosely based on the [JSON:API error](https://jsonapi.org/format/#errors) format.
 
-If the device name is not known to the Concertim MIA appliance a 404 error response will be given with a body of:
+If the device name is not known to the Concertim appliance a 404 error response will be given with a body of:
 
 ```
 {
