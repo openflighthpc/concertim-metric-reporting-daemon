@@ -20,7 +20,7 @@ type Script struct {
 	Logger zerolog.Logger
 }
 
-func (e *Script) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+func (e *Script) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	args := e.Args
 	if args == nil {
 		args = []string{}
@@ -50,7 +50,7 @@ type JSONFileRetreiver struct {
 	Logger zerolog.Logger
 }
 
-func (j *JSONFileRetreiver) getNewData() (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+func (j *JSONFileRetreiver) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	j.Logger.Debug().Str("path", j.Path).Msg("retrieving json")
 	data, err := ioutil.ReadFile(j.Path)
 	if err != nil {
@@ -65,17 +65,17 @@ func (j *JSONFileRetreiver) getNewData() (map[domain.Hostname]domain.DSM, map[do
 }
 
 // Parser parses the data provided by a dataRetriever into a
-// map[domain.Hostname]domain.DSM and a map[domain.DSM]domain.MemcacheKey.
+// map[domain.HostId]domain.DSM and a map[domain.DSM]domain.MemcacheKey.
 type Parser struct {
 	Logger zerolog.Logger
 }
 
-func (p *Parser) parseJSON(data []byte) (map[domain.Hostname]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+func (p *Parser) parseJSON(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
 	p.Logger.Debug().Int("bytes", len(data)).Msg("parsing JSON")
 	var raw interface{}
 
-	hostnameMap := map[domain.Hostname]domain.DSM{}
-	memcacheMap := map[domain.DSM]domain.MemcacheKey{}
+	deviceIdToGangliaHostName := map[domain.HostId]domain.DSM{}
+	dsmToMemcacheKey := map[domain.DSM]domain.MemcacheKey{}
 
 	err := json.Unmarshal(data, &raw)
 	if err != nil {
@@ -83,34 +83,34 @@ func (p *Parser) parseJSON(data []byte) (map[domain.Hostname]domain.DSM, map[dom
 	}
 	rawMap := raw.(map[string]interface{})
 	for key, nestedMap := range rawMap {
-		if key == "hostnameMap" {
-			hostnameMap, err = p.parseHostnameMap(nestedMap)
+		if key == "deviceIdToGangliaHostName" {
+			deviceIdToGangliaHostName, err = p.parseDeviceIdToGangliaHostName(nestedMap)
 			if err != nil {
-				return nil, nil, errors.Wrap(err, "parsing hostnameMap")
+				return nil, nil, errors.Wrap(err, "parsing deviceIdToGangliaHostName")
 			}
-		} else if key == "memcacheMap" {
-			memcacheMap, err = p.parseMemcacheMap(nestedMap)
+		} else if key == "dsmToMemcacheKey" {
+			dsmToMemcacheKey, err = p.parseMemcacheMap(nestedMap)
 			if err != nil {
-				return nil, nil, errors.Wrap(err, "parsing memcacheMap")
+				return nil, nil, errors.Wrap(err, "parsing dsmToMemcacheKey")
 			}
 		} else {
 			return nil, nil, fmt.Errorf("unknown key %s", key)
 		}
 	}
 
-	return hostnameMap, memcacheMap, nil
+	return deviceIdToGangliaHostName, dsmToMemcacheKey, nil
 }
 
-func (p *Parser) parseHostnameMap(data any) (map[domain.Hostname]domain.DSM, error) {
-	p.Logger.Debug().Any("data", data).Msg("parsing hostnameMap")
+func (p *Parser) parseDeviceIdToGangliaHostName(data any) (map[domain.HostId]domain.DSM, error) {
+	p.Logger.Debug().Any("data", data).Msg("parsing deviceIdToGangliaHostName")
 	hostMap := data.(map[string]interface{})
-	newData := map[domain.Hostname]domain.DSM{}
-	for hostname, mapToHost := range hostMap {
-		hName, ok := mapToHost.(string)
+	newData := map[domain.HostId]domain.DSM{}
+	for deviceId, gangliaHostName := range hostMap {
+		hName, ok := gangliaHostName.(string)
 		if !ok {
 			p.Logger.Warn().
-				Str("hostname", hostname).
-				Interface("mapToHost", mapToHost).
+				Str("deviceId", deviceId).
+				Interface("gangliaHostName", gangliaHostName).
 				Msg("Could not convert to string")
 			continue
 		}
@@ -119,13 +119,13 @@ func (p *Parser) parseHostnameMap(data any) (map[domain.Hostname]domain.DSM, err
 			ClusterName: "unspecified",
 			HostName:    hName,
 		}
-		newData[domain.Hostname(hostname)] = dsm
+		newData[domain.HostId(deviceId)] = dsm
 	}
 	return newData, nil
 }
 
 func (p *Parser) parseMemcacheMap(data any) (map[domain.DSM]domain.MemcacheKey, error) {
-	p.Logger.Debug().Any("data", data).Msg("parsing memcacheMap")
+	p.Logger.Debug().Any("data", data).Msg("parsing dsmToMemcacheKey")
 	dsmMap := map[domain.DSM]domain.MemcacheKey{}
 
 	gridMap, ok := data.(map[string]any)

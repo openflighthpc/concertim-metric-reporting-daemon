@@ -7,12 +7,12 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script creates multiple int32 metrics for a single host.
+# This script creates multiple int32 metrics for a single device.
 
-# The name of the host should match the name of the one of the devices created
-# via the device API. The rack and device API contains an endpoint to list
-# valid names.  See the example scripts in the ct-visualisation-app repository.
-HOST=${1:-comp001}
+# The Concertim ID for the device that the metric is being reported for. The
+# rack and device API contains an endpoint to list valid ids.  See the example
+# scripts in the ct-visualisation-app repository.
+DEVICE_ID=${1:-1}
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -41,12 +41,12 @@ report_metric() {
   curl -s -k \
     -H 'Content-Type: application/json' \
     -H "Authorization: Bearer ${AUTH_TOKEN}" \
-    -X PUT "${BASE_URL}/${HOST}/metrics" \
+    -X PUT "${BASE_URL}/${DEVICE_ID}/metrics" \
     -d "${body}"
 }
 
 
-# Reporting multiple metrics for a host involves making a separate request to
+# Reporting multiple metrics for a device involves making a separate request to
 # report each metric.
 #
 # Here we collect all metrics into an associative array, loop over the array

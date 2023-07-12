@@ -45,33 +45,33 @@ those metrics appear on the interactive rack view.
 
 The snippets below assume that `CONCERTIM_HOST` and `AUTH_TOKEN` are set as described above.
 
-Report a single string metric for a device.  If `DEVICE_NAME` is not given it
-will default to `comp001`, `METRIC_NAME` defaults to `caffeine.more` and
+Report a single string metric for a device.  If `DEVICE_ID` is not given it
+will default to `1`, `METRIC_NAME` defaults to `caffeine.more` and
 `VALUE` to `yes`.
 
 ```
-./string-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE]]]
+./string-metric.sh [DEVICE_ID [METRIC_NAME [VALUE]]]
 ```
 
-Report a single int32 metric for a device. If `DEVICE_NAME` is not given it
-will default to `comp001`, `METRIC_NAME` defaults to `caffeine.level`,
+Report a single int32 metric for a device. If `DEVICE_ID` is not given it
+will default to `1`, `METRIC_NAME` defaults to `caffeine.level`,
 `VALUE` to a random integer between 12 and 24 and `UNIT` to `""`.
 
 ```
-./int32-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE [UNIT]]]]
+./int32-metric.sh [DEVICE_ID [METRIC_NAME [VALUE [UNIT]]]]
 ```
 
-Report a single double metric for a device. If `DEVICE_NAME` is not given it
-will default to `comp001`, `METRIC_NAME` defaults to `caffeine.max` and
+Report a single double metric for a device. If `DEVICE_ID` is not given it
+will default to `1`, `METRIC_NAME` defaults to `caffeine.max` and
 `VALUE` to a random double between 0 and 10.
 
 ```
-./double-metric.sh [DEVICE_NAME [METRIC_NAME [VALUE]]]
+./double-metric.sh [DEVICE_ID [METRIC_NAME [VALUE]]]
 ```
 
-Report multiple int32 metrics for a device.  If `DEVICE_NAME` is not given it
-will default to `comp001`.
+Report multiple int32 metrics for a device.  If `DEVICE_ID` is not given it
+will default to `1`.
 
 ```
-./multiple-int32-metrics.sh [DEVICE_NAME]
+./multiple-int32-metrics.sh [DEVICE_ID]
 ```

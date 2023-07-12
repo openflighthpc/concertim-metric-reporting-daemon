@@ -10,11 +10,11 @@ import (
 // AddMetric adds the given metric for the specified host to the repository.
 // If the host has not previously been added it will also be added if its data
 // source map to host can be found in the DataSourceMapRepository.
-func (app *Application) AddMetric(metric Metric, hostName Hostname) error {
-	host, ok := app.Repo.GetHost(hostName)
+func (app *Application) AddMetric(metric Metric, hostId HostId) error {
+	host, ok := app.Repo.GetHost(hostId)
 	if !ok {
 		var err error
-		host, err = app.addHost(hostName)
+		host, err = app.addHost(hostId)
 		if err != nil {
 			return errors.Wrap(err, "adding host")
 		}
@@ -32,13 +32,13 @@ func (app *Application) AddMetric(metric Metric, hostName Hostname) error {
 //
 // The host is only added if a data source map can be found in the
 // DataSourceMapRepository.  Otherwise an error is returned.
-func (app *Application) addHost(hostName Hostname) (Host, error) {
-	dsm, ok := app.dsmRepo.GetDSM(hostName)
+func (app *Application) addHost(hostId HostId) (Host, error) {
+	dsm, ok := app.dsmRepo.GetDSM(hostId)
 	if !ok {
-		return Host{}, fmt.Errorf("%w: %s", UnknownHost, hostName)
+		return Host{}, fmt.Errorf("%w: %s", UnknownHost, hostId)
 	}
 	host := Host{
-		Name:     hostName,
+		Id:       hostId,
 		DSM:      dsm,
 		Reported: time.Now(),
 		DMax:     time.Duration(app.config.HostTTL) * time.Second,
