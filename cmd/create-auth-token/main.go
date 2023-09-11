@@ -27,7 +27,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Failed to load config: %s\n", err.Error())
 		os.Exit(1)
 	}
-	tokenAuth := jwtauth.New("HS256", config.JWTSecret, nil)
+	tokenAuth := jwtauth.New("HS256", config.API.JWTSecret, nil)
 	expiresIn := time.Hour * 24
 
 	claims := map[string]interface{}{}

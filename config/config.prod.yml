@@ -37,7 +37,7 @@ gds:
 # Configuration for generating the data source map lookup.
 dsm:
   # The type of retriever to use for obtaining the data source map look up
-  # table.  Either "file" or "script".
+  # table.  Either "file", "script" or "visualizerAPI".
   #
   # If "file", "path" should be set to the path to a JSON file.  See
   # ./testdata/dsm.json for an example.
@@ -45,14 +45,10 @@ dsm:
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.  "args" can be set to an
   # array of arguments passed to the executable.
-  retriever: "script"
-
-  # See "retriever" comment for what this means.
-  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
-
-  # CLI arguments passed to the above script.  For the above script, a single
-  # argument is given, which is the address of the memcache server.
-  args: ["localhost:11211"]
+  #
+  # If "visualizerAPI", "path" and "args" are both unused.  The top-level
+  # "visualizerAPI" configuration should also be set appropriately.
+  retriever: "visualizerAPI"
 
   # The data source map is periodically updated using the configured retriever.
   # `frequency` specifies the frequency of the periodic updating.
@@ -136,6 +132,19 @@ recorder:
   path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/results-to-memcache.rb"
   # CLI args passed to the above script.  The first arg is the memcache address.
   args: ["localhost:11211"]
+
+# Configuration for accessing the Concertim Visualization App (aka Visualizer)
+# API.
+visualizerAPI:
+  # The URL used for gaining an authentication token.
+  authUrl: "http://localhost:7000/users/sign_in.json"
+  # The authentication credentials.
+  username: "admin"
+  password: "admin"
+  # The URL used to obtain the data source maps.
+  data_source_map_url: "http://localhost:7000/api/v1/data-source-maps"
+  # If set to true skip all TLS certificate verification checks.
+  skip_certificate_check: false
 
 log_level: info
 shared_secret_file: "/opt/concertim/etc/secret"

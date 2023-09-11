@@ -40,7 +40,7 @@ gds:
 # Configuration for generating the data source map lookup.
 dsm:
   # The type of retriever to use for obtaining the data source map look up
-  # table.  Either "file" or "script".
+  # table.  Either "file", "script", or "visualizerAPI".
   #
   # If "file", "path" should be set to the path to a JSON file.  See
   # ./testdata/dsm.json for an example.
@@ -48,6 +48,9 @@ dsm:
   # If "script" it should be set to the path of an executable script that
   # prints JSON to stdout in the same format as above.  "args" can be set to an
   # array of arguments passed to the executable.
+  #
+  # If "visualizerAPI", "path" and "args" are both unused.  The top-level
+  # "visualizerAPI" configuration should also be set appropriately.
   #
   # Use these values when not running on a concertim appliance.
   retriever: "file"
@@ -142,6 +145,14 @@ recorder:
   path: "./libexec/results-to-memcache-faker.rb"
   # CLI args passed to the above script.  The first arg is the memcache address.
   args: ["localhost:11211"]
+
+visualizerAPI:
+  authUrl: "https://localhost:9445/users/sign_in.json"
+  username: "admin"
+  password: "admin"
+  data_source_map_url: "https://localhost:9445/api/v1/data-source-maps"
+  # If set to true skip all TLS certificate verification checks.
+  skip_certificate_check: true
 
 log_level: info
 shared_secret_file: "./testdata/secret.dev"

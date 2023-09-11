@@ -19,6 +19,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -32,6 +33,7 @@ type Repo struct {
 	mux              sync.Mutex
 	Ticker           *ticker.Ticker
 	logger           zerolog.Logger
+	visualizerClient *visualizer.Client
 }
 
 // DataRetriever is an interface for retrieving updated data for the Repo.
@@ -98,7 +100,7 @@ func (r *Repo) Update() error {
 
 // New returns a new Repo.  It will be populated with assuming that the data
 // retriever can do so.
-func New(logger zerolog.Logger, config config.DSM) *Repo {
+func New(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.Client) *Repo {
 	r := &Repo{
 		config:           config,
 		hostIdToDSM:      map[domain.HostId]domain.DSM{},
@@ -106,6 +108,7 @@ func New(logger zerolog.Logger, config config.DSM) *Repo {
 		mux:              sync.Mutex{},
 		Ticker:           ticker.NewTicker(config.Frequency, config.Throttle),
 		logger:           logger.With().Str("component", "dsm-repo").Logger(),
+		visualizerClient: visualizerClient,
 	}
 	r.runPeriodicUpdate()
 	return r
@@ -147,6 +150,11 @@ func (r *Repo) getRetriver() (dataRetriever, error) {
 			Args:   r.config.Args,
 			Path:   r.config.Path,
 			Logger: r.logger,
+		}, nil
+	case "visualizerAPI":
+		return &visualizerAPIRetriever{
+			client: r.visualizerClient,
+			logger: r.logger,
 		}, nil
 	default:
 		return nil, fmt.Errorf("Unknown data retriever type: %s", r.config.Retriever)

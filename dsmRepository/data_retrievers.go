@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -61,6 +62,22 @@ func (j *JSONFileRetreiver) getNewData() (map[domain.HostId]domain.DSM, map[doma
 		return nil, nil, errors.Wrap(err, msg)
 	}
 	parser := Parser{Logger: j.Logger}
+	return parser.parseJSON(data)
+}
+
+// visualizerAPIRetriever retrieves the data source map from the Concertim
+// Visualizer API.
+type visualizerAPIRetriever struct {
+	client *visualizer.Client
+	logger zerolog.Logger
+}
+
+func (r *visualizerAPIRetriever) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+	data, err := r.client.GetDSM()
+	if err != nil {
+		return nil, nil, err
+	}
+	parser := Parser{Logger: r.logger}
 	return parser.parseJSON(data)
 }
 

@@ -20,6 +20,7 @@ type Config struct {
 	GDS              `yaml:"gds"`
 	Recorder         `yaml:"recorder"`
 	Retrieval        `yaml:"retrieval"`
+	VisualizerAPI    `yaml:"visualizerAPI"`
 }
 
 // API is the configuration for the HTTP API component.
@@ -67,6 +68,15 @@ type Recorder struct {
 	Args []string `yaml:"args"`
 }
 
+type VisualizerAPI struct {
+	AuthUrl              string `yaml:"authUrl"`
+	DataSourceMapUrl     string `yaml:"data_source_map_url"`
+	JWTSecret            []byte `yaml:"-"`
+	Password             string `yaml:"password"`
+	SkipCertificateCheck bool   `yaml:"skip_certificate_check"`
+	Username             string `yaml:"username"`
+}
+
 // DefaultPath is the path to the default config file.
 const DefaultPath string = "/opt/concertim/opt/ct-metric-reporting-daemon/config/config.yml"
 
@@ -86,5 +96,6 @@ func FromFile(path string) (*Config, error) {
 		return nil, errors.Wrap(err, "error reading shared secret")
 	}
 	config.API.JWTSecret = bytes.TrimRight(secret, "\n")
+	config.VisualizerAPI.JWTSecret = bytes.TrimRight(secret, "\n")
 	return &config, nil
 }

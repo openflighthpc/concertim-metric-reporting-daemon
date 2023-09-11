@@ -27,6 +27,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 )
 
 var (
@@ -102,7 +103,8 @@ func main() {
 	}
 	setLogLevel(config)
 	repository := memory.New(log.Logger)
-	dsmRepo := dsmRepository.New(log.Logger, config.DSM)
+	visualizerClient := visualizer.New(log.Logger, config.VisualizerAPI)
+	dsmRepo := dsmRepository.New(log.Logger, config.DSM, visualizerClient)
 	app := domain.NewApp(*config, repository, dsmRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
