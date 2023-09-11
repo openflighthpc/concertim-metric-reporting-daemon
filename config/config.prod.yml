@@ -36,22 +36,9 @@ gds:
 
 # Configuration for generating the data source map lookup.
 dsm:
-  # The type of retriever to use for obtaining the data source map look up
-  # table.  Either "file", "script" or "visualizerAPI".
-  #
-  # If "file", "path" should be set to the path to a JSON file.  See
-  # ./testdata/dsm.json for an example.
-  #
-  # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.  "args" can be set to an
-  # array of arguments passed to the executable.
-  #
-  # If "visualizerAPI", "path" and "args" are both unused.  The top-level
-  # "visualizerAPI" configuration should also be set appropriately.
-  retriever: "visualizerAPI"
-
-  # The data source map is periodically updated using the configured retriever.
-  # `frequency` specifies the frequency of the periodic updating.
+  # The data source map is periodically updated from the Concertim
+  # Visualisation App. `frequency` specifies the frequency of the periodic
+  # updating.
   #
   # Certain events can cause the data source map to update outside of its
   # periodic updating.  To prevent over consumption of resources, the updates

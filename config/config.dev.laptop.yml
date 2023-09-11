@@ -39,25 +39,9 @@ gds:
 
 # Configuration for generating the data source map lookup.
 dsm:
-  # The type of retriever to use for obtaining the data source map look up
-  # table.  Either "file", "script", or "visualizerAPI".
-  #
-  # If "file", "path" should be set to the path to a JSON file.  See
-  # ./testdata/dsm.json for an example.
-  #
-  # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.  "args" can be set to an
-  # array of arguments passed to the executable.
-  #
-  # If "visualizerAPI", "path" and "args" are both unused.  The top-level
-  # "visualizerAPI" configuration should also be set appropriately.
-  #
-  # Use these values when not running on a concertim appliance.
-  retriever: "file"
-  path: "./testdata/dsm.json"
-
-  # The data source map is periodically updated using the configured retriever.
-  # `frequency` specifies the frequency of the periodic updating.
+  # The data source map is periodically updated from the Concertim
+  # Visualisation App. `frequency` specifies the frequency of the periodic
+  # updating.
   #
   # Certain events can cause the data source map to update outside of its
   # periodic updating.  To prevent over consumption of resources, the updates
@@ -86,6 +70,12 @@ dsm:
   # incorrectly rejected due to an unknown host.  Those metrics will eventually
   # be accepted.
   duration: 75ms
+
+  # If this values is given and is not an empty string, the data source map
+  # will be read from this file instead of polling the Concertim Visualisation
+  # App. Relative paths are relative to the working directory of the running
+  # process.
+  testdata: "./testdata/dsm.json"
 
 # Configuration for retrieving metrics from gmetad.
 retrieval:
@@ -127,7 +117,7 @@ retrieval:
 
   # If this values is given and is not an empty string, the ganglia XML will be
   # read from this file instead of polling the gmetad server.  In this case the
-  # IP add port will be ignored.  Relative paths are relative to the working
+  # IP and port will be ignored.  Relative paths are relative to the working
   # directory of the running process.
   # testdata: "./testdata/ganglia-small.xml"
   testdata: "./testdata/ganglia.xml"

@@ -3,83 +3,11 @@ package dsmRepository
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os/exec"
-	"strings"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
-
-// Script retrieves the data source map by running the script
-// specified at Path.
-type Script struct {
-	Args   []string
-	Path   string
-	Logger zerolog.Logger
-}
-
-func (e *Script) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
-	args := e.Args
-	if args == nil {
-		args = []string{}
-	}
-	cmd := exec.Command(e.Path, args...)
-	e.Logger.Debug().Str("cmd", cmd.String()).Msg("retrieving json")
-	out, err := cmd.Output()
-	if err != nil {
-		msg := "executing script"
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			if strings.Contains(exitErr.Error(), e.Path) || strings.Contains(string(exitErr.Stderr), e.Path) {
-				return nil, nil, errors.Wrapf(exitErr, "%s: %s", msg, exitErr.Stderr)
-			}
-			return nil, nil, errors.Wrapf(exitErr, "%s: %s: %s", msg, e.Path, exitErr.Stderr)
-		}
-		return nil, nil, errors.Wrap(err, msg)
-	}
-	parser := Parser{Logger: e.Logger}
-	return parser.parseJSON(out)
-}
-
-// JSONFileRetreiver retrieves the data source map from a pre-poulated JSON
-// file.
-type JSONFileRetreiver struct {
-	Path   string
-	Logger zerolog.Logger
-}
-
-func (j *JSONFileRetreiver) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
-	j.Logger.Debug().Str("path", j.Path).Msg("retrieving json")
-	data, err := ioutil.ReadFile(j.Path)
-	if err != nil {
-		msg := "reading JSON file"
-		if !strings.Contains(err.Error(), j.Path) {
-			msg = fmt.Sprintf("%s: %s", msg, j.Path)
-		}
-		return nil, nil, errors.Wrap(err, msg)
-	}
-	parser := Parser{Logger: j.Logger}
-	return parser.parseJSON(data)
-}
-
-// visualizerAPIRetriever retrieves the data source map from the Concertim
-// Visualizer API.
-type visualizerAPIRetriever struct {
-	client *visualizer.Client
-	logger zerolog.Logger
-}
-
-func (r *visualizerAPIRetriever) getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
-	data, err := r.client.GetDSM()
-	if err != nil {
-		return nil, nil, err
-	}
-	parser := Parser{Logger: r.logger}
-	return parser.parseJSON(data)
-}
 
 // Parser parses the data provided by a dataRetriever into a
 // map[domain.HostId]domain.DSM and a map[domain.DSM]domain.MemcacheKey.

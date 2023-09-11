@@ -22,7 +22,7 @@ var AuthenticationError = fmt.Errorf("authentication failed")
 type Client struct {
 	authToken string
 	client    *http.Client
-	config    config.VisualizerAPI
+	Config    config.VisualizerAPI
 	logger    zerolog.Logger
 	tokenAuth *jwtauth.JWTAuth
 }
@@ -33,7 +33,7 @@ func New(logger zerolog.Logger, config config.VisualizerAPI) *Client {
 	}
 	client := &http.Client{Transport: tr}
 	return &Client{
-		config:    config,
+		Config:    config,
 		client:    client,
 		logger:    logger.With().Str("component", "visualizerAPI").Logger(),
 		tokenAuth: jwtauth.New("HS256", config.JWTSecret, nil),
@@ -50,17 +50,17 @@ func (v *Client) authenticate() error {
 		v.logger.Debug().Err(err).Msg("existing token invalid")
 		v.authToken = ""
 	}
-	v.logger.Debug().Str("url", v.config.AuthUrl).Msg("authenticating")
+	v.logger.Debug().Str("url", v.Config.AuthUrl).Msg("authenticating")
 	credentials := map[string]map[string]string{
-		"user": {"login": v.config.Username, "password": v.config.Password},
+		"user": {"login": v.Config.Username, "password": v.Config.Password},
 	}
 	body, _ := json.Marshal(credentials)
-	resp, err := v.Do("POST", v.config.AuthUrl, bytes.NewBuffer(body))
+	resp, err := v.Do("POST", v.Config.AuthUrl, bytes.NewBuffer(body))
 	if err != nil {
 		return fmt.Errorf("%w: %s", AuthenticationError, err.Error())
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return fmt.Errorf("%w: %s: %s", AuthenticationError, v.config.AuthUrl, resp.Status)
+		return fmt.Errorf("%w: %s: %s", AuthenticationError, v.Config.AuthUrl, resp.Status)
 	}
 	headerName := "Authorization"
 	v.authToken = strings.Fields(resp.Header.Get(headerName))[1]
@@ -68,7 +68,7 @@ func (v *Client) authenticate() error {
 }
 
 func (v *Client) GetDSM() ([]byte, error) {
-	url := v.config.DataSourceMapUrl
+	url := v.Config.DataSourceMapUrl
 	v.logger.Debug().Str("url", url).Msg("getting dsms")
 	resp, err := v.Get(url)
 	if err != nil {
@@ -78,7 +78,7 @@ func (v *Client) GetDSM() ([]byte, error) {
 		msg := fmt.Sprintf("visualizerAPI.GetDSM failed: GET %s: %s", url, resp.Status)
 		return nil, errors.New(msg)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, augmentError(err, "reading response", "GET", url)

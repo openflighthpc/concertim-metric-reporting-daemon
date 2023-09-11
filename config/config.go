@@ -42,11 +42,9 @@ type GDS struct {
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
-	Args      []string      `yaml:"args"`
 	Duration  time.Duration `yaml:"duration"`
 	Frequency time.Duration `yaml:"frequency"`
-	Path      string        `yaml:"path"`
-	Retriever string        `yaml:"retriever"`
+	Testdata  string        `yaml:"testdata"`
 	Throttle  time.Duration `yaml:"throttle"`
 }
 

@@ -12,7 +12,6 @@
 package dsmRepository
 
 import (
-	"fmt"
 	"sync"
 	"time"
 
@@ -33,12 +32,31 @@ type Repo struct {
 	mux              sync.Mutex
 	Ticker           *ticker.Ticker
 	logger           zerolog.Logger
-	visualizerClient *visualizer.Client
+	retriever        dataRetriever
+}
+
+// New returns a new Repo.  It will be populated with assuming that the data
+// retriever can do so.
+func New(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.Client) *Repo {
+	logger = logger.With().Str("component", "dsm-repo").Logger()
+	retriever := getRetriver(logger, config, visualizerClient)
+	r := &Repo{
+		config:           config,
+		hostIdToDSM:      map[domain.HostId]domain.DSM{},
+		dsmToMemcacheKey: map[domain.DSM]domain.MemcacheKey{},
+		mux:              sync.Mutex{},
+		Ticker:           ticker.NewTicker(config.Frequency, config.Throttle),
+		logger:           logger,
+		retriever:        retriever,
+	}
+	r.runPeriodicUpdate()
+	return r
 }
 
 // DataRetriever is an interface for retrieving updated data for the Repo.
 type dataRetriever interface {
-	getNewData() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error)
+	describe() string
+	retrieve() ([]byte, error)
 }
 
 // GetDSM returns the data source map for the given host name.
@@ -86,32 +104,17 @@ func (r *Repo) GetMemcacheKey(dsm domain.DSM) (domain.MemcacheKey, bool) {
 //
 // The external source to use is configured when creating a new DSMRepo.
 func (r *Repo) Update() error {
-	retriever, err := r.getRetriver()
+	data, err := r.retriever.retrieve()
 	if err != nil {
 		return errors.Wrap(err, "updating DSM")
 	}
-	newHostIdToDSM, newDSMToMemcacheKey, err := retriever.getNewData()
+	parser := Parser{Logger: r.logger}
+	newHostIdToDSM, newDSMToMemcacheKey, err := parser.parseJSON(data)
 	if err != nil {
 		return errors.Wrap(err, "updating DSM")
 	}
 	r.setData(newHostIdToDSM, newDSMToMemcacheKey)
 	return nil
-}
-
-// New returns a new Repo.  It will be populated with assuming that the data
-// retriever can do so.
-func New(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.Client) *Repo {
-	r := &Repo{
-		config:           config,
-		hostIdToDSM:      map[domain.HostId]domain.DSM{},
-		dsmToMemcacheKey: map[domain.DSM]domain.MemcacheKey{},
-		mux:              sync.Mutex{},
-		Ticker:           ticker.NewTicker(config.Frequency, config.Throttle),
-		logger:           logger.With().Str("component", "dsm-repo").Logger(),
-		visualizerClient: visualizerClient,
-	}
-	r.runPeriodicUpdate()
-	return r
 }
 
 func (r *Repo) setData(newHostIdToDSM map[domain.HostId]domain.DSM, newDSMToMemcacheKey map[domain.DSM]domain.MemcacheKey) {
@@ -122,6 +125,7 @@ func (r *Repo) setData(newHostIdToDSM map[domain.HostId]domain.DSM, newDSMToMemc
 	r.logger.Info().
 		Int("hostIdToDSM.count", len(newHostIdToDSM)).
 		Int("dsmToMemcacheKey.count", len(newDSMToMemcacheKey)).
+		Str("source", r.retriever.describe()).
 		Msg("updated")
 }
 
@@ -138,25 +142,15 @@ func (r *Repo) runPeriodicUpdate() {
 	}()
 }
 
-func (r *Repo) getRetriver() (dataRetriever, error) {
-	switch r.config.Retriever {
-	case "file":
+func getRetriver(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.Client) dataRetriever {
+	if config.Testdata != "" {
 		return &JSONFileRetreiver{
-			Path:   r.config.Path,
-			Logger: r.logger,
-		}, nil
-	case "script":
-		return &Script{
-			Args:   r.config.Args,
-			Path:   r.config.Path,
-			Logger: r.logger,
-		}, nil
-	case "visualizerAPI":
-		return &visualizerAPIRetriever{
-			client: r.visualizerClient,
-			logger: r.logger,
-		}, nil
-	default:
-		return nil, fmt.Errorf("Unknown data retriever type: %s", r.config.Retriever)
+			Path:   config.Testdata,
+			Logger: logger,
+		}
+	}
+	return &visualizerAPIRetriever{
+		client: visualizerClient,
+		logger: logger,
 	}
 }
