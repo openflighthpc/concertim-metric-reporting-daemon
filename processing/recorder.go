@@ -13,7 +13,7 @@ import (
 
 // Recorder is an interface for recording the processed metrics.
 type Recorder interface {
-	Record(Result) error
+	Record(*Result) error
 }
 
 // ScriptRecorder implements the Recorder interface and records the metrics by
@@ -69,5 +69,23 @@ func (sr *ScriptRecorder) Record(result *Result) error {
 	sr.Logger.Info().
 		Str("output", string(out)).
 		Msg("completed")
+	return nil
+}
+
+type MultiRecorder struct {
+	recorders []Recorder
+}
+
+func NewMultiRecorder(recorders []Recorder) *MultiRecorder {
+	return &MultiRecorder{recorders: recorders}
+}
+
+func (mr *MultiRecorder) Record(result *Result) error {
+	for _, recorder := range mr.recorders {
+		err := recorder.Record(result)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

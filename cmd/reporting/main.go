@@ -171,7 +171,10 @@ func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsS
 		return errors.Wrap(err, "creating retrieval poller")
 	}
 	processor := processing.NewProcessor(log.Logger, dsmRepo, config.Retrieval.GridName, config.Retrieval.ClusterName)
-	recorder := processing.NewScriptRecorder(log.Logger, config.Recorder)
+	recorder := processing.NewMultiRecorder([]processing.Recorder{
+		processing.NewMemoryRecorder(log.Logger),
+		processing.NewScriptRecorder(log.Logger, config.Recorder),
+	})
 
 	go func() { poller.Start(pollChan) }()
 
