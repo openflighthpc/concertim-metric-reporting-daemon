@@ -33,6 +33,7 @@ func (fakeClock) Now() time.Time {
 	}
 	return time.Unix(i, 0)
 }
+
 func (fakeClock) Since(t time.Time) time.Duration {
 	return 32 * time.Second
 }
@@ -40,12 +41,12 @@ func (fakeClock) Since(t time.Time) time.Duration {
 func Test_GeneratedXMLIsCorrect(t *testing.T) {
 	tests := []struct {
 		name   string
-		hosts  []domain.Host
+		hosts  []domain.ReportedHost
 		golden string
 	}{
 		{
 			name:   "generates correct XML for empty cluster",
-			hosts:  []domain.Host{},
+			hosts:  []domain.ReportedHost{},
 			golden: "empty_cluster",
 		},
 		{
@@ -100,28 +101,28 @@ func dsm_for(hostname string) domain.DSM {
 	}
 }
 
-func clusterWithoutMetrics() []domain.Host {
-	return []domain.Host{
+func clusterWithoutMetrics() []domain.ReportedHost {
+	return []domain.ReportedHost{
 		{
 			Id:       "10",
 			DSM:      dsm_for("comp10.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     10 * time.Second,
-			Metrics:  []domain.Metric{},
+			Metrics:  []domain.ReportedMetric{},
 		},
 		{
 			Id:       "20",
 			DSM:      dsm_for("comp20.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     20 * time.Second,
-			Metrics:  []domain.Metric{},
+			Metrics:  []domain.ReportedMetric{},
 		},
 	}
 }
 
-func clusterWithMetrics() []domain.Host {
+func clusterWithMetrics() []domain.ReportedHost {
 	origHosts := clusterWithoutMetrics()
-	newHosts := make([]domain.Host, 0, len(origHosts))
+	newHosts := make([]domain.ReportedHost, 0, len(origHosts))
 	for i, host := range origHosts {
 		host.Metrics = append(host.Metrics, buildMetrics(i+1)...)
 		newHosts = append(newHosts, host)
@@ -129,26 +130,26 @@ func clusterWithMetrics() []domain.Host {
 	return newHosts
 }
 
-func buildMetrics(i int) []domain.Metric {
-	powerMetric := domain.Metric{
+func buildMetrics(i int) []domain.ReportedMetric {
+	powerMetric := domain.ReportedMetric{
 		Name:     "power",
-		Val:      fmt.Sprintf("%d", i*10),
+		Value:    fmt.Sprintf("%d", i*10),
 		Units:    "W",
 		Slope:    "both",
 		DMax:     60 * time.Second,
 		Reported: fakeClock{}.Now(),
 		Type:     domain.MetricTypeDouble,
 	}
-	tempMetric := domain.Metric{
+	tempMetric := domain.ReportedMetric{
 		Name:     "temp",
-		Val:      fmt.Sprintf("%d", i*20),
+		Value:    fmt.Sprintf("%d", i*20),
 		Units:    "C",
 		Slope:    "both",
 		DMax:     120 * time.Second,
 		Reported: fakeClock{}.Now(),
 		Type:     domain.MetricTypeFloat,
 	}
-	return []domain.Metric{powerMetric, tempMetric}
+	return []domain.ReportedMetric{powerMetric, tempMetric}
 }
 
 func goldenValue(t *testing.T, goldenFile string) string {
@@ -168,16 +169,16 @@ func goldenValue(t *testing.T, goldenFile string) string {
 	return string(content)
 }
 
-func clusterWithXML() []domain.Host {
-	return []domain.Host{
+func clusterWithXML() []domain.ReportedHost {
+	return []domain.ReportedHost{
 		{
 			Id:       "\"</HOST>",
 			DSM:      dsm_for("\"</HOST>.cluster.local"),
 			Reported: fakeClock{}.Now(),
 			DMax:     10 * time.Second,
-			Metrics: []domain.Metric{{
+			Metrics: []domain.ReportedMetric{{
 				Name:  "\"</NAME>",
-				Val:   "\"</VAL>",
+				Value: "\"</VAL>",
 				Units: "\"</UNITS>",
 			}},
 		},

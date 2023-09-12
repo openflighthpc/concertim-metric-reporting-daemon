@@ -1,6 +1,8 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+)
 
 // UnknownHost is the error reported when an attempt to add a metric to an
 // unknown host is made.
@@ -10,7 +12,7 @@ var UnknownHost = errors.New("Unknown host")
 type Repository interface {
 	// PutHost adds a Host to the repository.  If the Host has already been
 	// added it will be updated.
-	PutHost(Host) error
+	PutHost(ReportedHost) error
 
 	// PutMetric adds a Metric to the repository for a previously added Host.
 	//
@@ -18,13 +20,13 @@ type Repository interface {
 	//
 	// If the Host has not been previously added an UnknownHost error is
 	// returned.
-	PutMetric(Host, Metric) error
+	PutMetric(ReportedHost, ReportedMetric) error
 
 	// GetAll returns a slice of all Hosts added to the repository, populated
 	// with all of their Metrics.
-	GetAll() []Host
+	GetAll() []ReportedHost
 
-	GetHost(HostId) (Host, bool)
+	GetHost(HostId) (ReportedHost, bool)
 }
 
 // DataSourceMapRepository is the interface for looking up a device's data
@@ -47,4 +49,9 @@ type DataSourceMapRepository interface {
 	//
 	// The external source to use is configured when creating a new DSMRepo.
 	Update() error
+}
+
+type ResultRepo interface {
+	// GetHostMetrics(deviceId HostId) (metrics map[MetricName]Metric, ok bool)
+	GetUniqueMetrics() []UniqueMetric
 }

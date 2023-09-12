@@ -7,9 +7,9 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func domainMetricFromPutMetric(src putMetricRequest, logger zerolog.Logger) (domain.Metric, error) {
+func domainMetricFromPutMetric(src putMetricRequest, logger zerolog.Logger) (domain.ReportedMetric, error) {
 	var err error
-	var dst domain.Metric
+	var dst domain.ReportedMetric
 	dst.Name = src.Name
 	dst.Units = src.Units
 	dst.Reported = time.Now()
@@ -17,17 +17,17 @@ func domainMetricFromPutMetric(src putMetricRequest, logger zerolog.Logger) (dom
 
 	dst.Type, err = domain.ParseMetricType(src.Type)
 	if err != nil {
-		return domain.Metric{}, err
+		return domain.ReportedMetric{}, err
 	}
-	dst.Val, err = domain.ParseMetricVal(src.Val, dst.Type)
+	dst.Value, err = domain.ParseMetricVal(src.Val, dst.Type)
 	if err != nil {
 		logger.Debug().Err(err).Any("input", src.Val).Stringer("type", dst.Type).Msg("parsing metric failed")
-		return domain.Metric{}, err
+		return domain.ReportedMetric{}, err
 	}
-	logger.Debug().Any("input", src.Val).Stringer("type", dst.Type).Str("result", dst.Val).Msg("converted metric value")
+	logger.Debug().Any("input", src.Val).Stringer("type", dst.Type).Str("result", dst.Value).Msg("converted metric value")
 	dst.Slope, err = domain.ParseMetricSlope(src.Slope)
 	if err != nil {
-		return domain.Metric{}, err
+		return domain.ReportedMetric{}, err
 	}
 	return dst, nil
 }

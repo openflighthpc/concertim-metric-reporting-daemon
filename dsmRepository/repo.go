@@ -35,6 +35,8 @@ type Repo struct {
 	retriever        dataRetriever
 }
 
+var _ domain.DataSourceMapRepository = (*Repo)(nil)
+
 // New returns a new Repo.  It will be populated with assuming that the data
 // retriever can do so.
 func New(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.Client) *Repo {

@@ -53,22 +53,22 @@
 <GANGLIA_XML VERSION="3.7.2" SOURCE="gmetad">
 <GRID NAME="unspecified" AUTHORITY="http://concertim-dev1/ganglia/" LOCALTIME="1680199891">
 <CLUSTER NAME="unspecified" LOCALTIME="1680199890" OWNER="unspecified" LATLONG="unspecified" URL="unspecified">
-<HOST NAME="comp203" IP="" REPORTED="1680199809" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:3" IP="" REPORTED="1680199809" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="15" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="15" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
 <HOST NAME="concertim-dev1" IP="10.0.2.15" REPORTED="1680199880" TN="10" TMAX="20" DMAX="0" LOCATION="unspecified" GMOND_STARTED="1680110071" TAGS="">
-<METRIC NAME="load_five" VAL="0.21" TYPE="float" UNITS=" " TN="36" TMAX="325" DMAX="0" SLOPE="both" SOURCE="gmond">
+<METRIC NAME="load_five" VAL="0.21" TYPE="float" UNITS="" TN="36" TMAX="325" DMAX="0" SLOPE="both" SOURCE="gmond">
 <EXTRA_DATA>
 <EXTRA_ELEMENT NAME="GROUP" VAL="load"/>
 <EXTRA_ELEMENT NAME="DESC" VAL="Five minute load average"/>
@@ -82,7 +82,7 @@
 <EXTRA_ELEMENT NAME="TITLE" VAL="Bytes Received"/>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="load_one" VAL="0.52" TYPE="float" UNITS=" " TN="36" TMAX="70" DMAX="0" SLOPE="both" SOURCE="gmond">
+<METRIC NAME="load_one" VAL="0.52" TYPE="float" UNITS="" TN="36" TMAX="70" DMAX="0" SLOPE="both" SOURCE="gmond">
 <EXTRA_DATA>
 <EXTRA_ELEMENT NAME="GROUP" VAL="load"/>
 <EXTRA_ELEMENT NAME="DESC" VAL="One minute load average"/>
@@ -180,7 +180,7 @@
 <EXTRA_ELEMENT NAME="TITLE" VAL="CPU User"/>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="proc_total" VAL="232" TYPE="uint32" UNITS=" " TN="54" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
+<METRIC NAME="proc_total" VAL="232" TYPE="uint32" UNITS="" TN="54" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
 <EXTRA_DATA>
 <EXTRA_ELEMENT NAME="GROUP" VAL="process"/>
 <EXTRA_ELEMENT NAME="DESC" VAL="Total number of processes"/>
@@ -222,7 +222,7 @@
 <EXTRA_ELEMENT NAME="TITLE" VAL="Memory Buffers"/>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="load_fifteen" VAL="0.12" TYPE="float" UNITS=" " TN="36" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
+<METRIC NAME="load_fifteen" VAL="0.12" TYPE="float" UNITS="" TN="36" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
 <EXTRA_DATA>
 <EXTRA_ELEMENT NAME="GROUP" VAL="load"/>
 <EXTRA_ELEMENT NAME="DESC" VAL="Fifteen minute load average"/>
@@ -285,7 +285,7 @@
 <EXTRA_ELEMENT NAME="TITLE" VAL="Shared Memory"/>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="proc_run" VAL="0" TYPE="uint32" UNITS=" " TN="54" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
+<METRIC NAME="proc_run" VAL="0" TYPE="uint32" UNITS="" TN="54" TMAX="950" DMAX="0" SLOPE="both" SOURCE="gmond">
 <EXTRA_DATA>
 <EXTRA_ELEMENT NAME="GROUP" VAL="process"/>
 <EXTRA_ELEMENT NAME="DESC" VAL="Total number of running processes"/>
@@ -293,576 +293,576 @@
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp204" IP="" REPORTED="1680199809" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:4" IP="" REPORTED="1680199809" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="27" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="24" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="24" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp211" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="19" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp102" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:11" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="19" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp232" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="24" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp209" IP="" REPORTED="1680199810" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:40" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="19" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp235" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="24" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp224" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:32" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="24" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp215" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="14" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp205" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:9" IP="" REPORTED="1680199810" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="27" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="15" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="19" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp210" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp231" IP="" REPORTED="1680199814" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:35" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="24" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp220" IP="" REPORTED="1680199812" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="20" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp234" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:24" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp225" IP="" REPORTED="1680199813" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="18" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp201" IP="" REPORTED="1680199808" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="28" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:15" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="15" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="14" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp214" IP="" REPORTED="1680199811" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="24" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp101" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:5" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="15" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp213" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="17" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp104" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:10" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp230" IP="" REPORTED="1680199814" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp221" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:31" IP="" REPORTED="1680199814" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="14" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp226" IP="" REPORTED="1680199813" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp206" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:20" IP="" REPORTED="1680199812" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="23" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="20" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp217" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="14" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp228" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:34" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="27" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="16" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp212" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="15" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp237" IP="" REPORTED="1680199815" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:25" IP="" REPORTED="1680199813" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="12" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="18" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp219" IP="" REPORTED="1680199812" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="23" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp222" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:1" IP="" REPORTED="1680199808" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="28" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="18" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="15" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp227" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="14" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp202" IP="" REPORTED="1680199808" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="24" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:14" IP="" REPORTED="1680199811" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="18" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="24" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp238" IP="" REPORTED="1680199815" TN="75" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp207" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:39" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="14" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp216" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="25" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="22" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp103" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="30" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:13" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="17" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp229" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="27" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp233" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:42" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp208" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="23" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp236" IP="" REPORTED="1680199815" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="29" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:30" IP="" REPORTED="1680199814" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="12" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-</HOST>
-<HOST NAME="comp218" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="26" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="12" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
-<EXTRA_DATA>
-</EXTRA_DATA>
-</METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
 </HOST>
-<HOST NAME="comp223" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
-<METRIC NAME="ct.mrd.caffeine.consumption" VAL="28" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<HOST NAME="hacor:device:21" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.level" VAL="21" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.level" VAL="14" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>
-<METRIC NAME="ct.mrd.caffeine.capacity" VAL="32" TYPE="int32" UNITS=" " TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:26" IP="" REPORTED="1680199813" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:6" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="23" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:17" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="14" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:28" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="16" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:12" IP="" REPORTED="1680199810" TN="80" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="15" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="80" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:37" IP="" REPORTED="1680199815" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="12" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:19" IP="" REPORTED="1680199812" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="23" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:22" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="18" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:27" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="14" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:2" IP="" REPORTED="1680199808" TN="82" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="24" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="18" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="82" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:38" IP="" REPORTED="1680199815" TN="75" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="75" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:7" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="27" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="14" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:16" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="25" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="22" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:41" IP="" REPORTED="1680191681" TN="8209" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="30" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:29" IP="" REPORTED="1680199813" TN="77" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="27" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="77" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:33" IP="" REPORTED="1680199814" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:8" IP="" REPORTED="1680199809" TN="81" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="23" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="81" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:36" IP="" REPORTED="1680199815" TN="76" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="29" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="12" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="76" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:18" IP="" REPORTED="1680199811" TN="79" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="26" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="12" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="79" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+</HOST>
+<HOST NAME="hacor:device:23" IP="" REPORTED="1680199812" TN="78" TMAX="60" DMAX="0" LOCATION="unspecified" GMOND_STARTED="0" TAGS="unspecified">
+<METRIC NAME="caffeine.consumption" VAL="28" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.level" VAL="21" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
+<EXTRA_DATA>
+</EXTRA_DATA>
+</METRIC>
+<METRIC NAME="caffeine.capacity" VAL="32" TYPE="int32" UNITS="" TN="78" TMAX="60" DMAX="3600" SLOPE="both" SOURCE="ct-metric-reporting-daemon">
 <EXTRA_DATA>
 </EXTRA_DATA>
 </METRIC>

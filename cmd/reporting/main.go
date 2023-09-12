@@ -105,7 +105,8 @@ func main() {
 	repository := memory.New(log.Logger)
 	visualizerClient := visualizer.New(log.Logger, config.VisualizerAPI)
 	dsmRepo := dsmRepository.New(log.Logger, config.DSM, visualizerClient)
-	app := domain.NewApp(*config, repository, dsmRepo)
+	resultsRepo := processing.NewMemoryRecorder(log.Logger, dsmRepo)
+	app := domain.NewApp(*config, repository, dsmRepo, resultsRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
 	if err != nil {
@@ -128,7 +129,7 @@ func main() {
 		}
 	}()
 	go func() {
-		err := runMetricProcessor(config, dsmRepo, gdsServer)
+		err := runMetricProcessor(config, dsmRepo, gdsServer, resultsRepo)
 		if err != nil {
 			log.Fatal().Err(err).Msg("running metric processor")
 		}
@@ -164,7 +165,12 @@ func main() {
 	}
 }
 
-func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsServer *gds.Server) error {
+func runMetricProcessor(
+	config *config.Config,
+	dsmRepo *dsmRepository.Repo,
+	gdsServer *gds.Server,
+	resultsRepo *processing.MemoryRecorder,
+) error {
 	pollChan := make(chan []retrieval.Host)
 	poller, err := retrieval.New(log.Logger, config.Retrieval)
 	if err != nil {
@@ -172,7 +178,7 @@ func runMetricProcessor(config *config.Config, dsmRepo *dsmRepository.Repo, gdsS
 	}
 	processor := processing.NewProcessor(log.Logger, dsmRepo, config.Retrieval.GridName, config.Retrieval.ClusterName)
 	recorder := processing.NewMultiRecorder([]processing.Recorder{
-		processing.NewMemoryRecorder(log.Logger),
+		resultsRepo,
 		processing.NewScriptRecorder(log.Logger, config.Recorder),
 	})
 

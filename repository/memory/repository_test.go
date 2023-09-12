@@ -34,40 +34,40 @@ func Test_NewRepoIsEmpty(t *testing.T) {
 func Test_AddedHostCanBeRetrieved(t *testing.T) {
 	tests := []struct {
 		name  string
-		hosts []domain.Host
+		hosts []domain.ReportedHost
 	}{
 		{
 			name:  "Adding zero hosts",
-			hosts: []domain.Host{},
+			hosts: []domain.ReportedHost{},
 		},
 		{
 			name: "Adding one host",
-			hosts: []domain.Host{
+			hosts: []domain.ReportedHost{
 				{
 					Id:       "10",
 					DSM:      dsm_for("comp10"),
 					Reported: time.Now(),
 					DMax:     10,
-					Metrics:  []domain.Metric{},
+					Metrics:  []domain.ReportedMetric{},
 				},
 			},
 		},
 		{
 			name: "Adding two hosts",
-			hosts: []domain.Host{
+			hosts: []domain.ReportedHost{
 				{
 					Id:       "10",
 					DSM:      dsm_for("comp10"),
 					Reported: time.Now(),
 					DMax:     10,
-					Metrics:  []domain.Metric{},
+					Metrics:  []domain.ReportedMetric{},
 				},
 				{
 					Id:       "20",
 					DSM:      dsm_for("comp20"),
 					Reported: time.Now(),
 					DMax:     20,
-					Metrics:  []domain.Metric{},
+					Metrics:  []domain.ReportedMetric{},
 				},
 			},
 		},
@@ -86,7 +86,7 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 			for _, host := range tt.hosts {
 				h, ok := repo.GetHost(host.Id)
 				assert.False(ok)
-				assert.Equal(domain.Host{}, h)
+				assert.Equal(domain.ReportedHost{}, h)
 			}
 
 			// Actions
@@ -113,48 +113,48 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 	tests := []struct {
 		name    string
-		hosts   map[domain.HostId]domain.Host
-		metrics map[domain.HostId][]domain.Metric
+		hosts   map[domain.HostId]domain.ReportedHost
+		metrics map[domain.HostId][]domain.ReportedMetric
 	}{
 		{
 			name: "Adding multiple metrics for a single host",
-			hosts: map[domain.HostId]domain.Host{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
+			hosts: map[domain.HostId]domain.ReportedHost{
+				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.ReportedMetric{}},
 			},
-			metrics: map[domain.HostId][]domain.Metric{
+			metrics: map[domain.HostId][]domain.ReportedMetric{
 				"10": {
-					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
-					{Name: "temp", Val: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
+					{Name: "power", Value: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "temp", Value: "100", Units: "C", Slope: "both", DMax: 60, Type: "int32"},
 				},
 			},
 		},
 		{
 			name: "Adding different metrics for different hosts",
-			hosts: map[domain.HostId]domain.Host{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
-				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
+			hosts: map[domain.HostId]domain.ReportedHost{
+				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.ReportedMetric{}},
+				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: []domain.ReportedMetric{}},
 			},
-			metrics: map[domain.HostId][]domain.Metric{
+			metrics: map[domain.HostId][]domain.ReportedMetric{
 				"10": {
-					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "power", Value: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 				"20": {
-					{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "power", Value: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
 		{
 			name: "Adding different metrics for different hosts",
-			hosts: map[domain.HostId]domain.Host{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}},
-				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: []domain.Metric{}},
+			hosts: map[domain.HostId]domain.ReportedHost{
+				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: []domain.ReportedMetric{}},
+				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: []domain.ReportedMetric{}},
 			},
-			metrics: map[domain.HostId][]domain.Metric{
+			metrics: map[domain.HostId][]domain.ReportedMetric{
 				"10": {
-					{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "power", Value: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 				"20": {
-					{Name: "power", Val: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
+					{Name: "power", Value: "100", Units: "W", Slope: "both", DMax: 60, Type: "int64"},
 				},
 			},
 		},
@@ -198,7 +198,7 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 	}
 }
 
-func sortMetrics(metrics []domain.Metric) []domain.Metric {
+func sortMetrics(metrics []domain.ReportedMetric) []domain.ReportedMetric {
 	sort.SliceStable(metrics, func(i, j int) bool {
 		return metrics[i].Name < metrics[j].Name
 	})
@@ -209,8 +209,8 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	// Setup
 	assert := assert.New(t)
 	repo := New(log.Logger)
-	host := domain.Host{Id: "01", Reported: time.Now(), DMax: 10, Metrics: []domain.Metric{}}
-	metric := domain.Metric{Name: "power", Val: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"}
+	host := domain.ReportedHost{Id: "01", Reported: time.Now(), DMax: 10, Metrics: []domain.ReportedMetric{}}
+	metric := domain.ReportedMetric{Name: "power", Value: "10", Units: "W", Slope: "both", DMax: 60, Type: "int64"}
 
 	// Preconditions
 	hosts := repo.GetAll()
@@ -229,12 +229,12 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 	// Setup
 	assert := assert.New(t)
 	repo := New(log.Logger)
-	host := domain.Host{
+	host := domain.ReportedHost{
 		Id:       "01",
 		DSM:      dsm_for("comp01"),
 		Reported: time.Now(),
 		DMax:     10,
-		Metrics:  []domain.Metric{},
+		Metrics:  []domain.ReportedMetric{},
 	}
 	err := repo.PutHost(host)
 	assert.NoError(err)
@@ -245,7 +245,7 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 
 	// Actions
 	updatedHost := host
-	updatedHost.Metrics = make([]domain.Metric, len(host.Metrics))
+	updatedHost.Metrics = make([]domain.ReportedMetric, len(host.Metrics))
 	copy(updatedHost.Metrics, host.Metrics)
 	updatedHost.DMax = host.DMax + 10
 	err = repo.PutHost(updatedHost)

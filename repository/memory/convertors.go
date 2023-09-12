@@ -9,8 +9,8 @@ import (
 
 type ConverterImpl struct{}
 
-func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.Host {
-	var domainHost domain.Host
+func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.ReportedHost {
+	var domainHost domain.ReportedHost
 	domainHost.Id = domain.HostId(source.DeviceId)
 	domainHost.DSM = DSMNameToDSM(source.DSMName)
 	domainHost.Reported = ConvertTime(source.Reported)
@@ -18,10 +18,10 @@ func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.Host {
 	domainHost.Metrics = DefaultMetrics()
 	return domainHost
 }
-func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.Metric {
-	var domainMetric domain.Metric
+func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.ReportedMetric {
+	var domainMetric domain.ReportedMetric
 	domainMetric.Name = source.Name
-	domainMetric.Val = source.Val
+	domainMetric.Value = source.Val
 	domainMetric.Units = source.Units
 	domainMetric.Slope = domain.MetricSlope(source.Slope)
 	domainMetric.Reported = ConvertTime(source.Reported)
@@ -29,7 +29,7 @@ func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.Metric 
 	domainMetric.Type = domain.MetricType(source.Type)
 	return domainMetric
 }
-func (c *ConverterImpl) ModelFromDomainHost(source domain.Host) HostModel {
+func (c *ConverterImpl) ModelFromDomainHost(source domain.ReportedHost) HostModel {
 	var memoryHostModel HostModel
 	memoryHostModel.DeviceId = string(source.Id)
 	memoryHostModel.DSMName = source.DSM.HostName
@@ -37,10 +37,10 @@ func (c *ConverterImpl) ModelFromDomainHost(source domain.Host) HostModel {
 	memoryHostModel.DMax = time.Duration(source.DMax)
 	return memoryHostModel
 }
-func (c *ConverterImpl) ModelFromDomainMetric(source domain.Metric) MetricModel {
+func (c *ConverterImpl) ModelFromDomainMetric(source domain.ReportedMetric) MetricModel {
 	var memoryMetricModel MetricModel
 	memoryMetricModel.Name = source.Name
-	memoryMetricModel.Val = source.Val
+	memoryMetricModel.Val = source.Value
 	memoryMetricModel.Units = source.Units
 	memoryMetricModel.Slope = domain.MetricSlope(source.Slope)
 	memoryMetricModel.Reported = ConvertTime(source.Reported)

@@ -3,6 +3,7 @@ package processing
 
 import (
 	"encoding/json"
+	"reflect"
 	"strconv"
 	"time"
 
@@ -126,7 +127,7 @@ type Result struct {
 	HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
 
 	// UniqueMetrics is a set of unique metrics by name.
-	UniqueMetrics map[MetricName]Metric
+	UniqueMetrics map[MetricName]*domain.UniqueMetric
 
 	// Hosts is a slice of Host containing their processed metrics.
 	Hosts []Host `json:"hosts"`
@@ -141,7 +142,7 @@ type Result struct {
 func NewResult() *Result {
 	return &Result{
 		HostsByMetric: map[MetricName][]domain.MemcacheKey{},
-		UniqueMetrics: map[MetricName]Metric{},
+		UniqueMetrics: map[MetricName]*domain.UniqueMetric{},
 	}
 }
 
@@ -155,7 +156,12 @@ func (r *Result) AddMetric(mckey domain.MemcacheKey, metric Metric) {
 		r.HostsByMetric[metricName] = hosts
 	}
 	r.HostsByMetric[metricName] = append(hosts, mckey)
-	r.UniqueMetrics[metricName] = metric
+	um, found := r.UniqueMetrics[metricName]
+	if !found {
+		um = uniqueMetricFromMetric(metric)
+		r.UniqueMetrics[metricName] = um
+	}
+	adjustMinMax(um, metric)
 	r.numMetrics++
 }
 
@@ -163,14 +169,14 @@ func (r *Result) AddMetric(mckey domain.MemcacheKey, metric Metric) {
 //
 // It is used here to provide a custom serialisation for UniqueMetrics.
 func (r *Result) MarshalJSON() ([]byte, error) {
-	uniqMetricNames := make([]Metric, 0, len(r.UniqueMetrics))
+	uniqMetricNames := make([]domain.UniqueMetric, 0, len(r.UniqueMetrics))
 	for _, val := range r.UniqueMetrics {
-		uniqMetricNames = append(uniqMetricNames, val)
+		uniqMetricNames = append(uniqMetricNames, *val)
 	}
 	return json.Marshal(&struct {
 		HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
 		Hosts         []Host                              `json:"hosts"`
-		UniqueMetrics []Metric                            `json:"unique_metrics"`
+		UniqueMetrics []domain.UniqueMetric               `json:"unique_metrics"`
 	}{
 		HostsByMetric: r.HostsByMetric,
 		Hosts:         r.Hosts,
@@ -250,4 +256,45 @@ func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {
 	dst.Stale = stale
 
 	return dst, nil
+}
+
+func uniqueMetricFromMetric(src Metric) *domain.UniqueMetric {
+	var dst domain.UniqueMetric
+	dst.Datatype = src.Datatype
+	dst.Name = src.Name
+	dst.Nature = src.Nature
+	dst.Units = src.Units
+	adjustMinMax(&dst, src)
+	return &dst
+}
+
+func adjustMinMax(unique *domain.UniqueMetric, metric Metric) {
+	// XXX Add some logging of what's going on.  Especially for the error cases.
+	switch metric.Datatype {
+	case "int8", "int16", "int32":
+		i, err := strconv.Atoi(metric.Value)
+		if err != nil {
+			return
+		}
+		if unique.Min == nil {
+			unique.Min = i
+		} else {
+			minVal := reflect.ValueOf(unique.Min)
+			if minVal.CanInt() {
+				if int64(i) < minVal.Int() {
+					unique.Min = i
+				}
+			}
+		}
+		if unique.Max == nil {
+			unique.Max = i
+		} else {
+			maxVal := reflect.ValueOf(unique.Max)
+			if maxVal.CanInt() {
+				if int64(i) > maxVal.Int() {
+					unique.Max = i
+				}
+			}
+		}
+	}
 }
