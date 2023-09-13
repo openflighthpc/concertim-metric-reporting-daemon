@@ -34,15 +34,12 @@ type Repository interface {
 type DataSourceMapRepository interface {
 	// GetDSM returns the data source map for the given host id.
 	//
-	// deviceId is the device's concertim ID. The returned DSM may or may
-	// not be user-friendly it is used only internally.
-	// mapping are below.
-	//
-	// * 1 -> unspecified/unspecified/hacor:device:1
+	// deviceId is the device's concertim ID. The returned DSM is the map
+	// to that deivce in the Gmetad output.
 	GetDSM(deviceId HostId) (dsm DSM, ok bool)
 
-	// GetMemcacheKey returns the memcache key for the given data source map.
-	GetMemcacheKey(dsm DSM) (MemcacheKey, bool)
+	// GetHostId returns the host id for the given memcache key.
+	GetHostId(dsm DSM) (HostId, bool)
 
 	// Update retrieves the latest DSM from an external source and updates
 	// its internal repository.
@@ -54,4 +51,5 @@ type DataSourceMapRepository interface {
 type ResultRepo interface {
 	// GetHostMetrics(deviceId HostId) (metrics map[MetricName]Metric, ok bool)
 	GetUniqueMetrics() []UniqueMetric
+	HostsWithMetric(metricName MetricName) []*ProcessedHost
 }

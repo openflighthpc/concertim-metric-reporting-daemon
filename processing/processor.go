@@ -2,13 +2,11 @@
 package processing
 
 import (
-	"encoding/json"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -26,13 +24,13 @@ import (
 // These views are currently, recorded in memcache by Recorder.
 type Processor struct {
 	clusterName string
-	dsmRepo     *dsmRepository.Repo
+	dsmRepo     domain.DataSourceMapRepository
 	gridName    string
 	logger      zerolog.Logger
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(logger zerolog.Logger, dsmRepo *dsmRepository.Repo, gridName, clusterName string) *Processor {
+func NewProcessor(logger zerolog.Logger, dsmRepo domain.DataSourceMapRepository, gridName, clusterName string) *Processor {
 	return &Processor{
 		clusterName: clusterName,
 		dsmRepo:     dsmRepo,
@@ -62,7 +60,7 @@ func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
 			ClusterName: p.clusterName,
 			HostName:    gHost.Name,
 		}
-		memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
+		hostId, ok := p.dsmRepo.GetHostId(dsm)
 		if !ok {
 			p.logger.Debug().
 				Str("host", gHost.Name).
@@ -75,10 +73,10 @@ func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
 			Str("host", gHost.Name).
 			Int("count", len(gHost.Metrics)).
 			Msg("processing metrics")
-		ctHost := Host{
-			Name:        gHost.Name,
-			MemcacheKey: memcacheKey,
-			Metrics:     make(map[MetricName]Metric),
+		ctHost := domain.ProcessedHost{
+			Id:      hostId,
+			DSM:     dsm,
+			Metrics: make(map[domain.MetricName]domain.ProcessedMetric),
 		}
 		for _, gMetric := range gHost.Metrics {
 			p.logger.Debug().
@@ -90,14 +88,18 @@ func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
 				p.logger.Warn().Err(err).Msg("failed")
 				continue
 			}
-			ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
-			result.AddMetric(domain.MemcacheKey(memcacheKey), ctMetric)
+			// XXX Combine into single call. `result.AddMetric` or
+			// perhaps `result.AddHost` and then
+			// `result.AddMetric`.  I.e., use an interface not
+			// direct access to maps.
+			ctHost.Metrics[domain.MetricName(ctMetric.Name)] = ctMetric
+			result.AddMetric(&ctHost, &ctMetric)
 		}
 		if len(ctHost.Metrics) > 0 {
 			now := time.Now()
 			ctHost.Mtime = &now
 		}
-		result.Hosts = append(result.Hosts, ctHost)
+		result.Hosts = append(result.Hosts, &ctHost)
 	}
 	logProcessResults(p.logger, result)
 	return result, nil
@@ -114,9 +116,6 @@ func logProcessResults(logger zerolog.Logger, result *Result) {
 		Msg("completed")
 }
 
-// MetricName exists to document some function signatures.
-type MetricName string
-
 // Result contains the result of the processing run for a single set of
 // metrics.
 //
@@ -124,13 +123,13 @@ type MetricName string
 type Result struct {
 	// HostsByMetric is a map from a metric's name to a list of hosts that
 	// currently have a fresh value for that metric.
-	HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
+	HostsByMetric map[domain.MetricName][]*domain.ProcessedHost
 
 	// UniqueMetrics is a set of unique metrics by name.
-	UniqueMetrics map[MetricName]*domain.UniqueMetric
+	UniqueMetrics map[domain.MetricName]*domain.UniqueMetric
 
 	// Hosts is a slice of Host containing their processed metrics.
-	Hosts []Host `json:"hosts"`
+	Hosts []*domain.ProcessedHost
 
 	// numMetrics keeps track of the total metrics processed for logging.  Other
 	// logged information is derived from the other attributes.
@@ -141,70 +140,28 @@ type Result struct {
 // NewResult returns a new empty *Result.
 func NewResult() *Result {
 	return &Result{
-		HostsByMetric: map[MetricName][]domain.MemcacheKey{},
-		UniqueMetrics: map[MetricName]*domain.UniqueMetric{},
+		HostsByMetric: map[domain.MetricName][]*domain.ProcessedHost{},
+		UniqueMetrics: map[domain.MetricName]*domain.UniqueMetric{},
 	}
 }
 
 // AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
 // should be the memcache key for the host that reported the metric.
-func (r *Result) AddMetric(mckey domain.MemcacheKey, metric Metric) {
-	metricName := MetricName(metric.Name)
+func (r *Result) AddMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) {
+	metricName := domain.MetricName(metric.Name)
 	hosts, ok := r.HostsByMetric[metricName]
 	if !ok {
-		hosts = make([]domain.MemcacheKey, 0)
+		hosts = make([]*domain.ProcessedHost, 0)
 		r.HostsByMetric[metricName] = hosts
 	}
-	r.HostsByMetric[metricName] = append(hosts, mckey)
+	r.HostsByMetric[metricName] = append(hosts, host)
 	um, found := r.UniqueMetrics[metricName]
 	if !found {
-		um = uniqueMetricFromMetric(metric)
+		um = uniqueMetricFromMetric(*metric)
 		r.UniqueMetrics[metricName] = um
 	}
-	adjustMinMax(um, metric)
+	adjustMinMax(um, *metric)
 	r.numMetrics++
-}
-
-// MarshalJSON implements the encoding/json.Marshaler interface.
-//
-// It is used here to provide a custom serialisation for UniqueMetrics.
-func (r *Result) MarshalJSON() ([]byte, error) {
-	uniqMetricNames := make([]domain.UniqueMetric, 0, len(r.UniqueMetrics))
-	for _, val := range r.UniqueMetrics {
-		uniqMetricNames = append(uniqMetricNames, *val)
-	}
-	return json.Marshal(&struct {
-		HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
-		Hosts         []Host                              `json:"hosts"`
-		UniqueMetrics []domain.UniqueMetric               `json:"unique_metrics"`
-	}{
-		HostsByMetric: r.HostsByMetric,
-		Hosts:         r.Hosts,
-		UniqueMetrics: uniqMetricNames,
-	})
-}
-
-// Host is the domain model for a host.
-type Host struct {
-	Name        string                `json:"name,omitempty"`
-	MemcacheKey domain.MemcacheKey    `json:"memcache_key,omitempty"`
-	Metrics     map[MetricName]Metric `json:"metrics"`
-	// Use a pointer for Mtime so that the json marshalling will omit when
-	// empty.
-	Mtime *time.Time `json:"mtime,omitempty"`
-}
-
-// Metric is the domain model for a metric.
-type Metric struct {
-	Name      string `json:"name,omitempty"`
-	Datatype  string `json:"datatype,omitempty"`
-	Units     string `json:"units,omitempty"`
-	Source    string `json:"source,omitempty"`
-	Value     string `json:"value,omitempty"`
-	Nature    string `json:"nature,omitempty"`
-	Dmax      int    `json:"dmax,omitempty"`
-	Timestamp int64  `json:"timestamp,omitempty"`
-	Stale     bool   `json:"stale"`
 }
 
 // MetricFromGanglia parses the given Ganglia metric into a format suitable
@@ -215,19 +172,19 @@ type Metric struct {
 // Slope is replaced with a simplified Nature.
 // TN is replaced with a more easily consumed Timestamp.
 // TMAX is replaced with a more easily consumed Stale.
-func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {
-	var dst Metric
+func MetricFromGanglia(now int64, src retrieval.Metric) (domain.ProcessedMetric, error) {
+	var dst domain.ProcessedMetric
 	tn, err := strconv.Atoi(src.TN)
 	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid TN")
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TN")
 	}
 	tmax, err := strconv.Atoi(src.TMax)
 	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid TMAX")
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TMAX")
 	}
 	dmax, err := strconv.Atoi(src.DMax)
 	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid DMAX")
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid DMAX")
 	}
 
 	var stale bool
@@ -258,7 +215,7 @@ func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {
 	return dst, nil
 }
 
-func uniqueMetricFromMetric(src Metric) *domain.UniqueMetric {
+func uniqueMetricFromMetric(src domain.ProcessedMetric) *domain.UniqueMetric {
 	var dst domain.UniqueMetric
 	dst.Datatype = src.Datatype
 	dst.Name = src.Name
@@ -268,7 +225,7 @@ func uniqueMetricFromMetric(src Metric) *domain.UniqueMetric {
 	return &dst
 }
 
-func adjustMinMax(unique *domain.UniqueMetric, metric Metric) {
+func adjustMinMax(unique *domain.UniqueMetric, metric domain.ProcessedMetric) {
 	// XXX Add some logging of what's going on.  Especially for the error cases.
 	switch metric.Datatype {
 	case "int8", "int16", "int32":

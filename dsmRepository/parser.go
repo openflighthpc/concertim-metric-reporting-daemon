@@ -10,68 +10,36 @@ import (
 )
 
 // Parser parses the data provided by a dataRetriever into a
-// map[domain.HostId]domain.DSM and a map[domain.DSM]domain.MemcacheKey.
+// map[domain.HostId]domain.DSM and a map[domain.DSM]domain.HostId.
 type Parser struct {
 	Logger zerolog.Logger
 }
 
-func (p *Parser) parseJSON(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.MemcacheKey, error) {
+func (p *Parser) parseJSON(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
 	p.Logger.Debug().Int("bytes", len(data)).Msg("parsing JSON")
 	var raw interface{}
-
-	deviceIdToGangliaHostName := map[domain.HostId]domain.DSM{}
-	dsmToMemcacheKey := map[domain.DSM]domain.MemcacheKey{}
+	var dsmToHostId  map[domain.DSM]domain.HostId
 
 	err := json.Unmarshal(data, &raw)
 	if err != nil {
 		return nil, nil, err
 	}
-	rawMap := raw.(map[string]interface{})
-	for key, nestedMap := range rawMap {
-		if key == "deviceIdToGangliaHostName" {
-			deviceIdToGangliaHostName, err = p.parseDeviceIdToGangliaHostName(nestedMap)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "parsing deviceIdToGangliaHostName")
-			}
-		} else if key == "dsmToMemcacheKey" {
-			dsmToMemcacheKey, err = p.parseMemcacheMap(nestedMap)
-			if err != nil {
-				return nil, nil, errors.Wrap(err, "parsing dsmToMemcacheKey")
-			}
-		} else {
-			return nil, nil, fmt.Errorf("unknown key %s", key)
-		}
+	dsmToHostId, err = p.parseHostIdMap(raw)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "parsing data source map")
 	}
 
-	return deviceIdToGangliaHostName, dsmToMemcacheKey, nil
-}
-
-func (p *Parser) parseDeviceIdToGangliaHostName(data any) (map[domain.HostId]domain.DSM, error) {
-	p.Logger.Debug().Any("data", data).Msg("parsing deviceIdToGangliaHostName")
-	hostMap := data.(map[string]interface{})
-	newData := map[domain.HostId]domain.DSM{}
-	for deviceId, gangliaHostName := range hostMap {
-		hName, ok := gangliaHostName.(string)
-		if !ok {
-			p.Logger.Warn().
-				Str("deviceId", deviceId).
-				Interface("gangliaHostName", gangliaHostName).
-				Msg("Could not convert to string")
-			continue
-		}
-		dsm := domain.DSM{
-			GridName:    "unspecified",
-			ClusterName: "unspecified",
-			HostName:    hName,
-		}
-		newData[domain.HostId(deviceId)] = dsm
+	hostIdToDSM := make(map[domain.HostId]domain.DSM, len(dsmToHostId))
+	for dsm, hostId := range dsmToHostId {
+		hostIdToDSM[hostId] = dsm
 	}
-	return newData, nil
+
+	return hostIdToDSM, dsmToHostId, nil
 }
 
-func (p *Parser) parseMemcacheMap(data any) (map[domain.DSM]domain.MemcacheKey, error) {
-	p.Logger.Debug().Any("data", data).Msg("parsing dsmToMemcacheKey")
-	dsmMap := map[domain.DSM]domain.MemcacheKey{}
+func (p *Parser) parseHostIdMap(data any) (map[domain.DSM]domain.HostId, error) {
+	p.Logger.Debug().Any("data", data).Msg("parsing data source map")
+	dsmMap := map[domain.DSM]domain.HostId{}
 
 	gridMap, ok := data.(map[string]any)
 	if !ok {
@@ -88,17 +56,17 @@ func (p *Parser) parseMemcacheMap(data any) (map[domain.DSM]domain.MemcacheKey, 
 			if !ok {
 				return nil, fmt.Errorf("unexpected type for hostMap")
 			}
-			for hName, memcacheKey := range hostMap {
-				memcacheKey, ok := memcacheKey.(string)
+			for hName, hostId := range hostMap {
+				hostId, ok := hostId.(string)
 				if !ok {
-					return nil, fmt.Errorf("unexpected type for memcacheKey")
+					return nil, fmt.Errorf("unexpected type for hostId")
 				}
 				dsm := domain.DSM{
 					GridName:    gName,
 					ClusterName: cName,
 					HostName:    hName,
 				}
-				dsmMap[dsm] = domain.MemcacheKey(memcacheKey)
+				dsmMap[dsm] = domain.HostId(hostId)
 			}
 		}
 	}

@@ -26,13 +26,13 @@ import (
 // Repo is an in-memory repository of device names to data source maps to
 // host.
 type Repo struct {
-	config           config.DSM
-	hostIdToDSM      map[domain.HostId]domain.DSM
-	dsmToMemcacheKey map[domain.DSM]domain.MemcacheKey
-	mux              sync.Mutex
-	Ticker           *ticker.Ticker
-	logger           zerolog.Logger
-	retriever        dataRetriever
+	config              config.DSM
+	hostIdToDSM         map[domain.HostId]domain.DSM
+	dsmToHostId         map[domain.DSM]domain.HostId
+	mux                 sync.Mutex
+	Ticker              *ticker.Ticker
+	logger              zerolog.Logger
+	retriever           dataRetriever
 }
 
 var _ domain.DataSourceMapRepository = (*Repo)(nil)
@@ -43,13 +43,13 @@ func New(logger zerolog.Logger, config config.DSM, visualizerClient *visualizer.
 	logger = logger.With().Str("component", "dsm-repo").Logger()
 	retriever := getRetriver(logger, config, visualizerClient)
 	r := &Repo{
-		config:           config,
-		hostIdToDSM:      map[domain.HostId]domain.DSM{},
-		dsmToMemcacheKey: map[domain.DSM]domain.MemcacheKey{},
-		mux:              sync.Mutex{},
-		Ticker:           ticker.NewTicker(config.Frequency, config.Throttle),
-		logger:           logger,
-		retriever:        retriever,
+		config:              config,
+		hostIdToDSM:         map[domain.HostId]domain.DSM{},
+		dsmToHostId:         map[domain.DSM]domain.HostId{},
+		mux:                 sync.Mutex{},
+		Ticker:              ticker.NewTicker(config.Frequency, config.Throttle),
+		logger:              logger,
+		retriever:           retriever,
 	}
 	r.runPeriodicUpdate()
 	return r
@@ -85,20 +85,20 @@ func (r *Repo) getDSM(hostId domain.HostId) (domain.DSM, bool) {
 	return dsm, ok
 }
 
-// Get looks up the given DSM and returns the stored memcache key for it.
+// GetHostId looks up the given DSM and returns the stored host id.
 //
 // A second boolean value is returned indicating if the DSM was found, similar
 // to indexing into a map.
-func (r *Repo) GetMemcacheKey(dsm domain.DSM) (domain.MemcacheKey, bool) {
+func (r *Repo) GetHostId(dsm domain.DSM) (domain.HostId, bool) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
-	memcacheKey, ok := r.dsmToMemcacheKey[dsm]
+	hostId, ok := r.dsmToHostId[dsm]
 	if !ok {
 		r.logger.Debug().Stringer("lookup", dsm).Msg("not found")
 	} else {
-		r.logger.Debug().Stringer("lookup", dsm).Stringer("memcacheKey", memcacheKey).Msg("found")
+		r.logger.Debug().Stringer("lookup", dsm).Stringer("hostId", hostId).Msg("found")
 	}
-	return memcacheKey, ok
+	return hostId, ok
 }
 
 // Update retrieves the latest DSM from an external source and updates its
@@ -111,22 +111,22 @@ func (r *Repo) Update() error {
 		return errors.Wrap(err, "updating DSM")
 	}
 	parser := Parser{Logger: r.logger}
-	newHostIdToDSM, newDSMToMemcacheKey, err := parser.parseJSON(data)
+	hostIdToDSM, dsmToHostId, err := parser.parseJSON(data)
 	if err != nil {
 		return errors.Wrap(err, "updating DSM")
 	}
-	r.setData(newHostIdToDSM, newDSMToMemcacheKey)
+	r.setData(hostIdToDSM, dsmToHostId)
 	return nil
 }
 
-func (r *Repo) setData(newHostIdToDSM map[domain.HostId]domain.DSM, newDSMToMemcacheKey map[domain.DSM]domain.MemcacheKey) {
+func (r *Repo) setData(newHostIdToDSM map[domain.HostId]domain.DSM, newDSMToHostId map[domain.DSM]domain.HostId) {
 	r.mux.Lock()
 	defer r.mux.Unlock()
 	r.hostIdToDSM = newHostIdToDSM
-	r.dsmToMemcacheKey = newDSMToMemcacheKey
+	r.dsmToHostId = newDSMToHostId
 	r.logger.Info().
 		Int("hostIdToDSM.count", len(newHostIdToDSM)).
-		Int("dsmToMemcacheKey.count", len(newDSMToMemcacheKey)).
+		Int("dsmToHostId.count", len(newDSMToHostId)).
 		Str("source", r.retriever.describe()).
 		Msg("updated")
 }

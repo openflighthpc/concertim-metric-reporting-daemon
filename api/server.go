@@ -75,6 +75,7 @@ func (s *Server) addRoutes() chi.Router {
 	})
 
 	r.Get("/metrics/unique", s.getUniqueMetrics)
+	r.Get("/metrics/{metricName}/values", s.getMetricValues)
 
 	return r
 }

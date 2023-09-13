@@ -105,7 +105,7 @@ func main() {
 	repository := memory.New(log.Logger)
 	visualizerClient := visualizer.New(log.Logger, config.VisualizerAPI)
 	dsmRepo := dsmRepository.New(log.Logger, config.DSM, visualizerClient)
-	resultsRepo := processing.NewMemoryRecorder(log.Logger, dsmRepo)
+	resultsRepo := processing.NewMemoryRecorder(log.Logger)
 	app := domain.NewApp(*config, repository, dsmRepo, resultsRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
