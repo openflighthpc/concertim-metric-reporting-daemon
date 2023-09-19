@@ -1,4 +1,4 @@
-package dsmRepository
+package visualizer
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ type Parser struct {
 	Logger zerolog.Logger
 }
 
-func (p *Parser) parseJSON(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
+func (p *Parser) ParseDSM(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
 	p.Logger.Debug().Int("bytes", len(data)).Msg("parsing JSON")
 	var raw interface{}
 	var dsmToHostId  map[domain.DSM]domain.HostId

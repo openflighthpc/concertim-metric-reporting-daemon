@@ -8,8 +8,8 @@ import (
 // unknown host is made.
 var UnknownHost = errors.New("Unknown host")
 
-// Repository is the interface for any persistence layer.
-type Repository interface {
+// ReportedRepositoryy is the interface for storing reported metrics.
+type ReportedRepository interface {
 	// PutHost adds a Host to the repository.  If the Host has already been
 	// added it will be updated.
 	PutHost(ReportedHost) error
@@ -41,15 +41,35 @@ type DataSourceMapRepository interface {
 	// GetHostId returns the host id for the given memcache key.
 	GetHostId(dsm DSM) (HostId, bool)
 
-	// Update retrieves the latest DSM from an external source and updates
-	// its internal repository.
-	//
-	// The external source to use is configured when creating a new DSMRepo.
-	Update() error
+	// Update updates the state of the repository.
+	Update(map[HostId]DSM, map[DSM]HostId) error
 }
 
-type ResultRepo interface {
-	// GetHostMetrics(deviceId HostId) (metrics map[MetricName]Metric, ok bool)
+type DataSourceMapRetreiver interface {
+    GetDSM() (map[HostId]DSM, map[DSM]HostId, error)
+}
+
+type DataSourceMapRepoUpdater interface {
+    RunPeriodicUpdateLoop()
+    UpdateNow()
+}
+
+// ProcessedRepository is the interface for storing processed metrics.
+type ProcessedRepository interface {
+	// GetUniqueMetrics returns a slice of the unique metrics found in the
+	// last processing run.  The uniqueness of a metric is determined by
+	// its name.
+	// XXX GetUniqueMetrics() []*UniqueMetric
 	GetUniqueMetrics() []UniqueMetric
+	// HostsWithMetric returns a slice of ProcessedHosts that had the given
+	// metric in the last processing run.
 	HostsWithMetric(metricName MetricName) []*ProcessedHost
+	// Begin records the start of a processing run.
+	Begin() error
+	// Commit commits the results of a processing run.
+	Commit() error
+	// AddHost records the presence of a host in the current processing run.
+	AddHost(host *ProcessedHost)
+	// AddMetric records the presence of a metric in the current processing run.
+	AddMetric(host *ProcessedHost, metric *ProcessedMetric)
 }

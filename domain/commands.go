@@ -35,6 +35,10 @@ func (app *Application) AddMetric(metric ReportedMetric, hostId HostId) error {
 func (app *Application) addHost(hostId HostId) (ReportedHost, error) {
 	dsm, ok := app.dsmRepo.GetDSM(hostId)
 	if !ok {
+		app.dsmUpdater.UpdateNow()
+		dsm, ok = app.dsmRepo.GetDSM(hostId)
+	}
+	if !ok {
 		return ReportedHost{}, fmt.Errorf("%w: %s", UnknownHost, hostId)
 	}
 	host := ReportedHost{

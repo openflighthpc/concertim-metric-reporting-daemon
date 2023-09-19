@@ -34,12 +34,13 @@ type Poller struct {
 	Ticker       *ticker.Ticker
 	config       config.Retrieval
 	dsmRepo      domain.DataSourceMapRepository
+	dsmUpdater   domain.DataSourceMapRepoUpdater
 	logger       zerolog.Logger
 	xmlRetriever xmlRetriever
 }
 
 // New returns a new Poller.
-func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSourceMapRepository) (*Poller, error) {
+func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSourceMapRepository, dsmUpdater domain.DataSourceMapRepoUpdater) (*Poller, error) {
 	logger = logger.With().Str("component", "metric-retriever").Logger()
 	xmlRetriever, err := getXMLRetriver(logger, config)
 	if err != nil {
@@ -49,6 +50,7 @@ func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSour
 	return &Poller{
 		config:       config,
 		dsmRepo:      dsmRepo,
+		dsmUpdater:   dsmUpdater,
 		logger:       logger,
 		Ticker:       ticker.NewTicker(config.Frequency, config.Throttle),
 		xmlRetriever: xmlRetriever,
@@ -59,6 +61,7 @@ func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSour
 // results to the hostsChan channel.
 func (p *Poller) Start(hostsChan chan<- []*domain.ProcessedHost) {
 	oneLoop := func() {
+		p.dsmUpdater.UpdateNow()
 		xml, err := p.xmlRetriever.retrieve()
 		if err != nil {
 			p.logger.Err(err).Send()
@@ -140,10 +143,6 @@ type extractStats struct {
 func (p *Poller) extractHosts(grids []Grid) []*domain.ProcessedHost {
 	now := time.Now()
 	stats := extractStats{}
-	err := p.dsmRepo.Update()
-	if err != nil {
-		p.logger.Warn().Err(err).Msg("using stale DSM data")
-	}
 	p.logger.Debug().Int("count", len(grids)).Msg("parsing grids")
 	hosts := make([]*domain.ProcessedHost, 0)
 	for _, grid := range grids {

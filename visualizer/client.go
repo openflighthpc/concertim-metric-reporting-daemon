@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -67,23 +68,28 @@ func (v *Client) authenticate() error {
 	return nil
 }
 
-func (v *Client) GetDSM() ([]byte, error) {
+func (v *Client) GetDSM() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
 	url := v.Config.DataSourceMapUrl
 	v.logger.Debug().Str("url", url).Msg("getting dsms")
 	resp, err := v.Get(url)
 	if err != nil {
-		return nil, augmentError(err, "visualizerAPI.GetDSM", "GET", url)
+		return nil, nil, augmentError(err, "visualizerAPI.GetDSM", "GET", url)
 	}
 	if resp.StatusCode != 200 {
 		msg := fmt.Sprintf("visualizerAPI.GetDSM failed: GET %s: %s", url, resp.Status)
-		return nil, errors.New(msg)
+		return nil, nil, errors.New(msg)
 	}
 	defer func() { _ = resp.Body.Close() }()
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, augmentError(err, "reading response", "GET", url)
+		return nil, nil, augmentError(err, "reading response", "GET", url)
 	}
-	return data, nil
+	parser := Parser{Logger: v.logger}
+	hostIdToDSM, dsmToHostId, err := parser.ParseDSM(data)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "parsing DSM")
+	}
+	return hostIdToDSM, dsmToHostId, nil
 }
 
 func (v *Client) Get(url string) (*http.Response, error) {
