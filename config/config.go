@@ -18,7 +18,6 @@ type Config struct {
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`
 	GDS              `yaml:"gds"`
-	Recorder         `yaml:"recorder"`
 	Retrieval        `yaml:"retrieval"`
 	VisualizerAPI    `yaml:"visualizerAPI"`
 }
@@ -58,12 +57,6 @@ type Retrieval struct {
 	PostGmetadDelay time.Duration `yaml:"post_gmetad_delay"`
 	Testdata        string        `yaml:"testdata"`
 	Throttle        time.Duration `yaml:"throttle"`
-}
-
-// Recorder is the configuration for recording the processed results.
-type Recorder struct {
-	Path string   `yaml:"path"`
-	Args []string `yaml:"args"`
 }
 
 type VisualizerAPI struct {

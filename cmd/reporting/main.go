@@ -177,11 +177,8 @@ func runMetricProcessor(
 		return errors.Wrap(err, "creating retrieval poller")
 	}
 	processor := processing.NewProcessor(log.Logger, dsmRepo, config.Retrieval.GridName, config.Retrieval.ClusterName)
-	recorder := processing.NewMultiRecorder([]processing.Recorder{
-		resultsRepo,
-		processing.NewScriptRecorder(log.Logger, config.Recorder),
-	})
 
+	// Start the ganglia metric poller.  It will polled metrics on pollChan.
 	go func() { poller.Start(pollChan) }()
 
 	// Each time we report metrics to gmetad, kick the processing loop.
@@ -193,12 +190,13 @@ func runMetricProcessor(
 		}
 	}()
 
+	// Each time we poll metrics from ganglia, process and then record them.
 	for hosts := range pollChan {
 		results, err := processor.Process(hosts)
 		if err != nil {
 			log.Error().Err(err).Msg("processing metrics")
 		}
-		err = recorder.Record(results)
+		err = resultsRepo.Record(results)
 		if err != nil {
 			log.Error().Err(err).Msg("recording results")
 		}
