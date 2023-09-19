@@ -167,16 +167,16 @@ func main() {
 
 func runMetricProcessor(
 	config *config.Config,
-	dsmRepo *dsmRepository.Repo,
+	dsmRepo domain.DataSourceMapRepository,
 	gdsServer *gds.Server,
 	resultsRepo *processing.MemoryRecorder,
 ) error {
-	pollChan := make(chan []retrieval.Host)
-	poller, err := retrieval.New(log.Logger, config.Retrieval)
+	pollChan := make(chan []*domain.ProcessedHost)
+	poller, err := retrieval.New(log.Logger, config.Retrieval, dsmRepo)
 	if err != nil {
 		return errors.Wrap(err, "creating retrieval poller")
 	}
-	processor := processing.NewProcessor(log.Logger, dsmRepo, config.Retrieval.GridName, config.Retrieval.ClusterName)
+	processor := processing.NewProcessor(log.Logger)
 
 	// Start the ganglia metric poller.  It will polled metrics on pollChan.
 	go func() { poller.Start(pollChan) }()

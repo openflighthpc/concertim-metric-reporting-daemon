@@ -6,8 +6,11 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -28,14 +31,15 @@ type xmlRetriever interface {
 // Its config contains the source of the ganglia data to retrieve and the
 // period with which to retrieve it.
 type Poller struct {
-	config       config.Retrieval
-	logger       zerolog.Logger
 	Ticker       *ticker.Ticker
+	config       config.Retrieval
+	dsmRepo      domain.DataSourceMapRepository
+	logger       zerolog.Logger
 	xmlRetriever xmlRetriever
 }
 
 // New returns a new Poller.
-func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
+func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSourceMapRepository) (*Poller, error) {
 	logger = logger.With().Str("component", "metric-retriever").Logger()
 	xmlRetriever, err := getXMLRetriver(logger, config)
 	if err != nil {
@@ -44,6 +48,7 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 
 	return &Poller{
 		config:       config,
+		dsmRepo:      dsmRepo,
 		logger:       logger,
 		Ticker:       ticker.NewTicker(config.Frequency, config.Throttle),
 		xmlRetriever: xmlRetriever,
@@ -52,30 +57,30 @@ func New(logger zerolog.Logger, config config.Retrieval) (*Poller, error) {
 
 // Start periodically retrieves the ganglia XML, parses it and sends the
 // results to the hostsChan channel.
-func (r *Poller) Start(hostsChan chan<- []Host) {
+func (p *Poller) Start(hostsChan chan<- []*domain.ProcessedHost) {
 	oneLoop := func() {
-		xml, err := r.xmlRetriever.retrieve()
+		xml, err := p.xmlRetriever.retrieve()
 		if err != nil {
-			r.logger.Err(err).Send()
+			p.logger.Err(err).Send()
 			return
 		}
-		grids, err := r.parseXML(xml)
+		grids, err := p.parseXML(xml)
 		if err != nil {
-			r.logger.Err(err).Send()
+			p.logger.Err(err).Send()
 			return
 		}
-		r.logRetrieved(xml, grids)
-		hosts := r.extractHosts(grids)
+		p.logRetrieved(xml, grids)
+		hosts := p.extractHosts(grids)
 		hostsChan <- hosts
 	}
 	for {
-		<-r.Ticker.C
+		<-p.Ticker.C
 		oneLoop()
 	}
 }
 
-func (r *Poller) parseXML(gangliaXML []byte) ([]Grid, error) {
-	r.logger.Debug().Int("bytes", len(gangliaXML)).Msg("parsing xml")
+func (p *Poller) parseXML(gangliaXML []byte) ([]Grid, error) {
+	p.logger.Debug().Int("bytes", len(gangliaXML)).Msg("parsing xml")
 	var root gangliaRoot
 	reader := bytes.NewReader(gangliaXML)
 	decoder := xml.NewDecoder(reader)
@@ -87,7 +92,7 @@ func (r *Poller) parseXML(gangliaXML []byte) ([]Grid, error) {
 	return root.Grids, nil
 }
 
-func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
+func (p *Poller) logRetrieved(xml []byte, grids []Grid) {
 	numHosts := 0
 	numMetrics := 0
 	for _, g := range grids {
@@ -100,12 +105,12 @@ func (r *Poller) logRetrieved(xml []byte, grids []Grid) {
 			}
 		}
 	}
-	r.logger.Info().
+	p.logger.Info().
 		Int("bytes", len(xml)).
 		Int("hosts", numHosts).
 		Int("metrics", numMetrics).
-		Str("source", r.xmlRetriever.describe()).
-		Msg("completed")
+		Str("source", p.xmlRetriever.describe()).
+		Msg("retrieved")
 }
 
 func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetriever, error) {
@@ -121,26 +126,158 @@ func getXMLRetriver(logger zerolog.Logger, config config.Retrieval) (xmlRetrieve
 	}, nil
 }
 
-func (r *Poller) extractHosts(grids []Grid) []Host {
-	r.logger.Debug().Int("count", len(grids)).Msg("filtering grids")
-	hosts := make([]Host, 0)
+type extractStats struct {
+	parsedGrids     int
+	parsedClusters  int
+	parsedHosts     int
+	parsedMetrics   int
+	ignoredGrids    int
+	ignoredClusters int
+	failedHosts     int
+	failedMetrics   int
+}
+
+func (p *Poller) extractHosts(grids []Grid) []*domain.ProcessedHost {
+	now := time.Now()
+	stats := extractStats{}
+	err := p.dsmRepo.Update()
+	if err != nil {
+		p.logger.Warn().Err(err).Msg("using stale DSM data")
+	}
+	p.logger.Debug().Int("count", len(grids)).Msg("parsing grids")
+	hosts := make([]*domain.ProcessedHost, 0)
 	for _, grid := range grids {
-		if grid.Name != r.config.GridName {
-			r.logger.Warn().Str("grid", grid.Name).Msg("ignoring")
+		if grid.Name != p.config.GridName {
+			p.logger.Warn().Str("grid", grid.Name).Msg("ignoring")
+			stats.ignoredGrids++
 			continue
 		}
-		r.logger.Debug().
+		stats.parsedGrids++
+		p.logger.Debug().
 			Str("grid", grid.Name).
 			Int("count", len(grid.Clusters)).
-			Msg("filtering clusters")
+			Msg("parsing clusters")
 		for _, cluster := range grid.Clusters {
-			if cluster.Name != r.config.ClusterName {
-				r.logger.Warn().Str("cluster", cluster.Name).Msg("ignoring")
+			if cluster.Name != p.config.ClusterName {
+				p.logger.Warn().Str("cluster", cluster.Name).Msg("ignoring")
+				stats.ignoredClusters++
 				continue
 			}
-			hosts = append(hosts, cluster.Hosts...)
+			stats.parsedClusters++
+			for _, host := range cluster.Hosts {
+				p.logger.Debug().Str("host", host.Name).Msg("parsing host")
+				pHost, err := p.processedHostFromGanglia(grid, cluster, host, now)
+				if err != nil {
+					p.logger.Warn().Err(err).Str("host", host.Name).Msg("ignoring")
+					stats.failedHosts++
+					continue
+				}
+				stats.parsedHosts++
+				for _, gMetric := range host.Metrics {
+					p.logger.Debug().
+						Str("host", host.Name).
+						Str("metric", gMetric.Name).
+						Msg("parsing metric")
+					pMetric, err := processedMetricFromGanglia(now, gMetric)
+					if err != nil {
+						p.logger.Warn().Err(err).Msg("failed")
+						stats.failedMetrics++
+						continue
+					}
+					stats.parsedMetrics++
+					pHost.Metrics[domain.MetricName(gMetric.Name)] = pMetric
+				}
+				hosts = append(hosts, pHost)
+			}
 		}
 	}
 
+	logStats(p.logger, stats)
+
 	return hosts
+}
+
+func logStats(logger zerolog.Logger, stats extractStats) {
+	logger.Info().
+		Dict("parsed", zerolog.Dict().
+			Int("grids", stats.parsedGrids).
+			Int("clusters", stats.parsedClusters).
+			Int("hosts", stats.parsedHosts).
+			Int("metrics", stats.parsedMetrics)).
+		Dict("ignored", zerolog.Dict().
+			Int("grids", stats.ignoredGrids).
+			Int("clusters", stats.ignoredClusters)).
+		Dict("failed", zerolog.Dict().
+			Int("hosts", stats.failedHosts).
+			Int("metrics", stats.failedMetrics)).
+		Msg("completed")
+}
+
+func (p *Poller) processedHostFromGanglia(grid Grid, cluster Cluster, host Host, now time.Time) (*domain.ProcessedHost, error) {
+	dsm := domain.DSM{
+		GridName:    grid.Name,
+		ClusterName: cluster.Name,
+		HostName:    host.Name,
+	}
+	hostId, ok := p.dsmRepo.GetHostId(dsm)
+	if !ok {
+		return nil, fmt.Errorf("hostId not known for %s", dsm)
+	}
+	pHost := domain.ProcessedHost{
+		Id:      hostId,
+		DSM:     dsm,
+		Metrics: make(map[domain.MetricName]domain.ProcessedMetric),
+	}
+	return &pHost, nil
+}
+
+// MetricFromGanglia parses the given Ganglia metric into a format suitable
+// for processing.
+//
+// The formats are largely similar with the following changes:
+//
+// Slope is replaced with a simplified Nature.
+// TN is replaced with a more easily consumed Timestamp.
+// TMAX is replaced with a more easily consumed Stale.
+func processedMetricFromGanglia(now time.Time, src Metric) (domain.ProcessedMetric, error) {
+	var dst domain.ProcessedMetric
+	tn, err := strconv.Atoi(src.TN)
+	if err != nil {
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TN")
+	}
+	tmax, err := strconv.Atoi(src.TMax)
+	if err != nil {
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TMAX")
+	}
+	dmax, err := strconv.Atoi(src.DMax)
+	if err != nil {
+		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid DMAX")
+	}
+
+	var stale bool
+	persistent := dmax == 0
+	if persistent {
+		stale = tn > tmax*2
+	} else {
+		stale = tn > dmax
+	}
+
+	nature := "volatile"
+	if src.Type == "string" || src.Type == "timestamp" {
+		nature = "string_and_time"
+	} else if src.Slope == "zero" {
+		nature = "constant"
+	}
+
+	dst.Name = src.Name
+	dst.Datatype = src.Type
+	dst.Units = src.Units
+	dst.Source = src.Source
+	dst.Value = src.Val
+	dst.Nature = nature
+	dst.Dmax = dmax
+	dst.Timestamp = now.Unix() - int64(tn)
+	dst.Stale = stale
+
+	return dst, nil
 }

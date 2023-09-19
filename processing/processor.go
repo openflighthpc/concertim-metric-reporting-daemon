@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
@@ -23,19 +21,13 @@ import (
 //
 // These views are currently, recorded in memcache by Recorder.
 type Processor struct {
-	clusterName string
-	dsmRepo     domain.DataSourceMapRepository
-	gridName    string
-	logger      zerolog.Logger
+	logger zerolog.Logger
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(logger zerolog.Logger, dsmRepo domain.DataSourceMapRepository, gridName, clusterName string) *Processor {
+func NewProcessor(logger zerolog.Logger) *Processor {
 	return &Processor{
-		clusterName: clusterName,
-		dsmRepo:     dsmRepo,
-		gridName:    gridName,
-		logger:      logger.With().Str("component", "processor").Logger(),
+		logger: logger.With().Str("component", "processor").Logger(),
 	}
 }
 
@@ -46,60 +38,22 @@ func NewProcessor(logger zerolog.Logger, dsmRepo domain.DataSourceMapRepository,
 // than the GDS is configured with are ignored. This allows (with suitable
 // configuration) Ganglia's gmond to run and collect metrics for localhost
 // without storing them in memcache.
-func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
-	now := time.Now().Unix()
-	err := p.dsmRepo.Update()
-	if err != nil {
-		p.logger.Warn().Err(err).Msg("using stale DSM data")
-	}
+func (p *Processor) Process(hosts []*domain.ProcessedHost) (*Result, error) {
 	result := NewResult()
 	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")
-	for _, gHost := range hosts {
-		dsm := domain.DSM{
-			GridName:    p.gridName,
-			ClusterName: p.clusterName,
-			HostName:    gHost.Name,
-		}
-		hostId, ok := p.dsmRepo.GetHostId(dsm)
-		if !ok {
-			p.logger.Debug().
-				Str("host", gHost.Name).
-				Stringer("dsm", dsm).
-				Msg("ignoring")
-			result.numIgnoredHosts++
-			continue
-		}
+	for _, host := range hosts {
 		p.logger.Debug().
-			Str("host", gHost.Name).
-			Int("count", len(gHost.Metrics)).
+			Str("host", host.DSM.HostName).
+			Int("count", len(host.Metrics)).
 			Msg("processing metrics")
-		ctHost := domain.ProcessedHost{
-			Id:      hostId,
-			DSM:     dsm,
-			Metrics: make(map[domain.MetricName]domain.ProcessedMetric),
-		}
-		for _, gMetric := range gHost.Metrics {
+		for _, metric := range host.Metrics {
 			p.logger.Debug().
-				Str("host", gHost.Name).
-				Str("metric", gMetric.Name).
+				Str("host", host.DSM.HostName).
+				Str("metric", metric.Name).
 				Msg("processing metric")
-			ctMetric, err := MetricFromGanglia(now, gMetric)
-			if err != nil {
-				p.logger.Warn().Err(err).Msg("failed")
-				continue
-			}
-			// XXX Combine into single call. `result.AddMetric` or
-			// perhaps `result.AddHost` and then
-			// `result.AddMetric`.  I.e., use an interface not
-			// direct access to maps.
-			ctHost.Metrics[domain.MetricName(ctMetric.Name)] = ctMetric
-			result.AddMetric(&ctHost, &ctMetric)
+			result.AddMetric(host, &metric)
 		}
-		if len(ctHost.Metrics) > 0 {
-			now := time.Now()
-			ctHost.Mtime = &now
-		}
-		result.Hosts = append(result.Hosts, &ctHost)
+		result.AddHost(host)
 	}
 	logProcessResults(p.logger, result)
 	return result, nil
@@ -137,6 +91,8 @@ type Result struct {
 	numIgnoredHosts int
 }
 
+var _ ResultRepo = (*Result)(nil)
+
 // NewResult returns a new empty *Result.
 func NewResult() *Result {
 	return &Result{
@@ -145,10 +101,19 @@ func NewResult() *Result {
 	}
 }
 
+func (r *Result) AddHost(host *domain.ProcessedHost) {
+	r.Hosts = append(r.Hosts, host)
+	if len(host.Metrics) > 0 {
+		now := time.Now()
+		host.Mtime = &now
+	}
+}
+
 // AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
 // should be the memcache key for the host that reported the metric.
 func (r *Result) AddMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) {
 	metricName := domain.MetricName(metric.Name)
+	host.Metrics[metricName] = *metric
 	hosts, ok := r.HostsByMetric[metricName]
 	if !ok {
 		hosts = make([]*domain.ProcessedHost, 0)
@@ -162,57 +127,6 @@ func (r *Result) AddMetric(host *domain.ProcessedHost, metric *domain.ProcessedM
 	}
 	adjustMinMax(um, *metric)
 	r.numMetrics++
-}
-
-// MetricFromGanglia parses the given Ganglia metric into a format suitable
-// for processing.
-//
-// The formats are largely similar with the following changes:
-//
-// Slope is replaced with a simplified Nature.
-// TN is replaced with a more easily consumed Timestamp.
-// TMAX is replaced with a more easily consumed Stale.
-func MetricFromGanglia(now int64, src retrieval.Metric) (domain.ProcessedMetric, error) {
-	var dst domain.ProcessedMetric
-	tn, err := strconv.Atoi(src.TN)
-	if err != nil {
-		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TN")
-	}
-	tmax, err := strconv.Atoi(src.TMax)
-	if err != nil {
-		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid TMAX")
-	}
-	dmax, err := strconv.Atoi(src.DMax)
-	if err != nil {
-		return domain.ProcessedMetric{}, errors.Wrap(err, "invalid DMAX")
-	}
-
-	var stale bool
-	persistent := dmax == 0
-	if persistent {
-		stale = tn > tmax*2
-	} else {
-		stale = tn > dmax
-	}
-
-	nature := "volatile"
-	if src.Type == "string" || src.Type == "timestamp" {
-		nature = "string_and_time"
-	} else if src.Slope == "zero" {
-		nature = "constant"
-	}
-
-	dst.Name = src.Name
-	dst.Datatype = src.Type
-	dst.Units = src.Units
-	dst.Source = src.Source
-	dst.Value = src.Val
-	dst.Nature = nature
-	dst.Dmax = dmax
-	dst.Timestamp = now - int64(tn)
-	dst.Stale = stale
-
-	return dst, nil
 }
 
 func uniqueMetricFromMetric(src domain.ProcessedMetric) *domain.UniqueMetric {

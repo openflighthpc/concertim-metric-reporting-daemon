@@ -54,7 +54,7 @@ func (mr *MemoryRecorder) HostsWithMetric(metric domain.MetricName) []*domain.Pr
 	}
 	hosts, ok := mr.result.HostsByMetric[domain.MetricName(metric)]
 	if !ok {
-	// XXX 404 here.
+		// XXX 404 here.
 		return make([]*domain.ProcessedHost, 0)
 	}
 	return hosts
