@@ -21,5 +21,11 @@ func NewApp(
 	dsmUpdater DataSourceMapRepoUpdater,
 	resultRepo ProcessedRepository,
 ) *Application {
-	return &Application{Repo: repo, dsmRepo: dsmRepo, ResultRepo: resultRepo}
+	return &Application{
+		Repo:       repo,
+		config:     config,
+		dsmRepo:    dsmRepo,
+		dsmUpdater: dsmUpdater,
+		ResultRepo: resultRepo,
+	}
 }
