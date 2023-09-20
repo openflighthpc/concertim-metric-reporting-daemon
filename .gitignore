@@ -23,3 +23,5 @@ go.work
 
 # Build aretefacts
 ct-metric-reporting-daemon.tgz
+
+/testdata/secret
