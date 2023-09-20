@@ -115,7 +115,7 @@ has not yet happened.
 
 Data source maps are used to map between Gmetad's identifier for a host and
 Concertim's identifier.  Data source maps are created in `ct-visualisation-app`
-and made available to `ct-metrics` via memcache.
+and made available to `ct-metrics` via `ct-visualisation-app`'s HTTP API.
 
 Gmetad's identifier for a host is "grid name", "cluster name", "host name"
 triple.  Parts of legacy concertim assumed that we would only be interested in

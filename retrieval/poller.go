@@ -140,6 +140,11 @@ type extractStats struct {
 	failedMetrics   int
 }
 
+// extractHosts returns a list of `domain.ProcessedHost`s extracted from the
+// ganglia output.
+//
+// Only the hosts in a single grid and cluster are extracted.  That grid and
+// cluster are specified in the configuration.
 func (p *Poller) extractHosts(grids []Grid) []*domain.ProcessedHost {
 	now := time.Now()
 	stats := extractStats{}

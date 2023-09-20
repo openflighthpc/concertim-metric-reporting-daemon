@@ -38,7 +38,7 @@ type DataSourceMapRepository interface {
 	// to that deivce in the Gmetad output.
 	GetDSM(deviceId HostId) (dsm DSM, ok bool)
 
-	// GetHostId returns the host id for the given memcache key.
+	// GetHostId returns the host id for the given data source map.
 	GetHostId(dsm DSM) (HostId, bool)
 
 	// Update updates the state of the repository.

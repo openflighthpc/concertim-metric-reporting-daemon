@@ -16,7 +16,7 @@ import (
 //     that metric.
 //  3. For each host a map from metric name to that metric.
 //
-// These views are currently, recorded in memcache by Recorder.
+// These views are stored in the given domain.ProcessedRepository.
 type Processor struct {
 	resultRepo domain.ProcessedRepository
 	logger     zerolog.Logger
@@ -30,13 +30,8 @@ func NewProcessor(resultRepo domain.ProcessedRepository, logger zerolog.Logger) 
 	}
 }
 
-// Process processes the provided ganglia metrics and returns a *Result struct
-// containing the results of the processing run.
-//
-// Any grids with a name other than "unspecified" or clusters with a name other
-// than the GDS is configured with are ignored. This allows (with suitable
-// configuration) Ganglia's gmond to run and collect metrics for localhost
-// without storing them in memcache.
+// Process the provided hosts to produce the expected views and store them in
+// resultRepo.
 func (p *Processor) Process(hosts []*domain.ProcessedHost) error {
 	stats := processStats{}
 	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")

@@ -70,8 +70,8 @@ func (pr *ProcessedRepository) AddHost(host *domain.ProcessedHost) {
 	}
 }
 
-// AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
-// should be the memcache key for the host that reported the metric.
+// AddMetric adds the given metric for the given host.  Host should be the host
+// that reported the metric.
 func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) {
 	// XXX Add error handling if outside of transaction.
 	// if pr.nextResult == nil {
