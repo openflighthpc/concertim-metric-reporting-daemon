@@ -26,6 +26,14 @@ type metricValue struct {
 func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
 	hosts := s.app.ResultRepo.HostsWithMetric(metricName)
+	if hosts == nil {
+		body := ErrorsPayload{
+			Status: http.StatusNotFound,
+			Errors: []*ErrorObject{{Title: "Metric Not Found", Detail: "Metric Not Found"}},
+		}
+		renderJSON(body, http.StatusNotFound, rw)
+		return
+	}
 	body := []metricValue{}
 	for _, host := range hosts {
 		metric, ok := host.Metrics[metricName]

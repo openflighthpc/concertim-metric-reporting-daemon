@@ -150,6 +150,7 @@ report a metric, say, `load.one`, that will result in a single unique metric.
 * `200 - OK`  Request was successful.
 * `500 - Internal Server Error`  An unexpected error occurred.  This should not
   happen.
+* `503 - Service Unavailable`  A processing run has not taken place yet.
 
 ### Response Parameters
 
@@ -191,6 +192,7 @@ reported the given metric in the most recent processing run.
 ### Response Codes
 
 * `200 - OK`  Request was successful.
+* `404 - Not Found`  The metric was not present in the last processing run or a processing run has not taken place yet.
 * `500 - Internal Server Error`  An unexpected error occurred.  This should not
   happen.
 

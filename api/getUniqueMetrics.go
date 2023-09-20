@@ -29,6 +29,14 @@ type uniqueMetric struct {
 //	]
 func (s *Server) getUniqueMetrics(rw http.ResponseWriter, r *http.Request) {
 	metrics := s.app.ResultRepo.GetUniqueMetrics()
+	if metrics == nil {
+		body := ErrorsPayload{
+			Status: http.StatusServiceUnavailable,
+			Errors: []*ErrorObject{{Title: "Service Unavailable", Detail: "Waiting on metric processing run"}},
+		}
+		renderJSON(body, http.StatusServiceUnavailable, rw)
+		return
+	}
 	body := []uniqueMetric{}
 	for _, metric := range metrics {
 		um := uniqueMetric{

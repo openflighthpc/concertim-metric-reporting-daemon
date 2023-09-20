@@ -96,9 +96,7 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 }
 
 func (pr *ProcessedRepository) GetUniqueMetrics() []domain.UniqueMetric {
-	// XXX Better error handling.
 	if pr.result == nil {
-		// XXX NotReady response here.
 		return nil
 	}
 	metrics := make([]domain.UniqueMetric, 0, len(pr.result.uniqueMetrics))
@@ -109,15 +107,12 @@ func (pr *ProcessedRepository) GetUniqueMetrics() []domain.UniqueMetric {
 }
 
 func (pr *ProcessedRepository) HostsWithMetric(metric domain.MetricName) []*domain.ProcessedHost {
-	// XXX Better error handling.
 	if pr.result == nil {
-		// XXX NotReady response here.
 		return nil
 	}
 	hosts, ok := pr.result.hostsByMetric[domain.MetricName(metric)]
 	if !ok {
-		// XXX 404 here.
-		return make([]*domain.ProcessedHost, 0)
+		return nil
 	}
 	return hosts
 }
