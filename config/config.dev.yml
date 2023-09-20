@@ -1,5 +1,4 @@
-# Configuration suitable for running on your development laptop.  It uses fake,
-# aka canned data instead of making requests to remote servcies.
+# Development configuration suitable for running on the development vagrant VM.
 
 # Configuration for the HTTP API.
 api:
@@ -54,7 +53,7 @@ dsm:
   #
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
   frequency: 30s
-  throttle: 10s
+  throttle: 5s
 
   # Estimate of how long it takes for the updater to run.
   #
@@ -70,12 +69,6 @@ dsm:
   # incorrectly rejected due to an unknown host.  Those metrics will eventually
   # be accepted.
   duration: 75ms
-
-  # If this values is given and is not an empty string, the data source map
-  # will be read from this file instead of polling the Concertim Visualisation
-  # App. Relative paths are relative to the working directory of the running
-  # process.
-  testdata: "./testdata/dsm.json"
 
 # Configuration for retrieving metrics from gmetad.
 retrieval:
@@ -106,8 +99,8 @@ retrieval:
   # seconds.
   #
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  frequency: 30s
-  throttle: 10s
+  frequency: 15s
+  throttle: 5s
 
   # After gmetad has requested metrics from us, we request metrics from gmetad.
   # This value configures the delay between the two.  We want to provide enough
@@ -115,20 +108,13 @@ retrieval:
   # long as we want the metrics to be available to IRV as soon as possible.
   post_gmetad_delay: 500ms
 
-  # If this values is given and is not an empty string, the ganglia XML will be
-  # read from this file instead of polling the gmetad server.  In this case the
-  # IP and port will be ignored.  Relative paths are relative to the working
-  # directory of the running process.
-  # testdata: "./testdata/ganglia-small.xml"
-  testdata: "./testdata/ganglia.xml"
-
 visualizerAPI:
-  authUrl: "https://localhost:9445/users/sign_in.json"
+  authUrl: "http://localhost:7000/users/sign_in.json"
   username: "admin"
   password: "admin"
-  data_source_map_url: "https://localhost:9445/api/v1/data-source-maps"
+  data_source_map_url: "http://localhost:7000/api/v1/data-source-maps"
   # If set to true skip all TLS certificate verification checks.
   skip_certificate_check: true
 
 log_level: info
-shared_secret_file: "./testdata/secret.dev"
+shared_secret_file: "/opt/concertim/etc/secret"

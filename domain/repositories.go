@@ -8,7 +8,7 @@ import (
 // unknown host is made.
 var UnknownHost = errors.New("Unknown host")
 
-// ReportedRepositoryy is the interface for storing reported metrics.
+// ReportedRepository is the interface for storing reported metrics.
 type ReportedRepository interface {
 	// PutHost adds a Host to the repository.  If the Host has already been
 	// added it will be updated.

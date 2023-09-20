@@ -1,6 +1,6 @@
 # Base URL
 
-When the metric reporting daemon is running on a Concertim appliance available at, say, `command.concertim.alces-flight.com`, its URL will be `https://command.concertim.alces-flight.com/mrd`.  When running locally during development the URL will be `http://localhost:3000`.
+When the metric reporting daemon is running on a Concertim appliance available at, say, `concertim.alces-flight.com`, its URL will be `https://concertim.alces-flight.com/mrd`.  When running locally during development the URL will be `http://localhost:3000`.
 
 All URL paths in this document are relative to this URL.
 
@@ -135,6 +135,83 @@ e.g.,
   ],
   "status": 422
 }
+```
+
+# Retrieving metrics
+
+## `GET /metrics/unique`  List unique metrics
+
+Lists all unique metrics found in the most recent processing run.  The
+uniqueness of a metric is determined on the metric's name, so if two devices
+report a metric, say, `load.one`, that will result in a single unique metric.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Response Parameters
+
+* `id` : `string` : A unique identifier for this metric.
+* `name` : `string` : The name of the metric.
+* `units` : `string` : The units for this metric.  This is optional and could also be the empty string.
+* `nature` : `string` : The nature of the metric.  One of `volatile`, `string_and_time` or `constant`.
+* `min` : `any` : The minimum value reported for this metric in the last processing run across all processed devices.
+* `max` : `any` : The maximum value reported for this metric in the last processing run across all processed devices.
+
+### Response Example
+
+```
+[
+  {
+    "id": "caffeine.level",
+    "name": "caffeine.level",
+    "units": "",
+    "nature": "volatile",
+    "min": 0,
+    "max": 99
+  },
+  {
+    "id": "caffeine.consumption",
+    "name": "caffeine.consumption",
+    "units": "mugs",
+    "nature": "volatile",
+    "min": 1,
+    "max": 4
+  }
+]
+```
+
+## `GET /metrics/<metric_name>/values`  List metric value for all devices reporting that metric
+
+Returns a list containing the reported metric value for all devices that
+reported the given metric in the most recent processing run.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Response Parameters
+
+* `id` : `string` : The identifier for the device.
+* `value` : `any` : The value of this metric for this device.
+
+### Response Example
+
+```
+[
+  {
+    "id": "1",
+    "value": 12
+  },
+  {
+    "id": "2",
+    "value": 24
+  }
+]
 ```
 
 # Authentication

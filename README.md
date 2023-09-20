@@ -6,8 +6,11 @@ Concertim Metric Reporting Daemon (ct-metric-reporting-daemon) provides a HTTP
 API for metrics to be reported to Concertim.
 
 It exposes reported metrics to Ganglia's Gmetad via TCP, it periodically polls
-Ganglia's Gmetad server for metrics, creates useful views of those metrics and
-places the most recent views in memcache.
+Ganglia's Gmetad server for metrics and creates "views" of those metrics. The
+metrics and the associated views are made available over a HTTP API.
+
+Currently the "views" of the metrics include a list of unique metrics and for
+each metric a list of values for each device currently reporting that metric.
 
 The use of Ganglia's Gmetad creates RRD files and expires old metrics.
 
