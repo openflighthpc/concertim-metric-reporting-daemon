@@ -10,24 +10,24 @@ import (
 type ConverterImpl struct{}
 
 func (c *ConverterImpl) DomainFromModelHost(source HostModel) domain.ReportedHost {
-	var domainHost domain.ReportedHost
-	domainHost.Id = domain.HostId(source.DeviceId)
-	domainHost.DSM = DSMNameToDSM(source.DSMName)
-	domainHost.Reported = ConvertTime(source.Reported)
-	domainHost.DMax = time.Duration(source.DMax)
-	domainHost.Metrics = DefaultMetrics()
-	return domainHost
+	var domainReportedHost domain.ReportedHost
+	domainReportedHost.Id = domain.HostId(source.DeviceId)
+	domainReportedHost.DSM = DSMNameToDSM(source.DSMName)
+	domainReportedHost.Reported = ConvertTime(source.Reported)
+	domainReportedHost.DMax = time.Duration(source.DMax)
+	domainReportedHost.Metrics = DefaultMetrics()
+	return domainReportedHost
 }
 func (c *ConverterImpl) DomainFromModelMetric(source MetricModel) domain.ReportedMetric {
-	var domainMetric domain.ReportedMetric
-	domainMetric.Name = source.Name
-	domainMetric.Value = source.Val
-	domainMetric.Units = source.Units
-	domainMetric.Slope = domain.MetricSlope(source.Slope)
-	domainMetric.Reported = ConvertTime(source.Reported)
-	domainMetric.DMax = time.Duration(source.DMax)
-	domainMetric.Type = domain.MetricType(source.Type)
-	return domainMetric
+	var domainReportedMetric domain.ReportedMetric
+	domainReportedMetric.Name = source.Name
+	domainReportedMetric.Value = source.Val
+	domainReportedMetric.Units = source.Units
+	domainReportedMetric.Slope = domain.MetricSlope(source.Slope)
+	domainReportedMetric.Reported = ConvertTime(source.Reported)
+	domainReportedMetric.DMax = time.Duration(source.DMax)
+	domainReportedMetric.Type = domain.MetricType(source.Type)
+	return domainReportedMetric
 }
 func (c *ConverterImpl) ModelFromDomainHost(source domain.ReportedHost) HostModel {
 	var memoryHostModel HostModel

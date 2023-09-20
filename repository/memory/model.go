@@ -39,7 +39,9 @@ type Converter interface {
 	// goverter:map Id DeviceId
 	// goverter:map DSM.HostName DSMName
 	ModelFromDomainHost(source domain.ReportedHost) HostModel
+	// goverter:map Value Val
 	ModelFromDomainMetric(source domain.ReportedMetric) MetricModel
+	// goverter:map Val Value
 	DomainFromModelMetric(source MetricModel) domain.ReportedMetric
 	// goverter:map DeviceId Id
 	// goverter:map DSMName DSM
