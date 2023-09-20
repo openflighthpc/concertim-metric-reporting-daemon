@@ -46,12 +46,12 @@ type DataSourceMapRepository interface {
 }
 
 type DataSourceMapRetreiver interface {
-    GetDSM() (map[HostId]DSM, map[DSM]HostId, error)
+	GetDSM() (map[HostId]DSM, map[DSM]HostId, error)
 }
 
 type DataSourceMapRepoUpdater interface {
-    RunPeriodicUpdateLoop()
-    UpdateNow()
+	RunPeriodicUpdateLoop()
+	UpdateNow()
 }
 
 // ProcessedRepository is the interface for storing processed metrics.

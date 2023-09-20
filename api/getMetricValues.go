@@ -10,8 +10,8 @@ import (
 )
 
 type metricValue struct {
-	Id          string `json:"id"`
-	Value       any    `json:"value"`
+	Id    string `json:"id"`
+	Value any    `json:"value"`
 }
 
 // getMetricValues returns a JSON list of current values for metric.
@@ -46,8 +46,8 @@ func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 			castValue = metric.Value
 		}
 		mv := metricValue{
-			Id:          host.Id.String(),
-			Value:       castValue,
+			Id:    host.Id.String(),
+			Value: castValue,
 		}
 		body = append(body, mv)
 	}

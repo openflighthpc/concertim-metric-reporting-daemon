@@ -18,7 +18,7 @@ type Parser struct {
 func (p *Parser) ParseDSM(data []byte) (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
 	p.Logger.Debug().Int("bytes", len(data)).Msg("parsing JSON")
 	var raw interface{}
-	var dsmToHostId  map[domain.DSM]domain.HostId
+	var dsmToHostId map[domain.DSM]domain.HostId
 
 	err := json.Unmarshal(data, &raw)
 	if err != nil {

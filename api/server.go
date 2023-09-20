@@ -125,7 +125,9 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) statusHandler(rw http.ResponseWriter, r *http.Request) {
-        type response struct { Status int `json:"status"` }
+	type response struct {
+		Status int `json:"status"`
+	}
 	body := response{Status: http.StatusOK}
 	renderJSON(body, http.StatusOK, rw)
 }
