@@ -54,8 +54,6 @@ report_metric() {
 # slope and ttl.  If not, the loop would need to be slightly more involved.
 declare -A metrics=(
   [caffeine.level]=$(shuf -i 12-24 -n 1)
-  [caffeine.consumption]=$(shuf -i 24-30 -n 1)
-  [caffeine.capacity]=32
   [power.level]=$(shuf -i 8900-9100 -n 1)
 )
 
