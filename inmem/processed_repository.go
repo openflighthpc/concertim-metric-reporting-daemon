@@ -131,6 +131,7 @@ func adjustMinMax(unique *domain.UniqueMetric, metric domain.ProcessedMetric) {
 	// XXX Add some logging of what's going on.  Especially for the error cases.
 	switch metric.Datatype {
 	case "int8", "int16", "int32":
+		// i, err := strconv.ParseInt(metric.Value, 10, 64)
 		i, err := strconv.Atoi(metric.Value)
 		if err != nil {
 			return
@@ -151,6 +152,56 @@ func adjustMinMax(unique *domain.UniqueMetric, metric domain.ProcessedMetric) {
 			maxVal := reflect.ValueOf(unique.Max)
 			if maxVal.CanInt() {
 				if int64(i) > maxVal.Int() {
+					unique.Max = i
+				}
+			}
+		}
+	case "uint8", "uint16", "uint32":
+		i, err := strconv.ParseUint(metric.Value, 10, 64)
+		if err != nil {
+			return
+		}
+		if unique.Min == nil {
+			unique.Min = i
+		} else {
+			minVal := reflect.ValueOf(unique.Min)
+			if minVal.CanUint() {
+				if uint64(i) < minVal.Uint() {
+					unique.Min = i
+				}
+			}
+		}
+		if unique.Max == nil {
+			unique.Max = i
+		} else {
+			maxVal := reflect.ValueOf(unique.Max)
+			if maxVal.CanUint() {
+				if uint64(i) > maxVal.Uint() {
+					unique.Max = i
+				}
+			}
+		}
+	case "float", "double":
+		i, err := strconv.ParseFloat(metric.Value, 64)
+		if err != nil {
+			return
+		}
+		if unique.Min == nil {
+			unique.Min = i
+		} else {
+			minVal := reflect.ValueOf(unique.Min)
+			if minVal.CanFloat() {
+				if float64(i) < minVal.Float() {
+					unique.Min = i
+				}
+			}
+		}
+		if unique.Max == nil {
+			unique.Max = i
+		} else {
+			maxVal := reflect.ValueOf(unique.Max)
+			if maxVal.CanFloat() {
+				if float64(i) > maxVal.Float() {
 					unique.Max = i
 				}
 			}

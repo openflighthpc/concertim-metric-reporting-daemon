@@ -65,7 +65,21 @@ func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 func castMetricValue(metric domain.ProcessedMetric) (any, error) {
 	switch metric.Datatype {
 	case "int8", "int16", "int32":
-		i, err := strconv.Atoi(metric.Value)
+		i, err := strconv.ParseInt(metric.Value, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		return i, nil
+	case "uint8", "uint16", "uint32":
+		i, err := strconv.ParseUint(metric.Value, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		return i, nil
+	case "string":
+		return metric.Value, nil
+	case "float", "double":
+		i, err := strconv.ParseFloat(metric.Value, 64)
 		if err != nil {
 			return nil, err
 		}
