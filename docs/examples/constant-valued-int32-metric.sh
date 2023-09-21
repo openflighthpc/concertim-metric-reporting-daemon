@@ -2,12 +2,13 @@
 
 set -e
 set -o pipefail
+# set -x
 
 # The base URL against which relative URLs are constructed.
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script creates a single double metric for a single device.
+# This script creates a single int32 metric for a single device.
 
 # The Concertim ID for the device that the metric is being reported for. The
 # rack and device API contains an endpoint to list valid ids.  See the example
@@ -15,15 +16,18 @@ BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 DEVICE_ID=${1:-1}
 
 # The name of the metric we are reporting.
-METRIC=${2:-caffeine.consumption}
+METRIC=${2:-caffeine.capacity}
 
-# We use `shuf` and `bc` to generate a random float, in this case between 0 and 10
-# inclusive.
-VALUE=${3:-$(printf '%s%s\n' $(shuf -i 0-9 -n 1) $(echo "scale=4; $RANDOM/32768" | bc ))}
+# This is a constant metric.  It wont (or at least isn't expected to) change
+# over time.  Suitable for perhaps kernel version numbers.
+#
+# In addition to always reporting the same value, the metric is treated as
+# constant by having a "slope" of "zero".
+VALUE=10
 
-# The unit for the metric.  This unit is a sensible default for the default
-# metric name.
-UNITS=${4:-cups}
+# The units of the metric we are reporting.
+UNITS=""
+
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -36,11 +40,11 @@ fi
 
 # Use `jq` to construct a JSON body request.
 BODY=$(jq --null-input \
-  --arg datatype "double" \
+  --arg datatype "int32" \
   --arg name ${METRIC} \
   --arg value ${VALUE} \
-  --arg units ${UNITS} \
-  --arg slope "both" \
+  --arg units "${UNITS}" \
+  --arg slope "zero" \
   --arg ttl 3600 \
   '
 {

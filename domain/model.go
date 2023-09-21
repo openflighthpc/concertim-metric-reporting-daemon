@@ -49,32 +49,67 @@ func (d DSM) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.GridName, d.ClusterName, d.HostName)
 }
 
-// MemcacheKey exists to document some function signatures.
-type MemcacheKey string
-
-// String implements the Stringer interface.
-func (m MemcacheKey) String() string {
-	return string(m)
-}
-
-// Host is the domain model representing a host.
-type Host struct {
+// ReportedHost is the domain model representing a host for which metrics have
+// been reported.
+type ReportedHost struct {
 	Id       HostId
 	DSM      DSM
 	Reported time.Time
 	DMax     time.Duration
-	Metrics  []Metric
+	Metrics  []ReportedMetric
 }
 
-// Metric is the domain model representing a single metric.
-type Metric struct {
+// MetricName exists to document some function signatures.
+type MetricName string
+
+// ReportedMetric is the domain model representing a single reported metric.
+// It has not yet been fully processed.
+type ReportedMetric struct {
 	Name     string
-	Val      string
+	Value    string
 	Units    string
 	Slope    MetricSlope
 	Reported time.Time
 	DMax     time.Duration
 	Type     MetricType
+}
+
+// ProcessedHost is the domain model representing a single host that has been
+// fully processed.
+type ProcessedHost struct {
+	// The Concertim ID for the host.
+	Id      HostId
+	DSM     DSM
+	Metrics map[MetricName]ProcessedMetric
+	// Time that metrics were last reported for the host.
+	Mtime *time.Time
+}
+
+// ProcessedMetric is the domain model representing a single metric that has
+// been fully processed.
+type ProcessedMetric struct {
+	// XXX Consider changing some of these strings to MetricName etc..
+	Name      string
+	Datatype  string
+	Units     string
+	Source    string
+	Value     string
+	Nature    string
+	Dmax      int
+	Timestamp int64
+	Stale     bool
+}
+
+type UniqueMetric struct {
+	// XXX Min and max are calculated for all devices across all clusters
+	// across all projects.  This is consistent with the initial behaviour
+	// of Concertim, but may not be suitable anymore.
+	Datatype string
+	Max      any
+	Min      any
+	Name     string
+	Nature   string
+	Units    string
 }
 
 // ErrInvalidMetricVal is used if the metric's value is not valid for its

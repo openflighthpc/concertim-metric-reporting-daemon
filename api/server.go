@@ -63,6 +63,7 @@ func (s *Server) addRoutes() chi.Router {
 	r.Use(hlog.RemoteAddrHandler("ip"))
 	r.Use(middleware.CleanPath)
 
+	r.Get("/status", s.statusHandler)
 	r.Group(func(r chi.Router) {
 		// Currently, as long as the JWT token can be verified, we allow all
 		// access.  Later we probably want to check the claims that are being
@@ -72,6 +73,9 @@ func (s *Server) addRoutes() chi.Router {
 
 		r.Put("/{deviceId}/metrics", s.putMetricHandler)
 	})
+
+	r.Get("/metrics/unique", s.getUniqueMetrics)
+	r.Get("/metrics/{metricName}/values", s.getMetricValues)
 
 	return r
 }
@@ -117,6 +121,14 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	body := putMetricResponse{Status: http.StatusOK}
+	renderJSON(body, http.StatusOK, rw)
+}
+
+func (s *Server) statusHandler(rw http.ResponseWriter, r *http.Request) {
+	type response struct {
+		Status int `json:"status"`
+	}
+	body := response{Status: http.StatusOK}
 	renderJSON(body, http.StatusOK, rw)
 }
 

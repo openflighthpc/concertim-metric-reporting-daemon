@@ -2,13 +2,7 @@
 package processing
 
 import (
-	"encoding/json"
-	"strconv"
-	"time"
-
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -22,232 +16,65 @@ import (
 //     that metric.
 //  3. For each host a map from metric name to that metric.
 //
-// These views are currently, recorded in memcache by Recorder.
+// These views are stored in the given domain.ProcessedRepository.
 type Processor struct {
-	clusterName string
-	dsmRepo     *dsmRepository.Repo
-	gridName    string
-	logger      zerolog.Logger
+	resultRepo domain.ProcessedRepository
+	logger     zerolog.Logger
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(logger zerolog.Logger, dsmRepo *dsmRepository.Repo, gridName, clusterName string) *Processor {
+func NewProcessor(resultRepo domain.ProcessedRepository, logger zerolog.Logger) *Processor {
 	return &Processor{
-		clusterName: clusterName,
-		dsmRepo:     dsmRepo,
-		gridName:    gridName,
-		logger:      logger.With().Str("component", "processor").Logger(),
+		resultRepo: resultRepo,
+		logger:     logger.With().Str("component", "processor").Logger(),
 	}
 }
 
-// Process processes the provided ganglia metrics and returns a *Result struct
-// containing the results of the processing run.
-//
-// Any grids with a name other than "unspecified" or clusters with a name other
-// than the GDS is configured with are ignored. This allows (with suitable
-// configuration) Ganglia's gmond to run and collect metrics for localhost
-// without storing them in memcache.
-func (p *Processor) Process(hosts []retrieval.Host) (*Result, error) {
-	now := time.Now().Unix()
-	err := p.dsmRepo.Update()
-	if err != nil {
-		p.logger.Warn().Err(err).Msg("using stale DSM data")
-	}
-	result := NewResult()
+// Process the provided hosts to produce the expected views and store them in
+// resultRepo.
+func (p *Processor) Process(hosts []*domain.ProcessedHost) error {
+	stats := processStats{}
 	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")
-	for _, gHost := range hosts {
-		dsm := domain.DSM{
-			GridName:    p.gridName,
-			ClusterName: p.clusterName,
-			HostName:    gHost.Name,
-		}
-		memcacheKey, ok := p.dsmRepo.GetMemcacheKey(dsm)
-		if !ok {
-			p.logger.Debug().
-				Str("host", gHost.Name).
-				Stringer("dsm", dsm).
-				Msg("ignoring")
-			result.numIgnoredHosts++
-			continue
-		}
-		p.logger.Debug().
-			Str("host", gHost.Name).
-			Int("count", len(gHost.Metrics)).
-			Msg("processing metrics")
-		ctHost := Host{
-			Name:        gHost.Name,
-			MemcacheKey: memcacheKey,
-			Metrics:     make(map[MetricName]Metric),
-		}
-		for _, gMetric := range gHost.Metrics {
-			p.logger.Debug().
-				Str("host", gHost.Name).
-				Str("metric", gMetric.Name).
-				Msg("processing metric")
-			ctMetric, err := MetricFromGanglia(now, gMetric)
-			if err != nil {
-				p.logger.Warn().Err(err).Msg("failed")
-				continue
-			}
-			ctHost.Metrics[MetricName(ctMetric.Name)] = ctMetric
-			result.AddMetric(domain.MemcacheKey(memcacheKey), ctMetric)
-		}
-		if len(ctHost.Metrics) > 0 {
-			now := time.Now()
-			ctHost.Mtime = &now
-		}
-		result.Hosts = append(result.Hosts, ctHost)
+	err := p.resultRepo.Begin()
+	if err != nil {
+		return errors.Wrap(err, "starting transaction")
 	}
-	logProcessResults(p.logger, result)
-	return result, nil
+
+	for _, host := range hosts {
+		stats.numHosts++
+		p.logger.Debug().
+			Str("host", host.DSM.HostName).
+			Int("count", len(host.Metrics)).
+			Msg("processing metrics")
+		for _, metric := range host.Metrics {
+			stats.numMetrics++
+			p.logger.Debug().
+				Str("host", host.DSM.HostName).
+				Str("metric", metric.Name).
+				Msg("processing metric")
+			p.resultRepo.AddMetric(host, &metric)
+		}
+		p.resultRepo.AddHost(host)
+	}
+	err = p.resultRepo.Commit()
+	if err != nil {
+		return errors.Wrap(err, "committing transaction")
+	}
+	stats.numUniqueMetrics = len(p.resultRepo.GetUniqueMetrics())
+	logProcessResults(p.logger, stats)
+	return nil
 }
 
-func logProcessResults(logger zerolog.Logger, result *Result) {
+func logProcessResults(logger zerolog.Logger, stats processStats) {
 	logger.Info().
-		Dict("processed", zerolog.Dict().
-			Int("hosts", len(result.Hosts)).
-			Int("metrics", result.numMetrics).
-			Int("unique metrics", len(result.UniqueMetrics))).
-		Dict("ignored", zerolog.Dict().
-			Int("hosts", result.numIgnoredHosts)).
+		Int("hosts", stats.numHosts).
+		Int("metrics", stats.numMetrics).
+		Int("unique metrics", stats.numUniqueMetrics).
 		Msg("completed")
 }
 
-// MetricName exists to document some function signatures.
-type MetricName string
-
-// Result contains the result of the processing run for a single set of
-// metrics.
-//
-// See the documentation of Processor for details of the views it provides.
-type Result struct {
-	// HostsByMetric is a map from a metric's name to a list of hosts that
-	// currently have a fresh value for that metric.
-	HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
-
-	// UniqueMetrics is a set of unique metrics by name.
-	UniqueMetrics map[MetricName]Metric
-
-	// Hosts is a slice of Host containing their processed metrics.
-	Hosts []Host `json:"hosts"`
-
-	// numMetrics keeps track of the total metrics processed for logging.  Other
-	// logged information is derived from the other attributes.
-	numMetrics      int
-	numIgnoredHosts int
-}
-
-// NewResult returns a new empty *Result.
-func NewResult() *Result {
-	return &Result{
-		HostsByMetric: map[MetricName][]domain.MemcacheKey{},
-		UniqueMetrics: map[MetricName]Metric{},
-	}
-}
-
-// AddMetric adds the given Metric for the given MemcacheKey.  MemcacheKey
-// should be the memcache key for the host that reported the metric.
-func (r *Result) AddMetric(mckey domain.MemcacheKey, metric Metric) {
-	metricName := MetricName(metric.Name)
-	hosts, ok := r.HostsByMetric[metricName]
-	if !ok {
-		hosts = make([]domain.MemcacheKey, 0)
-		r.HostsByMetric[metricName] = hosts
-	}
-	r.HostsByMetric[metricName] = append(hosts, mckey)
-	r.UniqueMetrics[metricName] = metric
-	r.numMetrics++
-}
-
-// MarshalJSON implements the encoding/json.Marshaler interface.
-//
-// It is used here to provide a custom serialisation for UniqueMetrics.
-func (r *Result) MarshalJSON() ([]byte, error) {
-	uniqMetricNames := make([]Metric, 0, len(r.UniqueMetrics))
-	for _, val := range r.UniqueMetrics {
-		uniqMetricNames = append(uniqMetricNames, val)
-	}
-	return json.Marshal(&struct {
-		HostsByMetric map[MetricName][]domain.MemcacheKey `json:"hosts_by_metric"`
-		Hosts         []Host                              `json:"hosts"`
-		UniqueMetrics []Metric                            `json:"unique_metrics"`
-	}{
-		HostsByMetric: r.HostsByMetric,
-		Hosts:         r.Hosts,
-		UniqueMetrics: uniqMetricNames,
-	})
-}
-
-// Host is the domain model for a host.
-type Host struct {
-	Name        string                `json:"name,omitempty"`
-	MemcacheKey domain.MemcacheKey    `json:"memcache_key,omitempty"`
-	Metrics     map[MetricName]Metric `json:"metrics"`
-	// Use a pointer for Mtime so that the json marshalling will omit when
-	// empty.
-	Mtime *time.Time `json:"mtime,omitempty"`
-}
-
-// Metric is the domain model for a metric.
-type Metric struct {
-	Name      string `json:"name,omitempty"`
-	Datatype  string `json:"datatype,omitempty"`
-	Units     string `json:"units,omitempty"`
-	Source    string `json:"source,omitempty"`
-	Value     string `json:"value,omitempty"`
-	Nature    string `json:"nature,omitempty"`
-	Dmax      int    `json:"dmax,omitempty"`
-	Timestamp int64  `json:"timestamp,omitempty"`
-	Stale     bool   `json:"stale"`
-}
-
-// MetricFromGanglia parses the given Ganglia metric into a format suitable
-// for processing.
-//
-// The formats are largely similar with the following changes:
-//
-// Slope is replaced with a simplified Nature.
-// TN is replaced with a more easily consumed Timestamp.
-// TMAX is replaced with a more easily consumed Stale.
-func MetricFromGanglia(now int64, src retrieval.Metric) (Metric, error) {
-	var dst Metric
-	tn, err := strconv.Atoi(src.TN)
-	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid TN")
-	}
-	tmax, err := strconv.Atoi(src.TMax)
-	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid TMAX")
-	}
-	dmax, err := strconv.Atoi(src.DMax)
-	if err != nil {
-		return Metric{}, errors.Wrap(err, "invalid DMAX")
-	}
-
-	var stale bool
-	persistent := dmax == 0
-	if persistent {
-		stale = tn > tmax*2
-	} else {
-		stale = tn > dmax
-	}
-
-	nature := "volatile"
-	if src.Type == "string" || src.Type == "timestamp" {
-		nature = "string_and_time"
-	} else if src.Slope == "zero" {
-		nature = "constant"
-	}
-
-	dst.Name = src.Name
-	dst.Datatype = src.Type
-	dst.Units = src.Units
-	dst.Source = src.Source
-	dst.Value = src.Val
-	dst.Nature = nature
-	dst.Dmax = dmax
-	dst.Timestamp = now - int64(tn)
-	dst.Stale = stale
-
-	return dst, nil
+type processStats struct {
+	numHosts         int
+	numMetrics       int
+	numUniqueMetrics int
 }

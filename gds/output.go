@@ -85,7 +85,7 @@ func (g *outputGenerator) secondsSince(startTime time.Time) int {
 	return secondsAsInt(g.clock.Since(startTime))
 }
 
-func (g *outputGenerator) generate(hosts []domain.Host) ([]byte, error) {
+func (g *outputGenerator) generate(hosts []domain.ReportedHost) ([]byte, error) {
 	var buf bytes.Buffer
 	cluster := cluster{
 		Hosts:        hosts,
@@ -101,7 +101,7 @@ func (g *outputGenerator) generate(hosts []domain.Host) ([]byte, error) {
 }
 
 type cluster struct {
-	Hosts        []domain.Host
+	Hosts        []domain.ReportedHost
 	LocalTime    int64
 	MetricSource string
 	Name         string

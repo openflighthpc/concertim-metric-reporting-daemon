@@ -61,12 +61,21 @@ will default to `1`, `METRIC_NAME` defaults to `caffeine.level`,
 ./int32-metric.sh [DEVICE_ID [METRIC_NAME [VALUE [UNIT]]]]
 ```
 
+Report a single constant valued int32 metric for a device. If `DEVICE_ID` is
+not given it will default to `1`, `METRIC_NAME` defaults to
+`caffeine.capacity`, `VALUE` is hardcoded to 10 and `UNIT` to `""`.  The metric
+is treated as constant due to the script setting a `slope` of `zero`.
+
+```
+./int32-metric.sh [DEVICE_ID [METRIC_NAME [UNIT]]]
+```
+
 Report a single double metric for a device. If `DEVICE_ID` is not given it
 will default to `1`, `METRIC_NAME` defaults to `caffeine.max` and
 `VALUE` to a random double between 0 and 10.
 
 ```
-./double-metric.sh [DEVICE_ID [METRIC_NAME [VALUE]]]
+./double-metric.sh [DEVICE_ID [METRIC_NAME [VALUE [UNIT]]]]
 ```
 
 Report multiple int32 metrics for a device.  If `DEVICE_ID` is not given it
@@ -74,4 +83,19 @@ will default to `1`.
 
 ```
 ./multiple-int32-metrics.sh [DEVICE_ID]
+```
+
+## Metric querying API usage
+
+Get a list of unique metrics that were processed in the most recent processing run.
+
+```
+./list-unique-metrics.sh
+```
+
+Get the values for all devices that reported a value for the given metric in
+the most recent processing run.  `METRIC_NAME` defaults to `caffeine.level`.
+
+```
+./list-metric-values.sh [METRIC_NAME]
 ```

@@ -20,40 +20,60 @@ should be checked out.
 ## Code structure and architecture
 
 `ct-metrics` is written in Go and provides an HTTP API for metrics to be
-injected into Concertim.
+reported to Concertim and to retrieve details about those metrics.
 
 Its architecture is influenced by legacy and old-legacy Concertim.  This
 influence should be removed in time.
 
 A brief explanation of the directories is as follows:
 
-* `api` package: contains the HTTP API server.  When it receives a request
-  it calls `domain.Application.AddMetric`.
+* `api` package: contains the HTTP API server for reporting and querying
+   metrics.  Reported metrics are stored in an implementation of
+  `domain.ReportedRepository`.  Metrics are queried from an implementation of
+  `domain.ProcessedRepository`.
+
+* `canned` directory contains functionality to provide canned responses for
+  querying the data source maps and metrics reported to ganglia's gmetad.
 
 * `cmd` directory contains the executables.
 
 * `config` package contains the config files and config related code.
 
-* `domain` package: contains the domain entities.  Currently, an
-  `Application` struct with a single `AddMetric` command; a `Repository`
-  interface for storing the metrics that have been reported; a
-  `DataSourceMapRepository` interface for retrieving details about the devices
-  known to concertim; and associated types.
+* `domain` package: contains the domain entities.  Currently an `Application`
+  struct, various models to represent both reported and fully processed hosts
+  and metrics, and various repository interfaces.
 
-* `dsmRepository` package: contains an implementation of
-  `domain.DataSourceMapRepository`.  This retrieves data about the devices that
-  are known to concertim.
+* `dsmRepository` package: contains code for periodically updating the data
+  source map repository.  Updates a `domain.DataSourceMapRepository` by using a
+  `domain.DataSourceMapRetreiver` to retrieve the latest data source map.
+  (NOTE: This code is likely making its way to `domain`).
 
-* `gds` package: contains an implementation of a Ganglia Data Source Server aka gmond.
+* `gds` package: contains an implementation of a Ganglia Data Source Server aka
+  gmond.  This is the mechanism used to report metrics to Ganglia's gmetad.  The
+  metrics reported are read from a `domain.ReportedRepository`.
 
-* `processing` package: contains routines for periodically processing the
-  reported metrics.
+* `inmem` package: contains in-memory implementations of the repository
+  interfaces defined in the `domain` package.
+
+* `processing` package: contains routines for processing the metrics retrieved
+  from gmetad.  The processed metrics are stored in an implementation of
+  `domain.ProcessedRepository`.  (This code is likely making its way to
+  `domain`).
 
 * `repository/memory` package: contains an implementation of
-  `domain.Repository` that holds the reported metrics in memory.
+  `domain.Repository` that holds the reported metrics in memory.  (This code is
+  likely making its way to `inmem`).
 
 * `retrieval` package: contains routines for periodically retrieving and
-  filtering metrics from ganglia.
+  filtering hosts and metrics from ganglia.  The hosts and metrics are parsed
+  to `domain.ProcessedHost` and `domain.ProcessedMetric` and made available for
+  further processing.
+
+* `ticker` package: contains an wrapper around a `time.Ticker` which also
+  allows for manually ticking the ticker.
+
+* `visualizer` package: contains a HTTP client for interacting with the
+  Concertim Visualisation App's API.
 
 ### History
 
@@ -91,36 +111,17 @@ is still involved as it expires metrics and creates/updates the RRDtool archive
 files.  Both of those could be moved into `ct-metric-reporting-daemon` but that
 has not yet happened.
 
-### Datasource maps
+### Data source maps
 
-Datasource maps are used to map between Gmetad's identifier for a host and
-Concertim's identifier.  Datasource maps are created in `ct-visualisation-app`
-and made available to `ct-metrics` via memcache.
+Data source maps are used to map between Gmetad's identifier for a host and
+Concertim's identifier.  Data source maps are created in `ct-visualisation-app`
+and made available to `ct-metrics` via `ct-visualisation-app`'s HTTP API.
 
 Gmetad's identifier for a host is "grid name", "cluster name", "host name"
 triple.  Parts of legacy concertim assumed that we would only be interested in
 a single grid and cluster.  Parts of new Concertim have carried that assumption
 over. This assumption is currently one of the limiting factors requiring that
 devices have unique names.
-
-### Memcache
-
-Legacy concertim used memcache as a data interchange.  Daemons would write data
-to memcache and other daemons would read that data from memcache. This
-mechanism has been ported to new Concertim.  It should be removed.
-
-Currently, memcache is used to store
-
-* a list of device identifiers.
-* for each device, some basic data about it including a list of metrics it is reporting.
-* a list of unique metrics.
-* for each metric, a list of devices reporting that metric.
-* a map from Gmetad identifier to Concertim identifier.
-
-The use of memcache as a data interchange should be removed and replaced with
-`ct-metrics` and `ct-visualisation-app` making HTTP requests to each other.
-Perhaps also, the IRV page should be making requests to `ct-metrics` for the
-metrics instead of `ct-vis-app`.
 
 
 ## Starting the server

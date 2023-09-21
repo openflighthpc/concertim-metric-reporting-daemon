@@ -21,7 +21,7 @@ type Repo struct {
 }
 
 // PutHost implements the Repository interface.
-func (mr *Repo) PutHost(host domain.Host) error {
+func (mr *Repo) PutHost(host domain.ReportedHost) error {
 	mr.logger.Debug().Stringer("host", host.Id).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -29,13 +29,13 @@ func (mr *Repo) PutHost(host domain.Host) error {
 	return nil
 }
 
-func (mr *Repo) isHostStored(host domain.Host) bool {
+func (mr *Repo) isHostStored(host domain.ReportedHost) bool {
 	_, ok := mr.hosts[host.Id.String()]
 	return ok
 }
 
 // PutMetric implements the Repository interface.
-func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
+func (mr *Repo) PutMetric(host domain.ReportedHost, metric domain.ReportedMetric) error {
 	mr.logger.Debug().Stringer("host", host.Id).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -52,11 +52,11 @@ func (mr *Repo) PutMetric(host domain.Host, metric domain.Metric) error {
 }
 
 // GetAll implements the Repository interface.
-func (mr *Repo) GetAll() []domain.Host {
+func (mr *Repo) GetAll() []domain.ReportedHost {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	mr.logger.Debug().Msg("Getting all data")
-	hosts := make([]domain.Host, 0, len(mr.hosts))
+	hosts := make([]domain.ReportedHost, 0, len(mr.hosts))
 	for _, h := range mr.hosts {
 		metrics := mr.metrics[h.DeviceId]
 		logHostAndMetrics(mr.logger, h, metrics)
@@ -68,13 +68,13 @@ func (mr *Repo) GetAll() []domain.Host {
 }
 
 // GetHost implements the Repository interface.
-func (mr *Repo) GetHost(hostId domain.HostId) (domain.Host, bool) {
+func (mr *Repo) GetHost(hostId domain.HostId) (domain.ReportedHost, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	mr.logger.Debug().Stringer("host", hostId).Msg("Getting host")
 	host, ok := mr.hosts[hostId.String()]
 	if !ok {
-		return domain.Host{}, false
+		return domain.ReportedHost{}, false
 	}
 	return conv.DomainFromModelHost(host), true
 }

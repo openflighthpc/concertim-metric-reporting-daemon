@@ -18,8 +18,8 @@ type Config struct {
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`
 	GDS              `yaml:"gds"`
-	Recorder         `yaml:"recorder"`
 	Retrieval        `yaml:"retrieval"`
+	VisualizerAPI    `yaml:"visualizerAPI"`
 }
 
 // API is the configuration for the HTTP API component.
@@ -41,11 +41,9 @@ type GDS struct {
 
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
-	Args      []string      `yaml:"args"`
 	Duration  time.Duration `yaml:"duration"`
 	Frequency time.Duration `yaml:"frequency"`
-	Path      string        `yaml:"path"`
-	Retriever string        `yaml:"retriever"`
+	Testdata  string        `yaml:"testdata"`
 	Throttle  time.Duration `yaml:"throttle"`
 }
 
@@ -61,10 +59,13 @@ type Retrieval struct {
 	Throttle        time.Duration `yaml:"throttle"`
 }
 
-// Recorder is the configuration for recording the processed results.
-type Recorder struct {
-	Path string   `yaml:"path"`
-	Args []string `yaml:"args"`
+type VisualizerAPI struct {
+	AuthUrl              string `yaml:"authUrl"`
+	DataSourceMapUrl     string `yaml:"data_source_map_url"`
+	JWTSecret            []byte `yaml:"-"`
+	Password             string `yaml:"password"`
+	SkipCertificateCheck bool   `yaml:"skip_certificate_check"`
+	Username             string `yaml:"username"`
 }
 
 // DefaultPath is the path to the default config file.
@@ -86,5 +87,6 @@ func FromFile(path string) (*Config, error) {
 		return nil, errors.Wrap(err, "error reading shared secret")
 	}
 	config.API.JWTSecret = bytes.TrimRight(secret, "\n")
+	config.VisualizerAPI.JWTSecret = bytes.TrimRight(secret, "\n")
 	return &config, nil
 }

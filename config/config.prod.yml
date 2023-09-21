@@ -36,26 +36,9 @@ gds:
 
 # Configuration for generating the data source map lookup.
 dsm:
-  # The type of retriever to use for obtaining the data source map look up
-  # table.  Either "file" or "script".
-  #
-  # If "file", "path" should be set to the path to a JSON file.  See
-  # ./testdata/dsm.json for an example.
-  #
-  # If "script" it should be set to the path of an executable script that
-  # prints JSON to stdout in the same format as above.  "args" can be set to an
-  # array of arguments passed to the executable.
-  retriever: "script"
-
-  # See "retriever" comment for what this means.
-  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/device-name-to-data_source_map.rb"
-
-  # CLI arguments passed to the above script.  For the above script, a single
-  # argument is given, which is the address of the memcache server.
-  args: ["localhost:11211"]
-
-  # The data source map is periodically updated using the configured retriever.
-  # `frequency` specifies the frequency of the periodic updating.
+  # The data source map is periodically updated from the Concertim
+  # Visualisation App. `frequency` specifies the frequency of the periodic
+  # updating.
   #
   # Certain events can cause the data source map to update outside of its
   # periodic updating.  To prevent over consumption of resources, the updates
@@ -123,19 +106,18 @@ retrieval:
   # long as we want the metrics to be available to IRV as soon as possible.
   post_gmetad_delay: 500ms
 
-# Configuration for storing the processed results.
-#
-# Currently there is an expectation that the results will be stored in Memcache
-# using the Ruby Marshal serialization format.  Golang has poor support for
-# serializing and de-serializing Ruby Marshal, so we use a Ruby script to do
-# this instead.  The Ruby script is supplied with the processed results as JSON
-# via stdin.
-recorder:
-  # The path of an executable script that reads JSON from stdin in and saves
-  # the results to Memcache using Ruby Marshal to serialize.
-  path: "/opt/concertim/opt/ct-metric-reporting-daemon/libexec/results-to-memcache.rb"
-  # CLI args passed to the above script.  The first arg is the memcache address.
-  args: ["localhost:11211"]
+# Configuration for accessing the Concertim Visualization App (aka Visualizer)
+# API.
+visualizerAPI:
+  # The URL used for gaining an authentication token.
+  authUrl: "http://localhost:7000/users/sign_in.json"
+  # The authentication credentials.
+  username: "admin"
+  password: "admin"
+  # The URL used to obtain the data source maps.
+  data_source_map_url: "http://localhost:7000/api/v1/data-source-maps"
+  # If set to true skip all TLS certificate verification checks.
+  skip_certificate_check: false
 
 log_level: info
 shared_secret_file: "/opt/concertim/etc/secret"
