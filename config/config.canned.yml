@@ -128,10 +128,15 @@ retrieval:
   # testdata: "./testdata/ganglia-small.xml"
   testdata: "./testdata/ganglia.xml"
 
+# Configuration for accessing the Concertim Visualization App (aka Visualizer)
+# API.
 visualizerAPI:
+  # The URL used for gaining an authentication token.
   authUrl: "https://localhost:9445/users/sign_in.json"
+  # The authentication credentials.
   username: "admin"
   password: "admin"
+  # The URL used to obtain the data source maps.
   data_source_map_url: "https://localhost:9445/api/v1/data-source-maps"
   # If set to true skip all TLS certificate verification checks.
   skip_certificate_check: true
