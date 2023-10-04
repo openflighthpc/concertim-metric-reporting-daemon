@@ -8,10 +8,10 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script lists the metric values for all devices that have reported that metric.
+# This script lists the current metrics for the given device.
 
-# The name of the metric we are querying.
-METRIC=${1:-caffeine.level}
+# The id of the device we are querying.
+DEVICE_ID=${1:-1}
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -24,4 +24,4 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/metrics/${METRIC}/values"
+  -X GET "${BASE_URL}/device/${DEVICE_ID}/metrics/current"

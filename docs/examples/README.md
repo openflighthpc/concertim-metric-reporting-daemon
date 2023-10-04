@@ -93,9 +93,38 @@ Get a list of unique metrics that were processed in the most recent processing r
 ./list-unique-metrics.sh
 ```
 
-Get the values for all devices that reported a value for the given metric in
-the most recent processing run.  `METRIC_NAME` defaults to `caffeine.level`.
+Get the current values for all devices that reported a value for the given
+metric in the most recent processing run.  `METRIC_NAME` defaults to
+`caffeine.level`.
 
 ```
-./list-metric-values.sh [METRIC_NAME]
+./list-current-metric-values.sh [METRIC_NAME]
+```
+
+Get the historic metric values between the given times for all devices that
+have reported a value for the given metric.  `START` and `END` must be
+formatted as an integer number of seconds since the UNIX epoch. `METRIC_NAME`
+defaults to `caffeine.level`.  If Ruby is installed, `START` defaults to one
+hour ago and `END` defaults to now.  If Ruby is not installed, arbitrary
+hardcoded defaults are used.
+
+```
+./list-historic-metric-values.sh [METRIC_NAME] [START] [END]
+```
+
+Get a list of current metrics for a single device.  `DEVICE_ID` defaults to `1`.
+
+```
+./list-current-device-metrics.sh [DEVICE_ID]
+```
+
+Get the historic metric values for the given device between the given times.
+`START` and `END` must be formatted as an integer number of seconds since the
+UNIX epoch.  `DEVICE_ID` defaults to `1`. `METRIC_NAME` defaults to
+`caffeine.level`.  If Ruby is installed, `START` defaults to one hour ago and
+`END` defaults to now.  If Ruby is not installed, arbitrary hardcoded defaults
+are used.
+
+```
+./list-historic-device-metric-values.sh [DEVICE_ID] [METRIC_NAME] [START] [END]
 ```
