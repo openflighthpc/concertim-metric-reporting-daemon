@@ -11,6 +11,7 @@ type Application struct {
 	dsmRepo    DataSourceMapRepository
 	dsmUpdater DataSourceMapRepoUpdater
 	ResultRepo ProcessedRepository
+	HistoricRepo HistoricRepository
 }
 
 // NewApp returns a newly configured Application.
@@ -20,6 +21,7 @@ func NewApp(
 	dsmRepo DataSourceMapRepository,
 	dsmUpdater DataSourceMapRepoUpdater,
 	resultRepo ProcessedRepository,
+	historicRepo HistoricRepository,
 ) *Application {
 	return &Application{
 		Repo:       repo,
@@ -27,5 +29,6 @@ func NewApp(
 		dsmRepo:    dsmRepo,
 		dsmUpdater: dsmUpdater,
 		ResultRepo: resultRepo,
+		HistoricRepo: historicRepo,
 	}
 }

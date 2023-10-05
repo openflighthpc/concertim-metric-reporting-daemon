@@ -1,7 +1,10 @@
 package api
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 )
 
 type uniqueMetric struct {
@@ -28,13 +31,13 @@ type uniqueMetric struct {
 //	  ...
 //	]
 func (s *Server) getUniqueMetrics(rw http.ResponseWriter, r *http.Request) {
-	metrics := s.app.ResultRepo.GetUniqueMetrics()
-	if metrics == nil {
-		body := ErrorsPayload{
-			Status: http.StatusServiceUnavailable,
-			Errors: []*ErrorObject{{Title: "Service Unavailable", Detail: "Waiting on metric processing run"}},
+	metrics, err := s.app.ResultRepo.GetUniqueMetrics()
+	if err != nil {
+		if errors.Is(err, domain.ErrWaitingOnProcessingRun) {
+			ServiceUnavailable(rw, r, err)
+		} else {
+			InternalError(rw, r, err)
 		}
-		renderJSON(body, http.StatusServiceUnavailable, rw)
 		return
 	}
 	body := []uniqueMetric{}

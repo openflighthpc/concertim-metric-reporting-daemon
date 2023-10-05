@@ -78,8 +78,15 @@ func (s *Server) addRoutes() chi.Router {
 		r.Put("/{deviceId}/metrics", s.putMetricHandler)
 	})
 
+	// Route to get metrics for a single device.
+	r.Get("/device/{deviceId}/metrics/current", s.getCurrentHostMetrics)
+	r.Get("/device/{deviceId}/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricHostMetricValues)
+
+	// Routes to get metrics for all devices.
 	r.Get("/metrics/unique", s.getUniqueMetrics)
-	r.Get("/metrics/{metricName}/values", s.getMetricValues)
+	r.Get("/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricMetricValues)
+	r.Get("/metrics/{metricName}/current", s.getMetricValues)
+	r.Get("/metrics/{metricName}/values", s.deprecated(s.getMetricValues))
 
 	return r
 }
@@ -110,7 +117,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = s.app.AddMetric(metric, domain.HostId(chi.URLParam(r, "deviceId")))
-	if errors.Is(err, domain.UnknownHost) {
+	if errors.Is(err, domain.ErrUnknownHost) {
 		body := ErrorsPayload{
 			Status: http.StatusNotFound,
 			Errors: []*ErrorObject{{Title: "Host Not Found", Detail: err.Error()}},

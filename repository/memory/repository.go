@@ -40,7 +40,7 @@ func (mr *Repo) PutMetric(host domain.ReportedHost, metric domain.ReportedMetric
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	if !mr.isHostStored(host) {
-		return fmt.Errorf("%w: %s", domain.UnknownHost, host.Id)
+		return fmt.Errorf("%w: %s", domain.ErrUnknownHost, host.Id)
 	}
 	metrics, ok := mr.metrics[host.Id.String()]
 	if !ok {

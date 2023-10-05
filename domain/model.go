@@ -112,6 +112,20 @@ type UniqueMetric struct {
 	Units    string
 }
 
+// HistoricHost is the domain model representing a single host loaded with its
+// historic metric values.
+type HistoricHost struct {
+	// The Concertim ID for the host.
+	Id      HostId
+	DSM     DSM
+	Metrics map[MetricName][]*HistoricMetric
+}
+
+type HistoricMetric struct {
+	Value float64
+	Timestamp int64
+}
+
 // ErrInvalidMetricVal is used if the metric's value is not valid for its
 // type.
 var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")
