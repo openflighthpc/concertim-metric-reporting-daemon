@@ -26,16 +26,19 @@ type Server struct {
 	httpServer *http.Server
 	logger     zerolog.Logger
 	tokenAuth  *jwtauth.JWTAuth
+	Router chi.Router
 }
 
 // NewServer returns an *http.Server configured as an API server.
 func NewServer(logger zerolog.Logger, app *domain.Application, config config.API) *Server {
-	return &Server{
+	server := Server{
 		app:       app,
 		config:    config,
 		logger:    logger.With().Str("component", "http-api").Logger(),
 		tokenAuth: jwtauth.New("HS256", config.JWTSecret, nil),
 	}
+	server.addRoutes()
+	return &server
 }
 
 // ListenAndServe runs the HTTP API server.
@@ -44,7 +47,7 @@ func (s *Server) ListenAndServe() error {
 		Addr:         fmt.Sprintf("%s:%d", s.config.IP, s.config.Port),
 		ReadTimeout:  s.config.Timeout,
 		WriteTimeout: s.config.Timeout,
-		Handler:      s.addRoutes(),
+		Handler:      s.Router,
 	}
 	s.httpServer = &server
 	s.logger.Info().Str("address", server.Addr).Msg("Listening")
@@ -58,6 +61,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 func (s *Server) addRoutes() chi.Router {
 	r := chi.NewRouter()
+	s.Router = r
 	r.Use(hlog.NewHandler(s.logger))
 	r.Use(logMiddleware())
 	r.Use(hlog.RemoteAddrHandler("ip"))
