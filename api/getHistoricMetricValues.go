@@ -22,19 +22,19 @@ type historicValueResponse struct {
 // all hosts that have reported the given metric between the given start and
 // end times.
 //
-//  [
-//    {
-//      "id": "1",
-//      "values": [
-//        {
-//          "timestamp": 1696431225,
-//          "value": 9020
-//        },
-//        ...
-//      ]
-//    },
-//    ...
-//  ]
+//	[
+//	  {
+//	    "id": "1",
+//	    "values": [
+//	      {
+//	        "timestamp": 1696431225,
+//	        "value": 9020
+//	      },
+//	      ...
+//	    ]
+//	  },
+//	  ...
+//	]
 func (s *Server) getHistoricMetricValues(rw http.ResponseWriter, r *http.Request) {
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
 	startTime, err := parseTime(chi.URLParam(r, "startTime"))

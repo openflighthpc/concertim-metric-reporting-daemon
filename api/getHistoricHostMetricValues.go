@@ -11,13 +11,15 @@ import (
 // getHistoricHostMetricValues returns a JSON list of historic metric values
 // for the given host and metric between the given start and end times.
 //
-//	[
+// [
+//
 //	  {
-//      "timestamp": 1696431225,
-//      "value": 9020
-//	  },
-//	  ...
-//	]
+//	    "timestamp": 1696431225,
+//	    "value": 9020
+//		 },
+//		 ...
+//
+// ]
 func (s *Server) getHistoricHostMetricValues(rw http.ResponseWriter, r *http.Request) {
 	hostId := domain.HostId(chi.URLParam(r, "deviceId"))
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))

@@ -122,7 +122,7 @@ type HistoricHost struct {
 }
 
 type HistoricMetric struct {
-	Value float64
+	Value     float64
 	Timestamp int64
 }
 

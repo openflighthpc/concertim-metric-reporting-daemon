@@ -12,7 +12,6 @@ var ErrWaitingOnProcessingRun = errors.New("Waiting on metric processing run")
 var ErrHostNotFound = errors.New("Host not found")
 var ErrMetricNotFound = errors.New("Metric not found")
 
-
 // ReportedRepository is the interface for storing reported metrics.
 type ReportedRepository interface {
 	// PutHost adds a Host to the repository.  If the Host has already been

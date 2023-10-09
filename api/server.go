@@ -26,7 +26,7 @@ type Server struct {
 	httpServer *http.Server
 	logger     zerolog.Logger
 	tokenAuth  *jwtauth.JWTAuth
-	Router chi.Router
+	Router     chi.Router
 }
 
 // NewServer returns an *http.Server configured as an API server.
