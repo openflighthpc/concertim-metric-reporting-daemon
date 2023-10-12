@@ -10,10 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
+
+var _ domain.HistoricRepository = (*historicRepo)(nil)
 
 type historicRepo struct {
 	cluster               string
@@ -26,16 +29,16 @@ type historicRepo struct {
 	rrdTool               string
 }
 
-func NewHistoricRepo(logger zerolog.Logger, dsmRepo domain.DataSourceMapRepository) *historicRepo {
+func NewHistoricRepo(logger zerolog.Logger, config config.RRD, dsmRepo domain.DataSourceMapRepository) *historicRepo {
 	return &historicRepo{
-		cluster:               "unspecified",
+		cluster:               config.ClusterName,
 		consolidationFunction: "AVERAGE",
 		dsmRepo:               dsmRepo,
-		grid:                  "unspecified",
+		grid:                  config.GridName,
 		logger:                logger.With().Str("component", "historic-repo").Logger(),
-		rrdDir:                "testdata/rrds/",
+		rrdDir:                config.Directory,
 		rrdMetricName:         "sum",
-		rrdTool:               "/usr/bin/rrdtool",
+		rrdTool:               config.ToolPath,
 	}
 }
 

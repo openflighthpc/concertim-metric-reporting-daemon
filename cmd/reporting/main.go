@@ -110,7 +110,7 @@ func main() {
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)
 	processedRepo := inmem.NewProcessedRepository(log.Logger)
-	historicRepo := rrd.NewHistoricRepo(log.Logger, dsmRepo)
+	historicRepo := rrd.NewHistoricRepo(log.Logger, config.RRD, dsmRepo)
 	app := domain.NewApp(*config, repository, dsmRepo, dsmUpdater, processedRepo, historicRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
