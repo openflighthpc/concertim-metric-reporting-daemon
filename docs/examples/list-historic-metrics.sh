@@ -8,23 +8,10 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script lists the historic metric values for all devices that have
-# reported that metric.
-
-# The name of the metric we are querying.
-METRIC=${1:-caffeine.level}
-
-if type ruby >/dev/null 2>&1 ; then
-	# If ruby is installed let's display the metrics for the last hour by
-	# default.  Not that the times are given as an integer number of seconds
-	# since the 1970-01-01-00:00:00 UTC.
-	START=${2:-$(ruby -e 'puts (Time.now.utc - 60*60).to_i')}
-	END=${3:-$(ruby -e 'puts (Time.now.utc).to_i')}
-else
-	START=${2:-1696431210}
-	END=${3:-1696431300}
-fi
-
+# This script lists the historic metrics that have been reported to the metric
+# daemon.  If a metric is reported by multiple hosts it will appear in the list
+# just once.  Currently, there is little information other than the ID/name of
+# the metric available.
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -37,4 +24,4 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/metrics/${METRIC}/historic/${START}/${END}"
+  -X GET "${BASE_URL}/metrics/historic"

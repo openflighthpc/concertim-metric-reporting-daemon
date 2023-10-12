@@ -93,6 +93,12 @@ Get a list of current metrics that were processed in the most recent processing 
 ./list-current-metrics.sh
 ```
 
+Get a list of historic metrics.
+
+```
+./list-historic-metrics.sh
+```
+
 Get the current values for all devices that reported a value for the given
 metric in the most recent processing run.  `METRIC_NAME` defaults to
 `caffeine.level`.
@@ -116,6 +122,12 @@ Get a list of current metrics for a single device.  `DEVICE_ID` defaults to `1`.
 
 ```
 ./list-current-device-metrics.sh [DEVICE_ID]
+```
+
+Get a list of historic metrics for a single device.  `DEVICE_ID` defaults to `1`.
+
+```
+./list-historic-device-metrics.sh [DEVICE_ID]
 ```
 
 Get the historic metric values for the given device between the given times.

@@ -88,4 +88,5 @@ type HistoricRepository interface {
 	GetValuesForMetric(metricName MetricName, startTime, endTime time.Time) ([]*HistoricHost, error)
 	GetValuesForHostAndMetric(hostId HostId, metricName MetricName, startTime, endTime time.Time) (*HistoricHost, error)
 	ListMetricNames() ([]string, error)
+	ListHostMetricNames(hostId HostId) ([]string, error)
 }

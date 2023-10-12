@@ -98,22 +98,17 @@ func (hr *historicRepo) GetValuesForMetric(metricName domain.MetricName, startTi
 }
 
 func (hr *historicRepo) ListMetricNames() ([]string, error) {
-	cmd := exec.Command(hr.rrdTool, "list", filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__"))
-	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic cluster metrics")
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, augmentError(err, hr.rrdTool, "executing")
+	path := filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__")
+	return hr.getMetricNames(path)
+}
+
+func (hr *historicRepo) ListHostMetricNames(hostId domain.HostId) ([]string, error) {
+	dsm, ok := hr.dsmRepo.GetDSM(hostId)
+	if !ok {
+		return nil, domain.ErrHostNotFound
 	}
-	metricNames := make([]string, 0)
-	for _, file := range strings.Split(string(out), "\n") {
-		if filepath.Ext(file) != ".rrd" {
-			continue
-		}
-		metricName := strings.TrimSuffix(file, filepath.Ext(file))
-		metricNames = append(metricNames, metricName)
-	}
-	hr.logger.Debug().Strs("metricNames", metricNames).Msg("found metricNames")
-	return metricNames, nil
+	path := filepath.Join(hr.rrdDir, dsm.ClusterName, dsm.HostName)
+	return hr.getMetricNames(path)
 }
 
 func (hr *historicRepo) getHosts() ([]string, error) {
@@ -132,6 +127,25 @@ func (hr *historicRepo) getHosts() ([]string, error) {
 	}
 	hr.logger.Debug().Strs("hosts", hosts).Msg("found hosts")
 	return hosts, nil
+}
+
+func (hr *historicRepo) getMetricNames(dir string) ([]string, error) {
+	cmd := exec.Command(hr.rrdTool, "list", dir)
+	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic metrics")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, augmentError(err, hr.rrdTool, "executing")
+	}
+	metricNames := make([]string, 0)
+	for _, file := range strings.Split(string(out), "\n") {
+		if filepath.Ext(file) != ".rrd" {
+			continue
+		}
+		metricName := strings.TrimSuffix(file, filepath.Ext(file))
+		metricNames = append(metricNames, metricName)
+	}
+	hr.logger.Debug().Strs("metricNames", metricNames).Msg("found metricNames")
+	return metricNames, nil
 }
 
 func (hr *historicRepo) getMetricValues(
