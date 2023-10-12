@@ -279,7 +279,7 @@ as `null`.
 ]
 ```
 
-## `GET /device/<device_id>/metrics/current`  List all current metrics for the given device
+## `GET /devices/<device_id>/metrics/current`  List all current metrics for the given device
 
 Returns a list containing all metrics value for the given device reported in
 the most recent processing run.
@@ -325,7 +325,7 @@ the most recent processing run.
 ]
 ```
 
-## `GET /device/<device_id>/metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for a single device and metric between the given start and end times
+## `GET /devices/<device_id>/metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for a single device and metric between the given start and end times
 
 Returns a list containing the reported metric values between the given start
 time and end time for the specified device.  If the device has never reported

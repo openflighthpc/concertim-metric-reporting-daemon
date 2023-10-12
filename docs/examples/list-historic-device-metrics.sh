@@ -2,7 +2,7 @@
 
 set -e
 set -o pipefail
-set -x
+# set -x
 
 # The base URL against which relative URLs are constructed.
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
@@ -38,4 +38,4 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/device/${DEVICE_ID}/metrics/${METRIC}/historic/${START}/${END}"
+  -X GET "${BASE_URL}/devices/${DEVICE_ID}/metrics/${METRIC}/historic/${START}/${END}"

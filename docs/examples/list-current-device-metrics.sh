@@ -24,4 +24,4 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/device/${DEVICE_ID}/metrics/current"
+  -X GET "${BASE_URL}/devices/${DEVICE_ID}/metrics/current"

@@ -2,7 +2,7 @@
 
 set -e
 set -o pipefail
-set -x
+# set -x
 
 # The base URL against which relative URLs are constructed.
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}

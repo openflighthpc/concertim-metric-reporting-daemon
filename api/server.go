@@ -79,8 +79,8 @@ func (s *Server) addRoutes() chi.Router {
 	})
 
 	// Route to get metrics for a single device.
-	r.Get("/device/{deviceId}/metrics/current", s.getCurrentHostMetrics)
-	r.Get("/device/{deviceId}/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricHostMetricValues)
+	r.Get("/devices/{deviceId}/metrics/current", s.getCurrentHostMetrics)
+	r.Get("/devices/{deviceId}/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricHostMetricValues)
 
 	// Routes to get metrics for all devices.
 	r.Get("/metrics/unique", s.getUniqueMetrics)
