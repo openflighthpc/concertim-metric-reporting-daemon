@@ -139,11 +139,10 @@ e.g.,
 
 # Retrieving metrics
 
-## `GET /metrics/unique`  List unique metrics
+## `GET /metrics/current`  List current metrics
 
-Lists all unique metrics found in the most recent processing run.  The
-uniqueness of a metric is determined on the metric's name, so if two devices
-report a metric, say, `load.one`, that will result in a single unique metric.
+Lists all current metrics found in the most recent processing run.  If a metric
+is reported by multiple devices it will appear in the output just once.
 
 ### Response Codes
 

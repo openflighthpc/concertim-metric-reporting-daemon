@@ -87,10 +87,10 @@ will default to `1`.
 
 ## Metric querying API usage
 
-Get a list of unique metrics that were processed in the most recent processing run.
+Get a list of current metrics that were processed in the most recent processing run.
 
 ```
-./list-unique-metrics.sh
+./list-current-metrics.sh
 ```
 
 Get the current values for all devices that reported a value for the given
