@@ -1,6 +1,11 @@
 package api
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+
+	"golang.org/x/exp/slices"
+)
 
 // getHistoricMetricNames returns a JSON list of historic metric names. The
 // format of the JSON is as follows:
@@ -30,5 +35,8 @@ func (s *Server) getHistoricMetricNames(rw http.ResponseWriter, r *http.Request)
 		}
 		body = append(body, um)
 	}
+	slices.SortFunc(body, func(a, b historicMetricName) int {
+		return strings.Compare(a.Id, b.Id)
+	})
 	renderJSON(body, http.StatusOK, rw)
 }
