@@ -97,6 +97,25 @@ func (hr *historicRepo) GetValuesForMetric(metricName domain.MetricName, startTi
 	return hosts, nil
 }
 
+func (hr *historicRepo) ListMetricNames() ([]string, error) {
+	cmd := exec.Command(hr.rrdTool, "list", filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__"))
+	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic cluster metrics")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, augmentError(err, hr.rrdTool, "executing")
+	}
+	metricNames := make([]string, 0)
+	for _, file := range strings.Split(string(out), "\n") {
+		if filepath.Ext(file) != ".rrd" {
+			continue
+		}
+		metricName := strings.TrimSuffix(file, filepath.Ext(file))
+		metricNames = append(metricNames, metricName)
+	}
+	hr.logger.Debug().Strs("metricNames", metricNames).Msg("found metricNames")
+	return metricNames, nil
+}
+
 func (hr *historicRepo) getHosts() ([]string, error) {
 	cmd := exec.Command(hr.rrdTool, "list", filepath.Join(hr.rrdDir, hr.cluster))
 	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic hosts")
