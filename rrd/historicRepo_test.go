@@ -149,7 +149,7 @@ func Test_ListHostMetricNames(t *testing.T) {
 			name:      "only this hosts RRD files are included",
 			directory: "multiple-hosts",
 			hostId:    "1",
-			expected:  []string{"power.level", "caffeine.level"},
+			expected:  []string{"caffeine.level", "power.level"},
 		},
 		{
 			name:      "only this hosts RRD files are included",

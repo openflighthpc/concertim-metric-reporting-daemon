@@ -14,6 +14,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
+	"golang.org/x/exp/slices"
 )
 
 var _ domain.HistoricRepository = (*historicRepo)(nil)
@@ -144,6 +145,7 @@ func (hr *historicRepo) getMetricNames(dir string) ([]string, error) {
 		metricName := strings.TrimSuffix(file, filepath.Ext(file))
 		metricNames = append(metricNames, metricName)
 	}
+	slices.SortFunc(metricNames, strings.Compare)
 	hr.logger.Debug().Strs("metricNames", metricNames).Msg("found metricNames")
 	return metricNames, nil
 }
