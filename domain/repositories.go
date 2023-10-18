@@ -2,7 +2,6 @@ package domain
 
 import (
 	"errors"
-	"time"
 )
 
 // ErrUnknownHost is the error reported when an attempt to add a metric to an
@@ -84,9 +83,14 @@ type ProcessedRepository interface {
 // metrics.
 type HistoricRepository interface {
 	// GetValuesForMetric returns all historic values for all hosts that
-	// reported the metric between the given times.
-	GetValuesForMetric(metricName MetricName, startTime, endTime time.Time) ([]*HistoricHost, error)
-	GetValuesForHostAndMetric(hostId HostId, metricName MetricName, startTime, endTime time.Time) (*HistoricHost, error)
+	// reported the metric in the given duration.
+	GetValuesForMetric(metricName MetricName, lastConfig HistoricMetricDuration) ([]*HistoricHost, error)
+	// GetValuesForHostAndMetric returns all historic values for the given host
+	// and metric between the given duration.
+	GetValuesForHostAndMetric(hostId HostId, metricName MetricName, lastConfig HistoricMetricDuration) (*HistoricHost, error)
+	// ListMetricNames lists all historic metric names for all hosts.  If a
+	// metric is reported for more than one host it will only be included once.
 	ListMetricNames() ([]string, error)
+	// ListHostMetricNames lists all historic metric names for the given hosts.
 	ListHostMetricNames(hostId HostId) ([]string, error)
 }

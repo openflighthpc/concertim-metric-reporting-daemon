@@ -33,7 +33,34 @@ func (s *Server) getHistoricHostMetricValues(rw http.ResponseWriter, r *http.Req
 		BadRequest(rw, r, err, "")
 		return
 	}
-	host, err := s.app.HistoricRepo.GetValuesForHostAndMetric(hostId, metricName, startTime, endTime)
+	duration := domain.HistoricMetricDurationFromTimes(startTime, endTime)
+	s.fetchAndRenderHostMetrics(rw, r, hostId, metricName, duration)
+}
+
+func (s *Server) getHistoricHostMetricValuesLastX(rw http.ResponseWriter, r *http.Request) {
+	hostId := domain.HostId(chi.URLParam(r, "deviceId"))
+	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
+	lastX := chi.URLParam(r, "duration")
+	duration, err := domain.HistoricMetricDurationFromString(lastX)
+	if err != nil {
+		if errors.Is(err, domain.ErrLastXLookupMissingEntry) {
+			InternalError(rw, r, err)
+		} else {
+			BadRequest(rw, r, err, "")
+		}
+		return
+	}
+	s.fetchAndRenderHostMetrics(rw, r, hostId, metricName, duration)
+}
+
+func (s *Server) fetchAndRenderHostMetrics(
+	rw http.ResponseWriter,
+	r *http.Request,
+	hostId domain.HostId,
+	metricName domain.MetricName,
+	duration domain.HistoricMetricDuration,
+) {
+	host, err := s.app.HistoricRepo.GetValuesForHostAndMetric(hostId, metricName, duration)
 	if err != nil {
 		if errors.Is(err, domain.ErrHostNotFound) {
 			NotFound(rw, r, err)

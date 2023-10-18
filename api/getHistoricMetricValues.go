@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"math"
 	"net/http"
 
@@ -47,7 +48,32 @@ func (s *Server) getHistoricMetricValues(rw http.ResponseWriter, r *http.Request
 		BadRequest(rw, r, err, "")
 		return
 	}
-	hosts, err := s.app.HistoricRepo.GetValuesForMetric(metricName, startTime, endTime)
+	duration := domain.HistoricMetricDurationFromTimes(startTime, endTime)
+	s.fetchAndRenderMetrics(rw, r, metricName, duration)
+}
+
+func (s *Server) getHistoricMetricValuesLastX(rw http.ResponseWriter, r *http.Request) {
+	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
+	lastX := chi.URLParam(r, "duration")
+	duration, err := domain.HistoricMetricDurationFromString(lastX)
+	if err != nil {
+		if errors.Is(err, domain.ErrLastXLookupMissingEntry) {
+			InternalError(rw, r, err)
+		} else {
+			BadRequest(rw, r, err, "")
+		}
+		return
+	}
+	s.fetchAndRenderMetrics(rw, r, metricName, duration)
+}
+
+func (s *Server) fetchAndRenderMetrics(
+	rw http.ResponseWriter,
+	r *http.Request,
+	metricName domain.MetricName,
+	duration domain.HistoricMetricDuration,
+) {
+	hosts, err := s.app.HistoricRepo.GetValuesForMetric(metricName, duration)
 	if err != nil {
 		InternalError(rw, r, err)
 		return

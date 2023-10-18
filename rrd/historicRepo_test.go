@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
@@ -324,8 +323,10 @@ func Test_GetValuesForHostAndMetric(t *testing.T) {
 			historicHost, err := repo.GetValuesForHostAndMetric(
 				domain.HostId(tt.hostId),
 				domain.MetricName(tt.metric),
-				time.Unix(tt.startTime, 0),
-				time.Unix(tt.endTime, 0),
+				domain.HistoricMetricDuration{
+					Start: fmt.Sprint(tt.startTime),
+					End:   fmt.Sprint(tt.endTime),
+				},
 			)
 
 			// Assertions

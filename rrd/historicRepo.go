@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
@@ -46,8 +45,7 @@ func NewHistoricRepo(logger zerolog.Logger, config config.RRD, dsmRepo domain.Da
 func (hr *historicRepo) GetValuesForHostAndMetric(
 	hostId domain.HostId,
 	metricName domain.MetricName,
-	startTime time.Time,
-	endTime time.Time,
+	fetchConfig domain.HistoricMetricDuration,
 ) (*domain.HistoricHost, error) {
 	dsm, ok := hr.dsmRepo.GetDSM(hostId)
 	if !ok {
@@ -58,7 +56,16 @@ func (hr *historicRepo) GetValuesForHostAndMetric(
 		DSM:     dsm,
 		Metrics: map[domain.MetricName][]*domain.HistoricMetric{},
 	}
-	metrics, err := hr.getMetricValues(dsm, metricName, startTime, endTime)
+	cmd := fetchCmdArgs{
+		clusterName: dsm.ClusterName,
+		hostName:    dsm.HostName,
+		metricName:  metricName,
+		alignStart:  true,
+		resolution:  fetchConfig.Resolution,
+		startTime:   fetchConfig.Start,
+		endTime:     fetchConfig.End,
+	}
+	metrics, err := hr.runFetchCmd(cmd)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +73,10 @@ func (hr *historicRepo) GetValuesForHostAndMetric(
 	return &host, nil
 }
 
-func (hr *historicRepo) GetValuesForMetric(metricName domain.MetricName, startTime, endTime time.Time) ([]*domain.HistoricHost, error) {
+func (hr *historicRepo) GetValuesForMetric(
+	metricName domain.MetricName,
+	fetchConfig domain.HistoricMetricDuration,
+) ([]*domain.HistoricHost, error) {
 	hosts := make([]*domain.HistoricHost, 0)
 	hostNames, err := hr.getHosts()
 	if err != nil {
@@ -83,17 +93,12 @@ func (hr *historicRepo) GetValuesForMetric(metricName domain.MetricName, startTi
 			hr.logger.Debug().Stringer("dsm", dsm).Msg("unknown host")
 			continue
 		}
-		host := domain.HistoricHost{
-			Id:      hostId,
-			DSM:     dsm,
-			Metrics: map[domain.MetricName][]*domain.HistoricMetric{},
-		}
-		metrics, err := hr.getMetricValues(dsm, metricName, startTime, endTime)
+		host, err := hr.GetValuesForHostAndMetric(hostId, metricName, fetchConfig)
 		if err != nil {
 			hr.logger.Error().Err(err).Stringer("dsm", dsm).Str("metric", string(metricName)).Msg("fetching metrics")
+			continue
 		}
-		host.Metrics[metricName] = metrics
-		hosts = append(hosts, &host)
+		hosts = append(hosts, host)
 	}
 	return hosts, nil
 }
@@ -150,30 +155,6 @@ func (hr *historicRepo) getMetricNames(dir string) ([]string, error) {
 	return metricNames, nil
 }
 
-func (hr *historicRepo) getMetricValues(
-	dsm domain.DSM,
-	metricName domain.MetricName,
-	startTime, endTime time.Time,
-) ([]*domain.HistoricMetric, error) {
-	rrdFileName := fmt.Sprintf("%s.rrd", metricName)
-	rrdFilePath := filepath.Join(hr.rrdDir, dsm.ClusterName, dsm.HostName, rrdFileName)
-	if _, err := os.Stat(rrdFilePath); errors.Is(err, os.ErrNotExist) {
-		return nil, domain.ErrMetricNotFound
-	}
-	cmd := exec.Command(
-		hr.rrdTool, "fetch", rrdFilePath, hr.consolidationFunction,
-		"-s", fmt.Sprintf("%d", startTime.Unix()),
-		"-e", fmt.Sprintf("%d", endTime.Unix()),
-	)
-	hr.logger.Debug().Str("cmd", cmd.String()).Msg("fetching metrics")
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, augmentError(err, hr.rrdTool, "executing")
-	}
-	hr.logger.Debug().Bytes("metrics", out).Msg("found metrics")
-	return hr.parseMetricValues(out), nil
-}
-
 func augmentError(err error, path, msg string) error {
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
@@ -183,6 +164,47 @@ func augmentError(err error, path, msg string) error {
 		return errors.Wrapf(exitErr, "%s: %s: %s", msg, path, exitErr.Stderr)
 	}
 	return errors.Wrap(err, msg)
+}
+
+type fetchCmdArgs struct {
+	clusterName string
+	hostName    string
+	metricName  domain.MetricName
+	alignStart  bool
+	resolution  string
+	startTime   string
+	endTime     string
+}
+
+func (hr *historicRepo) runFetchCmd(args fetchCmdArgs) ([]*domain.HistoricMetric, error) {
+	rrdFileName := fmt.Sprintf("%s.rrd", args.metricName)
+	rrdFilePath := filepath.Join(hr.rrdDir, args.clusterName, args.hostName, rrdFileName)
+	if _, err := os.Stat(rrdFilePath); errors.Is(err, os.ErrNotExist) {
+		return nil, domain.ErrMetricNotFound
+	}
+
+	cmd := exec.Command(
+		hr.rrdTool, "fetch", rrdFilePath, hr.consolidationFunction,
+	)
+	if args.alignStart {
+		cmd.Args = append(cmd.Args, "--align-start")
+	}
+	if args.resolution != "" {
+		cmd.Args = append(cmd.Args, "--resolution", args.resolution)
+	}
+	if args.startTime != "" {
+		cmd.Args = append(cmd.Args, "--start", args.startTime)
+	}
+	if args.endTime != "" {
+		cmd.Args = append(cmd.Args, "--end", args.endTime)
+	}
+	hr.logger.Debug().Str("cmd", cmd.String()).Msg("fetching metrics")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, augmentError(err, hr.rrdTool, "executing")
+	}
+	hr.logger.Debug().Bytes("metrics", out).Msg("found metrics")
+	return hr.parseMetricValues(out), nil
 }
 
 func (hr *historicRepo) parseMetricValues(input []byte) []*domain.HistoricMetric {
