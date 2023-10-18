@@ -13,18 +13,8 @@ BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
 # The name of the metric we are querying.
 METRIC=${1:-caffeine.level}
-
-if type ruby >/dev/null 2>&1 ; then
-	# If ruby is installed let's display the metrics for the last hour by
-	# default.  Not that the times are given as an integer number of seconds
-	# since the 1970-01-01-00:00:00 UTC.
-	START=${2:-$(ruby -e 'puts (Time.now.utc - 60*60).to_i')}
-	END=${3:-$(ruby -e 'puts (Time.now.utc).to_i')}
-else
-	START=${2:-1696431210}
-	END=${3:-1696431300}
-fi
-
+# The duration we are querying: last hour; last day or last quarter.
+DURATION=${2:-hour}
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -37,4 +27,14 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/metrics/${METRIC}/historic/${START}/${END}"
+  -X GET "${BASE_URL}/metrics/${METRIC}/historic/last/${DURATION}"
+
+# Instead of specifying the last hour/day/quarter, you can specify start and
+# end time stamps.
+#
+#  START=1696431210
+#  END=1696431300
+#  curl -s -k \
+#     -H 'Accept: application/json' \
+#     -H "Authorization: Bearer ${AUTH_TOKEN}" \
+#     -X GET "${BASE_URL}/metrics/${METRIC}/historic/${START}/${END}"
