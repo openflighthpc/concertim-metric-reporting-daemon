@@ -19,9 +19,9 @@ type historicValueResponse struct {
 	Value     any   `json:"value"`
 }
 
-// getHistoricMetricValues returns a JSON list of historic metric values for
-// all hosts that have reported the given metric between the given start and
-// end times.
+// getHistoricMetricValues returns a JSON list of historic metric values
+// between the given start and end times for all hosts that have reported the
+// given metric. end times.
 //
 //	[
 //	  {
@@ -52,6 +52,23 @@ func (s *Server) getHistoricMetricValues(rw http.ResponseWriter, r *http.Request
 	s.fetchAndRenderMetrics(rw, r, metricName, duration)
 }
 
+// getHistoricMetricValuesLastX returns a JSON list of historic metric values
+// in the last hour/day/quarter for all hosts that have reported the given
+// metric.
+//
+//	[
+//	  {
+//	    "id": "1",
+//	    "values": [
+//	      {
+//	        "timestamp": 1696431225,
+//	        "value": 9020
+//	      },
+//	      ...
+//	    ]
+//	  },
+//	  ...
+//	]
 func (s *Server) getHistoricMetricValuesLastX(rw http.ResponseWriter, r *http.Request) {
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
 	lastX := chi.URLParam(r, "duration")

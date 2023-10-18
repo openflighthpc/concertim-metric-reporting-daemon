@@ -220,6 +220,62 @@ reported the given metric in the most recent processing run.
 ]
 ```
 
+## `GET /metrics/<metric_name>/historic/last/<duration>`  List historic metric values for all devices for the last hour, day or quarter
+
+Returns a list containing the reported metric values in the last duration,
+where duration is one of hour, day or quarter. Every device that has ever
+reported this metric is included even if did not report any values in the given
+duration.  If a device has never reported this metric, it is not included.  If
+a device did not report a value at some points between the start and end times
+the value will be returned as `null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `duration` : `string` : The duration to consider.  One of `hour`, `day` or
+`quarter`.  Only metric values reported in the last `duration` are returned.
+
+### Response Parameters
+
+* `id` : `string` : The identifier for the device.
+* `values` : `array` : An array of historic values reported by this device for this metric.
+* `values.value` : `any` : The value of the metric recorded at the
+  corresponding timestamp, or `null` if no value was reported at that time stamp.
+* `values.timestamp` : `timestamp` : The time the corresponding value was
+  recorded as an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {
+    "id": "1",
+    "values": [
+      {"timestamp": 1696420533, "value": 12},
+      {"timestamp": 1696420548, "value": 9},
+      {"timestamp": 1696420518, "value": null},
+      {"timestamp": 1696420503, "value": 10}
+    ]
+  },
+  {
+    "id": "2",
+    "values": [
+      {"timestamp": 1696420533, "value": 7},
+      {"timestamp": 1696420548, "value": 5},
+      {"timestamp": 1696420518, "value": 9},
+      {"timestamp": 1696420503, "value": 12}
+    ]
+  }
+]
+```
+
+
 ## `GET /metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for all devices between the given start and end times
 
 Returns a list containing the reported metric values between the given start
@@ -323,6 +379,46 @@ the most recent processing run.
   }
 ]
 ```
+
+## `GET /devices/<device_id>/metrics/<metric_name>/historic/last/<duration>`  List historic metric values for a single device and metric for the last hour, day or quarter
+
+Returns a list containing the reported metric values in the last duration,
+where duration is one of hour, day or quarter. If the device has never reported
+this metric, a 404 response is returned.  If the device did not report a value
+at some points in the given duration the value will be returned as `null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `404 - Not Found`  The device has never reported this metric.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `device_id` : `string` : The concertim ID of the device for which metrics should be returned.
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `duration` : `string` : The duration to consider.  One of `hour`, `day` or
+`quarter`.  Only metric values reported in the last `duration` are returned.
+
+### Response Parameters
+
+* `value` : `any` : The value of the metric recorded at the corresponding
+  timestamp, or `null` if no value was reported at that time stamp.
+* `timestamp` : `timestamp` : The time the corresponding value was recorded as
+  an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {"timestamp": 1696420533, "value": 12},
+  {"timestamp": 1696420548, "value": 9},
+  {"timestamp": 1696420518, "value": null},
+  {"timestamp": 1696420503, "value": 10}
+]
+```
+
 
 ## `GET /devices/<device_id>/metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for a single device and metric between the given start and end times
 
