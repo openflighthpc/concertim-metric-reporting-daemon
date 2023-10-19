@@ -8,8 +8,9 @@ set -o pipefail
 CONCERTIM_HOST=${CONCERTIM_HOST:-command.concertim.alces-flight.com}
 BASE_URL=${BASE_URL:="https://${CONCERTIM_HOST}/mrd"}
 
-# This script lists the unique metrics that have been reported to the metric
-# daemon.
+# This script lists the current metrics that have been reported to the metric
+# daemon.  If a metric is reported by multiple hosts it will appear in the list
+# just once.
 
 # An auth token is required for creating metrics.  One can be generated with
 # the `ct-visualisation-app/docs/api/get-auth-token.sh` script and exported as
@@ -22,4 +23,4 @@ fi
 curl -s -k \
   -H 'Accept: application/json' \
   -H "Authorization: Bearer ${AUTH_TOKEN}" \
-  -X GET "${BASE_URL}/metrics/unique"
+  -X GET "${BASE_URL}/metrics/current"

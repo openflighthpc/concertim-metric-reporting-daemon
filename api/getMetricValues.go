@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -25,13 +26,15 @@ type metricValue struct {
 //	]
 func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
-	hosts := s.app.ResultRepo.HostsWithMetric(metricName)
-	if hosts == nil {
-		body := ErrorsPayload{
-			Status: http.StatusNotFound,
-			Errors: []*ErrorObject{{Title: "Metric Not Found", Detail: "Metric Not Found"}},
+	hosts, err := s.app.ResultRepo.HostsWithMetric(metricName)
+	if err != nil {
+		if errors.Is(err, domain.ErrWaitingOnProcessingRun) {
+			ServiceUnavailable(rw, r, err)
+		} else if errors.Is(err, domain.ErrMetricNotFound) {
+			NotFound(rw, r, err)
+		} else {
+			InternalError(rw, r, err)
 		}
-		renderJSON(body, http.StatusNotFound, rw)
 		return
 	}
 	body := []metricValue{}

@@ -3,11 +3,15 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-playground/locales/en"
@@ -15,6 +19,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"github.com/rs/zerolog/hlog"
 )
 
 var (
@@ -137,4 +142,58 @@ func renderJSON(body any, status int, rw http.ResponseWriter) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.WriteHeader(status)
 	rw.Write(buf.Bytes()) //nolint:errcheck
+}
+
+// A parseTimeError records a failed attempt to parse a time.
+type parseTimeError struct {
+	Input string
+	Err   error
+}
+
+// Error gives as a much detail as is sensible to provide to the user.
+func (e *parseTimeError) Error() string {
+	var msg string
+	var numErr *strconv.NumError
+	acceptedFormats := "It should be integer number of seconds since the unix epoch."
+	if errors.As(e.Err, &numErr) {
+		msg = fmt.Sprintf(
+			"Time format '%s' is not valid: %s. %s",
+			e.Input,
+			numErr.Unwrap().Error(),
+			acceptedFormats,
+		)
+	} else {
+		msg = fmt.Sprintf(
+			"Time format '%s' is not valid. %s",
+			e.Input,
+			acceptedFormats,
+		)
+	}
+	return msg
+}
+
+func (e *parseTimeError) Unwrap() error { return e.Err }
+
+// parseTime attempts to parse the given string to a time value. The only
+// accepted format is an interger number of seconds since the Unix epoch.  If
+// parsing fails, an error suitable for sending to the client is provided.
+func parseTime(timeString string) (time.Time, error) {
+	timeInt, err := strconv.ParseInt(timeString, 10, 64)
+	if err != nil {
+		return time.Time{}, &parseTimeError{Input: timeString, Err: err}
+	}
+	val := time.Unix(timeInt, 0)
+	return val, nil
+}
+
+func (s *Server) deprecated(next http.HandlerFunc) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		hlog.FromRequest(r).Info().
+			Str("method", r.Method).
+			Stringer("url", r.URL).
+			Str("referer", r.Referer()).
+			Str("user-agent", r.UserAgent()).
+			Msg("deprecated route")
+		next(rw, r)
+	}
 }

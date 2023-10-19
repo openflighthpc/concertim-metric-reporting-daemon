@@ -139,11 +139,10 @@ e.g.,
 
 # Retrieving metrics
 
-## `GET /metrics/unique`  List unique metrics
+## `GET /metrics/current`  List current metrics
 
-Lists all unique metrics found in the most recent processing run.  The
-uniqueness of a metric is determined on the metric's name, so if two devices
-report a metric, say, `load.one`, that will result in a single unique metric.
+Lists all current metrics found in the most recent processing run.  If a metric
+is reported by multiple devices it will appear in the output just once.
 
 ### Response Codes
 
@@ -184,7 +183,7 @@ report a metric, say, `load.one`, that will result in a single unique metric.
 ]
 ```
 
-## `GET /metrics/<metric_name>/values`  List metric value for all devices reporting that metric
+## `GET /metrics/<metric_name>/current`  List metric value for all devices reporting that metric
 
 Returns a list containing the reported metric value for all devices that
 reported the given metric in the most recent processing run.
@@ -195,6 +194,11 @@ reported the given metric in the most recent processing run.
 * `404 - Not Found`  The metric was not present in the last processing run or a processing run has not taken place yet.
 * `500 - Internal Server Error`  An unexpected error occurred.  This should not
   happen.
+* `503 - Service Unavailable`  A processing run has not taken place yet.
+
+### Request Parameters
+
+* `metric_name` : `string` : The name of the metric for which values should be returned.
 
 ### Response Parameters
 
@@ -213,6 +217,249 @@ reported the given metric in the most recent processing run.
     "id": "2",
     "value": 24
   }
+]
+```
+
+## `GET /metrics/<metric_name>/historic/last/<duration>`  List historic metric values for all devices for the last hour, day or quarter
+
+Returns a list containing the reported metric values in the last duration,
+where duration is one of hour, day or quarter. Every device that has ever
+reported this metric is included even if did not report any values in the given
+duration.  If a device has never reported this metric, it is not included.  If
+a device did not report a value at some points between the start and end times
+the value will be returned as `null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `duration` : `string` : The duration to consider.  One of `hour`, `day` or
+`quarter`.  Only metric values reported in the last `duration` are returned.
+
+### Response Parameters
+
+* `id` : `string` : The identifier for the device.
+* `values` : `array` : An array of historic values reported by this device for this metric.
+* `values.value` : `any` : The value of the metric recorded at the
+  corresponding timestamp, or `null` if no value was reported at that time stamp.
+* `values.timestamp` : `timestamp` : The time the corresponding value was
+  recorded as an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {
+    "id": "1",
+    "values": [
+      {"timestamp": 1696420533, "value": 12},
+      {"timestamp": 1696420548, "value": 9},
+      {"timestamp": 1696420518, "value": null},
+      {"timestamp": 1696420503, "value": 10}
+    ]
+  },
+  {
+    "id": "2",
+    "values": [
+      {"timestamp": 1696420533, "value": 7},
+      {"timestamp": 1696420548, "value": 5},
+      {"timestamp": 1696420518, "value": 9},
+      {"timestamp": 1696420503, "value": 12}
+    ]
+  }
+]
+```
+
+
+## `GET /metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for all devices between the given start and end times
+
+Returns a list containing the reported metric values between the given start
+time and end time.  Every device that has ever reported this metric is included
+even if did not report any values between the given times.  If a device has
+never reported this metric, it is not included.  If a device did not report a
+value at some points between the start and end times the value will be returned
+as `null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `start_time` : `timestamp` : The start of the time range formatted as an
+  integer number of seconds since the epoch (1970-01-01:00:00:00).
+* `end_time` : `timestamp` : Optional, defaults to the current time. The end of
+  the time range formatted as an integer number of seconds since the epoch
+  (1970-01-01:00:00:00).
+
+### Response Parameters
+
+* `id` : `string` : The identifier for the device.
+* `values` : `array` : An array of historic values reported by this device for this metric.
+* `values.value` : `any` : The value of the metric recorded at the
+  corresponding timestamp, or `null` if no value was reported at that time stamp.
+* `values.timestamp` : `timestamp` : The time the corresponding value was
+  recorded as an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {
+    "id": "1",
+    "values": [
+      {"timestamp": 1696420533, "value": 12},
+      {"timestamp": 1696420548, "value": 9},
+      {"timestamp": 1696420518, "value": null},
+      {"timestamp": 1696420503, "value": 10}
+    ]
+  },
+  {
+    "id": "2",
+    "values": [
+      {"timestamp": 1696420533, "value": 7},
+      {"timestamp": 1696420548, "value": 5},
+      {"timestamp": 1696420518, "value": 9},
+      {"timestamp": 1696420503, "value": 12}
+    ]
+  }
+]
+```
+
+## `GET /devices/<device_id>/metrics/current`  List all current metrics for the given device
+
+Returns a list containing all metrics value for the given device reported in
+the most recent processing run.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `404 - Not Found`  The metric was not present in the last processing run or a processing run has not taken place yet.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+* `503 - Service Unavailable`  A metric run has not yet taken place.
+
+### Request Parameters
+
+* `device_id` : `string` : The concertim ID of the device for which metrics should be returned.
+
+### Response Parameters
+
+* `id` : `string` : The identifier for this metric.
+* `name` : `string` : The name of the metric.
+* `units` : `string` : The units for this metric.  This is optional and could also be the empty string.
+* `nature` : `string` : The nature of the metric.  One of `volatile`, `string_and_time` or `constant`.
+* `value` : `any` : The value of this metric.
+
+### Response Example
+
+```
+[
+  {
+    "id": "caffeine.level",
+    "name": "caffeine.level",
+    "units": "",
+    "nature": "volatile",
+    "value": 20
+  },
+  {
+    "id": "caffeine.consumption",
+    "name": "caffeine.consumption",
+    "units": "mugs",
+    "nature": "volatile",
+    "value": 1.6228
+  }
+]
+```
+
+## `GET /devices/<device_id>/metrics/<metric_name>/historic/last/<duration>`  List historic metric values for a single device and metric for the last hour, day or quarter
+
+Returns a list containing the reported metric values in the last duration,
+where duration is one of hour, day or quarter. If the device has never reported
+this metric, a 404 response is returned.  If the device did not report a value
+at some points in the given duration the value will be returned as `null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `404 - Not Found`  The device has never reported this metric.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `device_id` : `string` : The concertim ID of the device for which metrics should be returned.
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `duration` : `string` : The duration to consider.  One of `hour`, `day` or
+`quarter`.  Only metric values reported in the last `duration` are returned.
+
+### Response Parameters
+
+* `value` : `any` : The value of the metric recorded at the corresponding
+  timestamp, or `null` if no value was reported at that time stamp.
+* `timestamp` : `timestamp` : The time the corresponding value was recorded as
+  an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {"timestamp": 1696420533, "value": 12},
+  {"timestamp": 1696420548, "value": 9},
+  {"timestamp": 1696420518, "value": null},
+  {"timestamp": 1696420503, "value": 10}
+]
+```
+
+
+## `GET /devices/<device_id>/metrics/<metric_name>/historic/<start_time>/<end_time>`  List historic metric values for a single device and metric between the given start and end times
+
+Returns a list containing the reported metric values between the given start
+time and end time for the specified device.  If the device has never reported
+this metric, a 404 response is returned.  If the device did not report a value
+at some points between the start and end times the value will be returned as
+`null`.
+
+### Response Codes
+
+* `200 - OK`  Request was successful.
+* `404 - Not Found`  The device has never reported this metric.
+* `500 - Internal Server Error`  An unexpected error occurred.  This should not
+  happen.
+
+### Request Parameters
+
+* `device_id` : `string` : The concertim ID of the device for which metrics should be returned.
+* `metric_name` : `string` : The name of the metric for which values should be returned.
+* `start_time` : `timestamp` : The start of the time range formatted as an
+  integer number of seconds since the epoch (1970-01-01:00:00:00).
+* `end_time` : `timestamp` : Optional, defaults to the current time. The end of
+  the time range formatted as an integer number of seconds since the epoch
+  (1970-01-01:00:00:00).
+
+### Response Parameters
+
+* `value` : `any` : The value of the metric recorded at the corresponding
+  timestamp, or `null` if no value was reported at that time stamp.
+* `timestamp` : `timestamp` : The time the corresponding value was recorded as
+  an integer number of seconds since the epoch (1970-01-01:00:00:00).
+
+### Response Example
+
+```
+[
+  {"timestamp": 1696420533, "value": 12},
+  {"timestamp": 1696420548, "value": 9},
+  {"timestamp": 1696420518, "value": null},
+  {"timestamp": 1696420503, "value": 10}
 ]
 ```
 

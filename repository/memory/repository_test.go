@@ -222,7 +222,7 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 
 	// Assertions
 	assert.Error(err)
-	assert.ErrorIs(err, domain.UnknownHost)
+	assert.ErrorIs(err, domain.ErrUnknownHost)
 }
 
 func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {

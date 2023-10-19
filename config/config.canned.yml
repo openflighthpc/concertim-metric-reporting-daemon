@@ -15,12 +15,23 @@ api:
   # The port to listen on.
   port: 3000
 
-  # Timeout for server to process a request.
+  # Timeouts for server to process a request.
+  #
+  # read_timeout limits the time that the server will spend waiting for the
+  # client to send its full request.
+  #
+  # write_timeout limits the time that the server will spend waiting for itself
+  # to finish serving the request.
+  #
+  # idle_timeout limits the time before the server reuses keep alive
+  # connections.
   #
   # Requires a number and unit, e.g., `60s` for sixty seconds or `1h10m20s` for
   # one hour ten minutes and twenty seconds.
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  timeout: 100ms
+  read_timeout: 100ms
+  write_timeout: 10s
+  idle_timeout: 120s
 
 # Configuration for the gangali data source server.
 gds:
@@ -30,18 +41,19 @@ gds:
   # The port to listen on.
   port: 8678
 
-  # The cluster name to use in the ganglia output.
-  clusterName: "unspecified"
+  # The cluster name to use in the ganglia output.  This should be the same as
+  # the retrieval.cluster_name and rrd.cluster_name settings.
+  cluster_name: "unspecified"
 
   # The source to use in the ganglia output.
-  metricSource: "ct-metric-reporting-daemon"
+  metric_source: "ct-metric-reporting-daemon"
 
   # The time in seconds that a host should remain "fresh" for.
   #
   # If the last metric for a host was reported more than `hostTTL` seconds
   # ago, the host and all of its metrics are considered stale and no longer
   # included in the metric stream.
-  hostTTL: 180
+  host_ttl: 180
 
 # Configuration for generating the data source map lookup.
 dsm:
@@ -92,12 +104,13 @@ retrieval:
   port: 8651
 
   # The ganglia grid from which to retrieve clusters.  All other grids are
-  # ignored.
-  gridName: "unspecified"
+  # ignored.  This should be the same as the rrd.grid_name setting.
+  grid_name: "unspecified"
 
   # The ganglia cluster from which to retrieve hosts.  All other clusters are
-  # ignored.
-  clusterName: "unspecified"
+  # ignored.  This should be the same as the gds.cluster_name and
+  # rrd.cluster_name settings.
+  cluster_name: "unspecified"
 
   # The metrics are periodically retrieved from the gmetad source. `frequency`
   # specifies the frequency of the periodic updating.
@@ -128,13 +141,38 @@ retrieval:
   # testdata: "./testdata/ganglia-small.xml"
   testdata: "./testdata/ganglia.xml"
 
-visualizerAPI:
-  authUrl: "https://localhost:9445/users/sign_in.json"
+# Configuration for accessing the Concertim Visualization App (aka Visualizer)
+# API.
+visualizer_api:
+  # The URL used for gaining an authentication token.
+  auth_url: "https://localhost:9445/users/sign_in.json"
+  # The authentication credentials.
   username: "admin"
   password: "admin"
+  # The URL used to obtain the data source maps.
   data_source_map_url: "https://localhost:9445/api/v1/data-source-maps"
   # If set to true skip all TLS certificate verification checks.
   skip_certificate_check: true
+
+# Configuration for retrieving historic metrics with RRDTool.  Currently, the
+# RRD files are created by Ganglia's Gmetad.  These values must be consistent
+# with how Gmetad has been configured.
+rrd:
+  # The ganglia grid from which to retrieve historic metrics.  All other grids
+  # are ignored.  This should be the same as the retrieval.grid_name setting.
+  grid_name: "unspecified"
+
+  # The ganglia cluster from which to retrieve historic hosts.  All other
+  # clusters are ignored.  This should be the same as the gds.cluster_name and
+  # retrieval.cluster_name settings.
+  cluster_name: "unspecified"
+
+  # Directory where the RRD files are stored.
+  # directory: /var/lib/ganglia/rrds/
+  directory: testdata/rrds/
+
+  # Path to the RRDTool executable.
+  rrd_tool_path: /usr/bin/rrdtool
 
 log_level: info
 shared_secret_file: "./testdata/secret.dev"

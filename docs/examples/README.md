@@ -87,15 +87,51 @@ will default to `1`.
 
 ## Metric querying API usage
 
-Get a list of unique metrics that were processed in the most recent processing run.
+Get a list of current metrics that were processed in the most recent processing run.
 
 ```
-./list-unique-metrics.sh
+./list-current-metrics.sh
 ```
 
-Get the values for all devices that reported a value for the given metric in
-the most recent processing run.  `METRIC_NAME` defaults to `caffeine.level`.
+Get a list of historic metrics.
 
 ```
-./list-metric-values.sh [METRIC_NAME]
+./list-historic-metrics.sh
+```
+
+Get the current values for all devices that reported a value for the given
+metric in the most recent processing run.  `METRIC_NAME` defaults to
+`caffeine.level`.
+
+```
+./list-current-metric-values.sh [METRIC_NAME]
+```
+
+Get the historic metric values for the last DURATION for all devices that have
+reported a value for the given metric.  `DURATION` defaults to `hour` (`day`
+and `quarter` are also valid). `METRIC_NAME` defaults to `caffeine.level`.  See
+the example script for how to specify arbitrary start and end times.
+
+```
+./list-historic-metric-values.sh [METRIC_NAME] [DURATION]
+```
+
+Get a list of current metrics for a single device.  `DEVICE_ID` defaults to `1`.
+
+```
+./list-current-device-metrics.sh [DEVICE_ID]
+```
+
+Get a list of historic metrics for a single device.  `DEVICE_ID` defaults to `1`.
+
+```
+./list-historic-device-metrics.sh [DEVICE_ID]
+```
+
+Get the historic metric values for the given device for the last DURATION.
+`DURATION` defaults to `hour` (`day` and `quarter` are also valid). `DEVICE_ID`
+defaults to `1`. `METRIC_NAME` defaults to `caffeine.level`.
+
+```
+./list-historic-device-metric-values.sh [DEVICE_ID] [METRIC_NAME] [DURATION]
 ```

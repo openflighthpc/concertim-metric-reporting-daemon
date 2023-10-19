@@ -112,6 +112,20 @@ type UniqueMetric struct {
 	Units    string
 }
 
+// HistoricHost is the domain model representing a single host loaded with its
+// historic metric values.
+type HistoricHost struct {
+	// The Concertim ID for the host.
+	Id      HostId
+	DSM     DSM
+	Metrics map[MetricName][]*HistoricMetric
+}
+
+type HistoricMetric struct {
+	Value     float64
+	Timestamp int64
+}
+
 // ErrInvalidMetricVal is used if the metric's value is not valid for its
 // type.
 var ErrInvalidMetricVal = fmt.Errorf("not a valid metric value")
@@ -152,4 +166,57 @@ func ParseMetricVal(val any, metricType MetricType) (string, error) {
 
 	}
 	return "", fmt.Errorf("%s is %w", val, ErrInvalidMetricVal)
+}
+
+// HistoricMetricDuration specifies a duration and resolution for
+// retrieving common historic metric sets.  E.g., last hour, last day, etc..
+type HistoricMetricDuration struct {
+	Start      string
+	End        string
+	Resolution string
+}
+
+// LastDuration describes a pre-defined duration for which metrics can be
+// retrieved.  E.g., last hour or last day.
+//
+// NOTE: When adding an entry to ENUM a corresponding entry must be present in
+// LastXLookup.
+//
+// ENUM(hour, day, quarter).
+type LastDuration string
+
+var LastXLookup map[LastDuration]HistoricMetricDuration = map[LastDuration]HistoricMetricDuration{
+	LastDurationHour:    {Start: "-1h", Resolution: "15s"},
+	LastDurationDay:     {Start: "-1d", Resolution: "5m"},
+	LastDurationQuarter: {Start: "-90d", Resolution: "1h"},
+}
+
+var ErrLastXLookupMissingEntry = fmt.Errorf("missing from lookup map")
+
+func HistoricMetricDurationFromString(duration string) (HistoricMetricDuration, error) {
+	lastDuration, err := ParseLastDuration(duration)
+	if err != nil {
+		return HistoricMetricDuration{}, err
+	}
+	if x, ok := LastXLookup[lastDuration]; ok {
+		return x, nil
+	}
+	return HistoricMetricDuration{}, fmt.Errorf("%s is %w", duration, ErrLastXLookupMissingEntry)
+}
+
+func HistoricMetricDurationFromTimes(startTime, endTime time.Time) HistoricMetricDuration {
+	var resolution string
+	duration := endTime.Sub(startTime)
+	if duration <= 1*time.Hour {
+		resolution = "15s"
+	} else if duration <= 24*time.Hour {
+		resolution = "5m"
+	} else {
+		resolution = "1h"
+	}
+	return HistoricMetricDuration{
+		Start:      fmt.Sprintf("%d", startTime.Unix()),
+		End:        fmt.Sprintf("%d", endTime.Unix()),
+		Resolution: resolution,
+	}
 }

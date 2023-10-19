@@ -19,24 +19,27 @@ type Config struct {
 	DSM              `yaml:"dsm"`
 	GDS              `yaml:"gds"`
 	Retrieval        `yaml:"retrieval"`
-	VisualizerAPI    `yaml:"visualizerAPI"`
+	VisualizerAPI    `yaml:"visualizer_api"`
+	RRD              `yaml:"rrd"`
 }
 
 // API is the configuration for the HTTP API component.
 type API struct {
-	IP        string        `yaml:"ip"`
-	JWTSecret []byte        `yaml:"-"`
-	Port      int           `yaml:"port"`
-	Timeout   time.Duration `yaml:"timeout"`
+	IP           string        `yaml:"ip"`
+	JWTSecret    []byte        `yaml:"-"`
+	Port         int           `yaml:"port"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IdleTimeout  time.Duration `yaml:"idle_timeout"`
 }
 
 // GDS is the configuration for the Ganglia Data Source server component.
 type GDS struct {
 	IP           string `yaml:"ip"`
-	ClusterName  string `yaml:"clusterName"`
+	ClusterName  string `yaml:"cluster_name"`
 	Port         int    `yaml:"port"`
-	MetricSource string `yaml:"metricSource"`
-	HostTTL      int    `yaml:"hostTTL"`
+	MetricSource string `yaml:"metric_source"`
+	HostTTL      int    `yaml:"host_ttl"`
 }
 
 // DSM is the configuration for the Data Source Map component.
@@ -49,9 +52,9 @@ type DSM struct {
 
 // Retrieval is the configuration for retrieving the ganglia XML.
 type Retrieval struct {
-	ClusterName     string        `yaml:"clusterName"`
+	ClusterName     string        `yaml:"cluster_name"`
 	Frequency       time.Duration `yaml:"frequency"`
-	GridName        string        `yaml:"gridName"`
+	GridName        string        `yaml:"grid_name"`
 	IP              string        `yaml:"ip"`
 	Port            int           `yaml:"port"`
 	PostGmetadDelay time.Duration `yaml:"post_gmetad_delay"`
@@ -60,12 +63,19 @@ type Retrieval struct {
 }
 
 type VisualizerAPI struct {
-	AuthUrl              string `yaml:"authUrl"`
+	AuthUrl              string `yaml:"auth_url"`
 	DataSourceMapUrl     string `yaml:"data_source_map_url"`
 	JWTSecret            []byte `yaml:"-"`
 	Password             string `yaml:"password"`
 	SkipCertificateCheck bool   `yaml:"skip_certificate_check"`
 	Username             string `yaml:"username"`
+}
+
+type RRD struct {
+	ClusterName string `yaml:"cluster_name"`
+	GridName    string `yaml:"grid_name"`
+	Directory   string `yaml:"directory"`
+	ToolPath    string `yaml:"rrd_tool_path"`
 }
 
 // DefaultPath is the path to the default config file.

@@ -26,25 +26,29 @@ type Server struct {
 	httpServer *http.Server
 	logger     zerolog.Logger
 	tokenAuth  *jwtauth.JWTAuth
+	Router     chi.Router
 }
 
 // NewServer returns an *http.Server configured as an API server.
 func NewServer(logger zerolog.Logger, app *domain.Application, config config.API) *Server {
-	return &Server{
+	server := Server{
 		app:       app,
 		config:    config,
 		logger:    logger.With().Str("component", "http-api").Logger(),
 		tokenAuth: jwtauth.New("HS256", config.JWTSecret, nil),
 	}
+	server.addRoutes()
+	return &server
 }
 
 // ListenAndServe runs the HTTP API server.
 func (s *Server) ListenAndServe() error {
 	server := http.Server{
 		Addr:         fmt.Sprintf("%s:%d", s.config.IP, s.config.Port),
-		ReadTimeout:  s.config.Timeout,
-		WriteTimeout: s.config.Timeout,
-		Handler:      s.addRoutes(),
+		ReadTimeout:  s.config.ReadTimeout,
+		WriteTimeout: s.config.WriteTimeout,
+		IdleTimeout:  s.config.IdleTimeout,
+		Handler:      s.Router,
 	}
 	s.httpServer = &server
 	s.logger.Info().Str("address", server.Addr).Msg("Listening")
@@ -58,6 +62,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 
 func (s *Server) addRoutes() chi.Router {
 	r := chi.NewRouter()
+	s.Router = r
 	r.Use(hlog.NewHandler(s.logger))
 	r.Use(logMiddleware())
 	r.Use(hlog.RemoteAddrHandler("ip"))
@@ -74,8 +79,20 @@ func (s *Server) addRoutes() chi.Router {
 		r.Put("/{deviceId}/metrics", s.putMetricHandler)
 	})
 
-	r.Get("/metrics/unique", s.getUniqueMetrics)
-	r.Get("/metrics/{metricName}/values", s.getMetricValues)
+	// Route to get metrics for a single device.
+	r.Get("/devices/{deviceId}/metrics/current", s.getCurrentHostMetrics)
+	r.Get("/devices/{deviceId}/metrics/historic", s.getHistoricHostMetricNames)
+	r.Get("/devices/{deviceId}/metrics/{metricName}/historic/last/{duration}", s.getHistoricHostMetricValuesLastX)
+	r.Get("/devices/{deviceId}/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricHostMetricValues)
+
+	// Routes to get metrics for all devices.
+	r.Get("/metrics/unique", s.deprecated(s.getUniqueMetrics))
+	r.Get("/metrics/current", s.getUniqueMetrics)
+	r.Get("/metrics/historic", s.getHistoricMetricNames)
+	r.Get("/metrics/{metricName}/historic/last/{duration}", s.getHistoricMetricValuesLastX)
+	r.Get("/metrics/{metricName}/historic/{startTime}/{endTime}", s.getHistoricMetricValues)
+	r.Get("/metrics/{metricName}/current", s.getMetricValues)
+	r.Get("/metrics/{metricName}/values", s.deprecated(s.getMetricValues))
 
 	return r
 }
@@ -106,7 +123,7 @@ func (s *Server) putMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = s.app.AddMetric(metric, domain.HostId(chi.URLParam(r, "deviceId")))
-	if errors.Is(err, domain.UnknownHost) {
+	if errors.Is(err, domain.ErrUnknownHost) {
 		body := ErrorsPayload{
 			Status: http.StatusNotFound,
 			Errors: []*ErrorObject{{Title: "Host Not Found", Detail: err.Error()}},

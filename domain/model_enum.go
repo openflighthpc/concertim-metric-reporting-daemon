@@ -12,6 +12,71 @@ import (
 )
 
 const (
+	// LastDurationHour is a LastDuration of type hour.
+	LastDurationHour LastDuration = "hour"
+	// LastDurationDay is a LastDuration of type day.
+	LastDurationDay LastDuration = "day"
+	// LastDurationQuarter is a LastDuration of type quarter.
+	LastDurationQuarter LastDuration = "quarter"
+)
+
+var ErrInvalidLastDuration = fmt.Errorf("not a valid LastDuration, try [%s]", strings.Join(_LastDurationNames, ", "))
+
+var _LastDurationNames = []string{
+	string(LastDurationHour),
+	string(LastDurationDay),
+	string(LastDurationQuarter),
+}
+
+// LastDurationNames returns a list of possible string values of LastDuration.
+func LastDurationNames() []string {
+	tmp := make([]string, len(_LastDurationNames))
+	copy(tmp, _LastDurationNames)
+	return tmp
+}
+
+// String implements the Stringer interface.
+func (x LastDuration) String() string {
+	return string(x)
+}
+
+// IsValid provides a quick way to determine if the typed value is
+// part of the allowed enumerated values
+func (x LastDuration) IsValid() bool {
+	_, err := ParseLastDuration(string(x))
+	return err == nil
+}
+
+var _LastDurationValue = map[string]LastDuration{
+	"hour":    LastDurationHour,
+	"day":     LastDurationDay,
+	"quarter": LastDurationQuarter,
+}
+
+// ParseLastDuration attempts to convert a string to a LastDuration.
+func ParseLastDuration(name string) (LastDuration, error) {
+	if x, ok := _LastDurationValue[name]; ok {
+		return x, nil
+	}
+	return LastDuration(""), fmt.Errorf("%s is %w", name, ErrInvalidLastDuration)
+}
+
+// MarshalText implements the text marshaller method.
+func (x LastDuration) MarshalText() ([]byte, error) {
+	return []byte(string(x)), nil
+}
+
+// UnmarshalText implements the text unmarshaller method.
+func (x *LastDuration) UnmarshalText(text []byte) error {
+	tmp, err := ParseLastDuration(string(text))
+	if err != nil {
+		return err
+	}
+	*x = tmp
+	return nil
+}
+
+const (
 	// MetricSlopeZero is a MetricSlope of type zero.
 	MetricSlopeZero MetricSlope = "zero"
 	// MetricSlopePositive is a MetricSlope of type positive.

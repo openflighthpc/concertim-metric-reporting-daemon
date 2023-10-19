@@ -95,26 +95,48 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 	// pr.numMetrics++
 }
 
-func (pr *ProcessedRepository) GetUniqueMetrics() []domain.UniqueMetric {
+func (pr *ProcessedRepository) GetUniqueMetrics() ([]*domain.UniqueMetric, error) {
 	if pr.result == nil {
-		return nil
+		return nil, domain.ErrWaitingOnProcessingRun
 	}
-	metrics := make([]domain.UniqueMetric, 0, len(pr.result.uniqueMetrics))
+	metrics := make([]*domain.UniqueMetric, 0, len(pr.result.uniqueMetrics))
 	for _, metric := range pr.result.uniqueMetrics {
-		metrics = append(metrics, *metric)
+		metrics = append(metrics, metric)
 	}
-	return metrics
+	return metrics, nil
 }
 
-func (pr *ProcessedRepository) HostsWithMetric(metric domain.MetricName) []*domain.ProcessedHost {
+func (pr *ProcessedRepository) HostsWithMetric(metric domain.MetricName) ([]*domain.ProcessedHost, error) {
 	if pr.result == nil {
-		return nil
+		return nil, domain.ErrWaitingOnProcessingRun
 	}
 	hosts, ok := pr.result.hostsByMetric[domain.MetricName(metric)]
 	if !ok {
-		return nil
+		return nil, domain.ErrMetricNotFound
 	}
-	return hosts
+	return hosts, nil
+}
+
+func (pr *ProcessedRepository) GetMetricsForHost(hostId domain.HostId) ([]*domain.ProcessedMetric, error) {
+	if pr.result == nil {
+		return nil, domain.ErrWaitingOnProcessingRun
+	}
+	var host *domain.ProcessedHost
+	for _, candidate := range pr.result.hosts {
+		if hostId == candidate.Id {
+			host = candidate
+			break
+		}
+	}
+	if host == nil {
+		return nil, domain.ErrHostNotFound
+	}
+	metrics := make([]*domain.ProcessedMetric, 0, len(host.Metrics))
+	for _, metric := range host.Metrics {
+		metric := metric
+		metrics = append(metrics, &metric)
+	}
+	return metrics, nil
 }
 
 func uniqueMetricFromMetric(src domain.ProcessedMetric) *domain.UniqueMetric {

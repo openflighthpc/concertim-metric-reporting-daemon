@@ -4,9 +4,12 @@ import (
 	"errors"
 )
 
-// UnknownHost is the error reported when an attempt to add a metric to an
+// ErrUnknownHost is the error reported when an attempt to add a metric to an
 // unknown host is made.
-var UnknownHost = errors.New("Unknown host")
+var ErrUnknownHost = errors.New("Unknown host")
+var ErrWaitingOnProcessingRun = errors.New("Waiting on metric processing run")
+var ErrHostNotFound = errors.New("Host not found")
+var ErrMetricNotFound = errors.New("Metric not found")
 
 // ReportedRepository is the interface for storing reported metrics.
 type ReportedRepository interface {
@@ -59,11 +62,13 @@ type ProcessedRepository interface {
 	// GetUniqueMetrics returns a slice of the unique metrics found in the
 	// last processing run.  The uniqueness of a metric is determined by
 	// its name.
-	// XXX GetUniqueMetrics() []*UniqueMetric
-	GetUniqueMetrics() []UniqueMetric
+	GetUniqueMetrics() ([]*UniqueMetric, error)
+	// GetMetricsForHost returns the metrics reported by the given host in the
+	// most recent processing run.
+	GetMetricsForHost(hostId HostId) ([]*ProcessedMetric, error)
 	// HostsWithMetric returns a slice of ProcessedHosts that had the given
 	// metric in the last processing run.
-	HostsWithMetric(metricName MetricName) []*ProcessedHost
+	HostsWithMetric(metricName MetricName) ([]*ProcessedHost, error)
 	// Begin records the start of a processing run.
 	Begin() error
 	// Commit commits the results of a processing run.
@@ -72,4 +77,20 @@ type ProcessedRepository interface {
 	AddHost(host *ProcessedHost)
 	// AddMetric records the presence of a metric in the current processing run.
 	AddMetric(host *ProcessedHost, metric *ProcessedMetric)
+}
+
+// HistoricRepository is the interface for storing and retrieving historic
+// metrics.
+type HistoricRepository interface {
+	// GetValuesForMetric returns all historic values for all hosts that
+	// reported the metric in the given duration.
+	GetValuesForMetric(metricName MetricName, lastConfig HistoricMetricDuration) ([]*HistoricHost, error)
+	// GetValuesForHostAndMetric returns all historic values for the given host
+	// and metric between the given duration.
+	GetValuesForHostAndMetric(hostId HostId, metricName MetricName, lastConfig HistoricMetricDuration) (*HistoricHost, error)
+	// ListMetricNames lists all historic metric names for all hosts.  If a
+	// metric is reported for more than one host it will only be included once.
+	ListMetricNames() ([]string, error)
+	// ListHostMetricNames lists all historic metric names for the given hosts.
+	ListHostMetricNames(hostId HostId) ([]string, error)
 }

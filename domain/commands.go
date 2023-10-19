@@ -39,7 +39,7 @@ func (app *Application) addHost(hostId HostId) (ReportedHost, error) {
 		dsm, ok = app.dsmRepo.GetDSM(hostId)
 	}
 	if !ok {
-		return ReportedHost{}, fmt.Errorf("%w: %s", UnknownHost, hostId)
+		return ReportedHost{}, fmt.Errorf("%w: %s", ErrUnknownHost, hostId)
 	}
 	host := ReportedHost{
 		Id:       hostId,
