@@ -15,12 +15,23 @@ api:
   # The port to listen on.
   port: 3000
 
-  # Timeout for server to process a request.
+  # Timeouts for server to process a request.
+  #
+  # read_timeout limits the time that the server will spend waiting for the
+  # client to send its full request.
+  #
+  # write_timeout limits the time that the server will spend waiting for itself
+  # to finish serving the request.
+  #
+  # idle_timeout limits the time before the server reuses keep alive
+  # connections.
   #
   # Requires a number and unit, e.g., `60s` for sixty seconds or `1h10m20s` for
   # one hour ten minutes and twenty seconds.
   # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  timeout: 100ms
+  read_timeout: 100ms
+  write_timeout: 10s
+  idle_timeout: 120s
 
 # Configuration for the gangali data source server.
 gds:

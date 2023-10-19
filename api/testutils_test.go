@@ -12,10 +12,12 @@ import (
 )
 
 var testAPIConfig = config.API{
-	IP:        "127.0.0.1",
-	JWTSecret: []byte("secret"),
-	Port:      3000,
-	Timeout:   50,
+	IP:           "127.0.0.1",
+	JWTSecret:    []byte("secret"),
+	Port:         3000,
+	ReadTimeout:  50,
+	WriteTimeout: 50,
+	IdleTimeout:  50,
 }
 
 type fakeDSMRepo struct{}

@@ -25,10 +25,12 @@ type Config struct {
 
 // API is the configuration for the HTTP API component.
 type API struct {
-	IP        string        `yaml:"ip"`
-	JWTSecret []byte        `yaml:"-"`
-	Port      int           `yaml:"port"`
-	Timeout   time.Duration `yaml:"timeout"`
+	IP           string        `yaml:"ip"`
+	JWTSecret    []byte        `yaml:"-"`
+	Port         int           `yaml:"port"`
+	ReadTimeout  time.Duration `yaml:"read_timeout"`
+	WriteTimeout time.Duration `yaml:"write_timeout"`
+	IdleTimeout  time.Duration `yaml:"idle_timeout"`
 }
 
 // GDS is the configuration for the Ganglia Data Source server component.

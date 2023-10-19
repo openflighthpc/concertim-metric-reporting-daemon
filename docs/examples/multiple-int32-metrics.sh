@@ -55,6 +55,9 @@ report_metric() {
 declare -A metrics=(
   [caffeine.level]=$(shuf -i 12-24 -n 1)
   [power.level]=$(shuf -i 8900-9100 -n 1)
+  [load.1]=$(shuf -i 0-5 -n 1)
+  [load.5]=$(shuf -i 0-5 -n 1)
+  [load.15]=$(shuf -i 0-5 -n 1)
 )
 
 for m in "${!metrics[@]}" ; do
