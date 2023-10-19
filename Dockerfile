@@ -10,6 +10,9 @@ COPY . /app
 RUN make clean
 RUN make ct-metric-reporting-daemon
 
+RUN go install github.com/cosmtrek/air@latest
+RUN echo $(go env)
+
 ###################################
 # Run the tests in the container
 FROM build-stage AS run-tests
@@ -36,7 +39,7 @@ LABEL com.alces-flight.concertim.role=metrics com.alces-flight.concertim.version
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
-	     rrdtool \
+         rrdtool \
          gmetad \
     && apt-get clean \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
@@ -53,3 +56,5 @@ COPY --from=build-stage /app/docker/entrypoint.sh /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 3000
+
+COPY --from=build-stage /go/bin/air /bin/air
