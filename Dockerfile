@@ -10,9 +10,6 @@ COPY . /app
 RUN make clean
 RUN make ct-metric-reporting-daemon
 
-RUN go install github.com/cosmtrek/air@latest
-RUN echo $(go env)
-
 ###################################
 # Run the tests in the container
 FROM build-stage AS run-tests
@@ -56,5 +53,3 @@ COPY --from=build-stage /app/docker/entrypoint.sh /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 3000
-
-COPY --from=build-stage /go/bin/air /bin/air
