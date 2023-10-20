@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -92,11 +93,27 @@ func FromFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("loading config from %s", path))
 	}
-	secret, err := ioutil.ReadFile(config.SharedSecretFile)
+	secret, err := jwtSecret(config.SharedSecretFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading shared secret")
 	}
-	config.API.JWTSecret = bytes.TrimRight(secret, "\n")
-	config.VisualizerAPI.JWTSecret = bytes.TrimRight(secret, "\n")
+	config.API.JWTSecret = secret
+	config.VisualizerAPI.JWTSecret = secret
 	return &config, nil
+}
+
+func jwtSecret(defaultFile string) ([]byte, error) {
+	fromEnvVar := os.Getenv("JWT_SECRET")
+	if fromEnvVar != "" {
+		return []byte(fromEnvVar), nil
+	}
+	file := os.Getenv("JWT_SECRET_FILE")
+	if file == "" {
+		file = defaultFile
+	}
+	secret, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "error reading shared secret")
+	}
+	return bytes.TrimRight(secret, "\n"), nil
 }
