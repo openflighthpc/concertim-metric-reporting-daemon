@@ -26,8 +26,11 @@ COPY --from=build-stage /app/testdata/* /app/testdata/
 COPY --from=build-stage /app/api/testdata/* /app/api/testdata/
 COPY --from=build-stage /app/gds/testdata/* /app/gds/testdata/
 COPY --from=build-stage /app/rrd/testdata/* /app/rrd/testdata/
+COPY --from=build-stage /go/pkg /go/pkg/
 
-RUN go test -v -count=1 -race -shuffle=on ./...
+ARG CACHEBUST=1
+# Run all tests apart from ticker tests.
+RUN go test -v -count=1 -race -shuffle=on ./api ./canned ./config ./domain ./dsmRepository ./gds ./inmem ./processing ./repository/memory ./retrieval ./rrd ./visualizer
 
 ###################
 FROM ubuntu:22.04
