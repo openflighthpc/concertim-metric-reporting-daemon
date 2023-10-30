@@ -55,4 +55,5 @@ COPY --from=build-stage /app/docker/gmetad.conf /etc/ganglia/gmetad.conf
 COPY --from=build-stage /app/docker/entrypoint.sh /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
 
+ENV PORT=3000
 EXPOSE 3000
