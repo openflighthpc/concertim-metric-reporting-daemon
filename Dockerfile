@@ -34,7 +34,15 @@ RUN go test -v -count=1 -race -shuffle=on ./api ./canned ./config ./domain ./dsm
 
 ###################
 FROM ubuntu:22.04
-LABEL com.alces-flight.concertim.role=metrics com.alces-flight.concertim.version=0.6.0-dev
+
+ARG BUILD_DATE
+ARG BUILD_VERSION
+ARG BUILD_REVISION
+
+LABEL org.opencontainers.image.created=$BUILD_DATE
+LABEL org.opencontainers.image.version=$BUILD_VERSION
+LABEL org.opencontainers.image.revision=$BUILD_REVISION
+LABEL org.opencontainers.image.title="Alces Concertim Metric Reporting Daemon"
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
