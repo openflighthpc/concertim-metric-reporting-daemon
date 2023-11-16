@@ -80,7 +80,7 @@ WORKDIR /app
 COPY --from=build /app/ct-metric-reporting-daemon /app/ct-metric-reporting-daemon
 COPY --from=build /app/config/*.yml /app/config/
 COPY --from=build /app/docker/gmetad.conf /etc/ganglia/gmetad.conf
-COPY --from=build /app/docker/entrypoint.sh /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+COPY --from=build /app/docker/entrypoint.sh /app/docker/entrypoint.sh
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
 
 EXPOSE 3000
