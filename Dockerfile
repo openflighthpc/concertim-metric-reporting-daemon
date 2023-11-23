@@ -2,7 +2,7 @@
 
 ###################################
 # Build the application from source
-FROM golang:1.18 AS build
+FROM golang:1.21 AS build
 
 WORKDIR /app
 COPY . /app
