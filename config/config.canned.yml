@@ -74,21 +74,6 @@ dsm:
   frequency: 30s
   throttle: 10s
 
-  # Estimate of how long it takes for the updater to run.
-  #
-  # If the DSM needs updating outside of its periodic updating, (for instance
-  # when receiving a request to report a metric), the updating goroutine sleeps
-  # for this duration and assumes that the update will have completed in that
-  # duration.
-  #
-  # This adds a delay of `duration` to API calls to report a metric when the
-  # host is not yet known.
-  #
-  # If this values is too small, it may temporarily result in metrics being
-  # incorrectly rejected due to an unknown host.  Those metrics will eventually
-  # be accepted.
-  duration: 75ms
-
   # If this values is given and is not an empty string, the data source map
   # will be read from this file instead of polling the Concertim Visualisation
   # App. Relative paths are relative to the working directory of the running

@@ -11,10 +11,10 @@ import (
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/net/html/charset"
+	"golang.org/x/time/rate"
 )
 
 type xmlRetriever interface {
@@ -31,16 +31,24 @@ type xmlRetriever interface {
 // Its config contains the source of the ganglia data to retrieve and the
 // period with which to retrieve it.
 type Poller struct {
-	Ticker       *ticker.Ticker
+	Ticker       *time.Ticker
 	config       config.Retrieval
 	dsmRepo      domain.DataSourceMapRepository
 	dsmUpdater   domain.DataSourceMapRepoUpdater
+	hostsChan    chan<- []*domain.ProcessedHost
+	limiter      rate.Sometimes
 	logger       zerolog.Logger
 	xmlRetriever xmlRetriever
 }
 
 // New returns a new Poller.
-func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSourceMapRepository, dsmUpdater domain.DataSourceMapRepoUpdater) (*Poller, error) {
+func New(
+	logger zerolog.Logger,
+	config config.Retrieval,
+	dsmRepo domain.DataSourceMapRepository,
+	dsmUpdater domain.DataSourceMapRepoUpdater,
+	hostsChan chan<- []*domain.ProcessedHost,
+) (*Poller, error) {
 	logger = logger.With().Str("component", "metric-retriever").Logger()
 	xmlRetriever, err := getXMLRetriver(logger, config)
 	if err != nil {
@@ -48,19 +56,28 @@ func New(logger zerolog.Logger, config config.Retrieval, dsmRepo domain.DataSour
 	}
 
 	return &Poller{
+		Ticker:       time.NewTicker(config.Frequency),
 		config:       config,
 		dsmRepo:      dsmRepo,
 		dsmUpdater:   dsmUpdater,
+		hostsChan:    hostsChan,
+		limiter:      rate.Sometimes{First: 1, Interval: config.Throttle},
 		logger:       logger,
-		Ticker:       ticker.NewTicker(config.Frequency, config.Throttle),
 		xmlRetriever: xmlRetriever,
 	}, nil
 }
 
 // Start periodically retrieves the ganglia XML, parses it and sends the
 // results to the hostsChan channel.
-func (p *Poller) Start(hostsChan chan<- []*domain.ProcessedHost) {
-	oneLoop := func() {
+func (p *Poller) Start() {
+	for {
+		<-p.Ticker.C
+		p.PollOnce()
+	}
+}
+
+func (p *Poller) PollOnce() {
+	p.limiter.Do(func() {
 		p.dsmUpdater.UpdateNow()
 		xml, err := p.xmlRetriever.retrieve()
 		if err != nil {
@@ -74,12 +91,8 @@ func (p *Poller) Start(hostsChan chan<- []*domain.ProcessedHost) {
 		}
 		p.logRetrieved(xml, grids)
 		hosts := p.extractHosts(grids)
-		hostsChan <- hosts
-	}
-	for {
-		<-p.Ticker.C
-		oneLoop()
-	}
+		p.hostsChan <- hosts
+	})
 }
 
 func (p *Poller) parseXML(gangliaXML []byte) ([]Grid, error) {

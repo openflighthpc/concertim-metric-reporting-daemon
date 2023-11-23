@@ -49,8 +49,7 @@ COPY --from=build /app/rrd/testdata/* /app/rrd/testdata/
 COPY --from=build /go/pkg /go/pkg/
 
 ARG CACHEBUST=1
-# Run all tests apart from ticker tests.
-RUN go test -v -count=1 -race -shuffle=on ./api ./canned ./config ./domain ./dsmRepository ./gds ./inmem ./processing ./repository/memory ./retrieval ./rrd ./visualizer
+RUN go test -v -count=1 -race -shuffle=on ./...
 
 ###################
 FROM ubuntu:22.04

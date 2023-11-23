@@ -65,21 +65,6 @@ dsm:
   frequency: 30s
   throttle: 5s
 
-  # Estimate of how long it takes for the updater to run.
-  #
-  # If the DSM needs updating outside of its periodic updating, (for instance
-  # when receiving a request to report a metric), the updating goroutine sleeps
-  # for this duration and assumes that the update will have completed in that
-  # duration.
-  #
-  # This adds a delay of `duration` to API calls to report a metric when the
-  # host is not yet known.
-  #
-  # If this values is too small, it may temporarily result in metrics being
-  # incorrectly rejected due to an unknown host.  Those metrics will eventually
-  # be accepted.
-  duration: 75ms
-
 # Configuration for retrieving metrics from gmetad.
 retrieval:
   # The IP address, or hostname, of the gmetad server to poll for metrics.
