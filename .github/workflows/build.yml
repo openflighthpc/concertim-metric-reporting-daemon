@@ -15,7 +15,7 @@ on:
         required: false
         type: boolean
 
-name: Build
+name: Build, lint and test
 jobs:
   build:
     name: Build
@@ -25,9 +25,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        # go: ['1.18.x', 'stable', 'oldstable']
+        # go: ['stable', 'oldstable']
         # os: ['ubuntu-22.04', 'ubuntu-latest']
-        go-version: [1.18.x, 1.19.x]
+        go-version: [1.20.x, 1.21.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -39,12 +39,6 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           check-latest: true
-
-      - name: Go Format
-        run: gofmt -s -w . && git diff --exit-code
-
-      - name: Go Vet
-        run: go vet ./...
 
       - name: Go Tidy
         run: go mod tidy && git diff --exit-code
@@ -71,6 +65,24 @@ jobs:
       - name: Go Build
         run: go build -o /dev/null ./...
 
+  test:
+    name: Test
+    needs: build
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+
+    strategy:
+      fail-fast: true
+      matrix:
+        # go: ['stable', 'oldstable']
+        # os: ['ubuntu-22.04', 'ubuntu-latest']
+        go-version: [1.20.x, 1.21.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
       - name: Install test dependencies
         run: sudo apt-get -y install rrdtool
 
@@ -87,9 +99,6 @@ jobs:
         if: ${{ !inputs.skipTests }}
         run: go test -v -shuffle=on -run=- -bench=. -benchtime=1x ./...
 
-      - name: Check makefile
-        run: make && make clean
-
       # - name: Upload Coverage
       #   if: ${{ !inputs.skipTests }}
       #   uses: codecov/codecov-action@v3
@@ -98,3 +107,50 @@ jobs:
       #     token: ${{secrets.CODECOV_TOKEN}}
       #     file: ./coverage.txt
       #     fail_ci_if_error: false
+
+  checks:
+    name: Check Makefile and Dockerfile
+    needs: build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: true
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Check makefile
+        run: make && make clean
+
+      - name: Check Dockerfile
+        run: docker build .
+
+  linters:
+    name: Run linters et al
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.x
+          cache: false
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          # Optional: golangci-lint command line arguments.
+          #args:
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          only-new-issues: true
+
+      - name: Go Format
+        run: gofmt -s -w . && git diff --exit-code
+
+      - name: Go Vet
+        run: go vet ./...

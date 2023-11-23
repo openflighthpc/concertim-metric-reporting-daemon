@@ -1,6 +1,6 @@
 module github.com/alces-flight/concertim-metric-reporting-daemon
 
-go 1.18
+go 1.20
 
 require (
 	github.com/go-chi/chi/v5 v5.0.10
