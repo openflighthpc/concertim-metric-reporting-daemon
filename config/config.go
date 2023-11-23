@@ -4,7 +4,6 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -84,7 +83,7 @@ const DefaultPath string = "/opt/concertim/opt/ct-metric-reporting-daemon/config
 
 // FromFile parses the given file path and returns a Config.
 func FromFile(path string) (*Config, error) {
-	data, err := ioutil.ReadFile(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "loading config")
 	}
@@ -111,7 +110,7 @@ func jwtSecret(defaultFile string) ([]byte, error) {
 	if file == "" {
 		file = defaultFile
 	}
-	secret, err := ioutil.ReadFile(file)
+	secret, err := os.ReadFile(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "error reading shared secret")
 	}

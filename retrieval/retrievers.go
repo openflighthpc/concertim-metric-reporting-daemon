@@ -3,8 +3,8 @@ package retrieval
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
@@ -18,7 +18,7 @@ type fileRetreiver struct {
 
 func (r *fileRetreiver) retrieve() ([]byte, error) {
 	r.logger.Debug().Str("path", r.path).Msg("retrieving xml")
-	gangliaXML, err := ioutil.ReadFile(r.path)
+	gangliaXML, err := os.ReadFile(r.path)
 	if err != nil {
 		return nil, errors.Wrap(err, "reading canned xml file")
 	}

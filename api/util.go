@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -96,7 +95,7 @@ func valueIsValidType(sl validator.StructLevel) {
 // If an error is encountered either a 400 bad request or a 422 unprocessable
 // entity response is written and an error returned.
 func parseJSONBody(params any, rw http.ResponseWriter, r *http.Request) error {
-	defer io.Copy(ioutil.Discard, r.Body) //nolint:errcheck
+	defer io.Copy(io.Discard, r.Body) //nolint:errcheck
 	err := json.NewDecoder(r.Body).Decode(params)
 	if err != nil {
 		BadRequest(rw, r, err, "error parsing JSON body")

@@ -2,7 +2,7 @@ package canned
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
@@ -20,7 +20,7 @@ type DSMRetriever struct {
 
 func (j *DSMRetriever) GetDSM() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.HostId, error) {
 	j.Logger.Debug().Str("path", j.Path).Msg("retrieving canned DSM json")
-	data, err := ioutil.ReadFile(j.Path)
+	data, err := os.ReadFile(j.Path)
 	if err != nil {
 		msg := "reading JSON file"
 		if !strings.Contains(err.Error(), j.Path) {
