@@ -2,8 +2,9 @@
 package processing
 
 import (
+	"slices"
+
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
@@ -18,26 +19,34 @@ import (
 //
 // These views are stored in the given domain.ProcessedRepository.
 type Processor struct {
-	resultRepo domain.ProcessedRepository
-	logger     zerolog.Logger
+	historicRepo domain.HistoricRepository
+	logger       zerolog.Logger
+	resultRepo   domain.ProcessedRepository
 }
 
 // NewProcessor returns a new *Processor.
-func NewProcessor(resultRepo domain.ProcessedRepository, logger zerolog.Logger) *Processor {
+func NewProcessor(
+	resultRepo domain.ProcessedRepository,
+	historicRepo domain.HistoricRepository,
+	logger zerolog.Logger,
+) *Processor {
 	return &Processor{
-		resultRepo: resultRepo,
-		logger:     logger.With().Str("component", "processor").Logger(),
+		historicRepo: historicRepo,
+		logger:       logger.With().Str("component", "processor").Logger(),
+		resultRepo:   resultRepo,
 	}
 }
 
 // Process the provided hosts to produce the expected views and store them in
 // resultRepo.
-func (p *Processor) Process(hosts []*domain.ProcessedHost) error {
-	stats := processStats{}
+func (p *Processor) Process(hosts []*domain.ProcessedHost) {
+	stats := processLogStats{}
+	summaries := newMetricSummaries()
 	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")
 	err := p.resultRepo.Begin()
 	if err != nil {
-		return errors.Wrap(err, "starting transaction")
+		p.logger.Error().Err(err).Msg("starting transaction")
+		return
 	}
 
 	for _, host := range hosts {
@@ -53,22 +62,34 @@ func (p *Processor) Process(hosts []*domain.ProcessedHost) error {
 				Str("metric", metric.Name).
 				Msg("processing metric")
 			p.resultRepo.AddMetric(host, &metric)
+			if slices.Contains(domain.NumericMetricTypes, metric.Datatype) {
+				if err := p.historicRepo.UpdateMetric(host, &metric); err != nil {
+					p.logger.Warn().Err(err).Msg("updating historic repo")
+				}
+				if err = summaries.AddMetric(metric); err != nil {
+					p.logger.Warn().Err(err).Msg("consolidating metric")
+				}
+			}
 		}
 		p.resultRepo.AddHost(host)
 	}
+	err = p.historicRepo.UpdateSummaryMetrics(summaries)
+	if err != nil {
+		p.logger.Error().Err(err).Msg("writing consolidated metrics")
+	}
 	err = p.resultRepo.Commit()
 	if err != nil {
-		return errors.Wrap(err, "committing transaction")
+		p.logger.Error().Err(err).Msg("committing transaction")
+		return
 	}
 	um, err := p.resultRepo.GetUniqueMetrics()
 	if err == nil {
 		stats.numUniqueMetrics = len(um)
 	}
 	logProcessResults(p.logger, stats)
-	return nil
 }
 
-func logProcessResults(logger zerolog.Logger, stats processStats) {
+func logProcessResults(logger zerolog.Logger, stats processLogStats) {
 	logger.Info().
 		Int("hosts", stats.numHosts).
 		Int("metrics", stats.numMetrics).
@@ -76,7 +97,9 @@ func logProcessResults(logger zerolog.Logger, stats processStats) {
 		Msg("completed")
 }
 
-type processStats struct {
+// processLogStats contains information useful for logging the results of the
+// processing run.
+type processLogStats struct {
 	numHosts         int
 	numMetrics       int
 	numUniqueMetrics int

@@ -93,4 +93,13 @@ type HistoricRepository interface {
 	ListMetricNames() ([]string, error)
 	// ListHostMetricNames lists all historic metric names for the given hosts.
 	ListHostMetricNames(hostId HostId) ([]string, error)
+	// UpdateHostMetric updates the historic record for the given host and
+	// metric with the metric's current value.
+	UpdateMetric(host *ProcessedHost, metric *ProcessedMetric) error
+	UpdateSummaryMetrics(MetricSummaries) error
+}
+
+type MetricSummaries interface {
+	AddMetric(metric ProcessedMetric) error
+	GetSummaries() map[MetricName]*MetricSummary
 }

@@ -1,17 +1,19 @@
 package rrd
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"golang.org/x/exp/slices"
 )
@@ -19,6 +21,7 @@ import (
 var _ domain.HistoricRepository = (*historicRepo)(nil)
 
 type historicRepo struct {
+	archives              []string
 	cluster               string
 	consolidationFunction string
 	dsmRepo               domain.DataSourceMapRepository
@@ -27,10 +30,12 @@ type historicRepo struct {
 	rrdDir                string
 	rrdMetricName         string
 	rrdTool               string
+	step                  time.Duration
 }
 
 func NewHistoricRepo(logger zerolog.Logger, config config.RRD, dsmRepo domain.DataSourceMapRepository) *historicRepo {
 	return &historicRepo{
+		archives:              config.Archives,
 		cluster:               config.ClusterName,
 		consolidationFunction: "AVERAGE",
 		dsmRepo:               dsmRepo,
@@ -39,6 +44,7 @@ func NewHistoricRepo(logger zerolog.Logger, config config.RRD, dsmRepo domain.Da
 		rrdDir:                config.Directory,
 		rrdMetricName:         "sum",
 		rrdTool:               config.ToolPath,
+		step:                  config.Step,
 	}
 }
 
@@ -80,7 +86,7 @@ func (hr *historicRepo) GetValuesForMetric(
 	hosts := make([]*domain.HistoricHost, 0)
 	hostNames, err := hr.getHosts()
 	if err != nil {
-		return nil, errors.Wrap(err, "listing historic hosts")
+		return nil, fmt.Errorf("%s %w", "listing historic hosts", err)
 	}
 	for _, hostName := range hostNames {
 		dsm := domain.DSM{
@@ -159,11 +165,11 @@ func augmentError(err error, path, msg string) error {
 	var exitErr *exec.ExitError
 	if errors.As(err, &exitErr) {
 		if strings.Contains(exitErr.Error(), path) || strings.Contains(string(exitErr.Stderr), path) {
-			return errors.Wrapf(exitErr, "%s: %s", msg, exitErr.Stderr)
+			return fmt.Errorf("%s: %s: %w", msg, exitErr.Stderr, exitErr)
 		}
-		return errors.Wrapf(exitErr, "%s: %s: %s", msg, path, exitErr.Stderr)
+		return fmt.Errorf("%s: %s: %s: %w", msg, path, exitErr.Stderr, exitErr)
 	}
-	return errors.Wrap(err, msg)
+	return fmt.Errorf("%s %s", msg, err)
 }
 
 type fetchCmdArgs struct {
@@ -246,4 +252,98 @@ func (hr *historicRepo) parseMetricValues(input []byte) []*domain.HistoricMetric
 		})
 	}
 	return metrics
+}
+
+func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) error {
+	var err error
+	for metricName, summary := range summaries.GetSummaries() {
+		hr.logger.Info().Str("metric", string(metricName)).Int("value", summary.Num).Msg("updating consolidated metric")
+		rrdFileDir := filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__")
+		rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metricName))
+		r := updateRunner{}
+		ds := []string{"DS:sum:GAUGE:120:NaN:NaN", "DS:num:GAUGE:120:NaN:NaN"}
+		timestamp := time.Now().Unix()
+		var values string
+		sumVal := reflect.ValueOf(summary.Sum)
+		if sumVal.CanInt() {
+			values = fmt.Sprintf("%d", sumVal.Int())
+		} else if sumVal.CanUint() {
+			values = fmt.Sprintf("%d", sumVal.Uint())
+		} else if sumVal.CanFloat() {
+			values = fmt.Sprintf("%f", sumVal.Float())
+		}
+		values = fmt.Sprintf("%s:%d", values, summary.Num)
+		r.run(func() error { return hr.runMkdir(rrdFilePath) })
+		r.run(func() error { return hr.runCreateCmd(rrdFilePath, timestamp, ds) })
+		r.run(func() error { return hr.runUpdateCmd(rrdFilePath, timestamp, values) })
+		err = errors.Join(err, r.err)
+	}
+	return err
+}
+
+func (hr *historicRepo) UpdateMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) error {
+	hr.logger.Info().Stringer("host", host.DSM).Str("metric", metric.Name).Str("value", metric.Value).Msg("updating metric")
+	rrdFileDir := filepath.Join(hr.rrdDir, host.DSM.ClusterName, host.DSM.HostName)
+	rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metric.Name))
+	r := updateRunner{}
+	ds := []string{"DS:sum:GAUGE:120:NaN:NaN"}
+	r.run(func() error { return hr.runMkdir(rrdFilePath) })
+	r.run(func() error { return hr.runCreateCmd(rrdFilePath, metric.Timestamp, ds) })
+	r.run(func() error { return hr.runUpdateCmd(rrdFilePath, metric.Timestamp, metric.Value) })
+	return r.err
+}
+
+type updateRunner struct {
+	err error
+}
+
+func (r *updateRunner) run(f func() error) {
+	if r.err == nil {
+		r.err = f()
+	}
+}
+
+func (hr *historicRepo) runMkdir(rrdFilePath string) error {
+	dirname := filepath.Dir(rrdFilePath)
+	return os.MkdirAll(dirname, 0755)
+}
+
+func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp int64, dss []string) error {
+	if _, err := os.Stat(rrdFilePath); err == nil {
+		// File already exists.
+		return nil
+	} else if errors.Is(err, os.ErrNotExist) {
+		step := int64(hr.step.Seconds())
+		cmd := exec.Command(
+			hr.rrdTool, "create", rrdFilePath,
+			"--start", fmt.Sprintf("%d", timestamp-step),
+			"--step", fmt.Sprintf("%d", step),
+			"--no-overwrite",
+		)
+		cmd.Args = append(cmd.Args, dss...)
+		cmd.Args = append(cmd.Args, hr.archives...)
+		hr.logger.Info().Str("cmd", cmd.String()).Msg("creating RRD file")
+		out, err := cmd.Output()
+		hr.logger.Info().Str("cmd", cmd.String()).Bytes("out", out).Msg("created RRD file")
+		if err != nil {
+			return augmentError(err, hr.rrdTool, "executing")
+		}
+		return nil
+	} else {
+		return fmt.Errorf("%s %w", "error checking if RRD file exists", err)
+	}
+}
+
+func (hr *historicRepo) runUpdateCmd(rrdFilePath string, timestamp int64, values string) error {
+	valueSpec := fmt.Sprintf("%d:%s", timestamp, values)
+	cmd := exec.Command(
+		hr.rrdTool, "update", rrdFilePath, valueSpec,
+	)
+	hr.logger.Info().Str("cmd", cmd.String()).Msg("updating metrics")
+	out, err := cmd.Output()
+	hr.logger.Info().Str("cmd", cmd.String()).Bytes("out", out).Msg("updated metrics")
+	if err != nil {
+		return augmentError(err, hr.rrdTool, "executing")
+	}
+	return nil
 }

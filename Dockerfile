@@ -6,6 +6,7 @@ FROM golang:1.21 AS build
 
 WORKDIR /app
 COPY . /app
+RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
 RUN make clean
 RUN make ct-metric-reporting-daemon
 
@@ -72,6 +73,7 @@ RUN apt-get update \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
 WORKDIR /app
+RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
 
 # Add files containing canned responses.
 # COPY --from=build /app/testdata/* /app/testdata/

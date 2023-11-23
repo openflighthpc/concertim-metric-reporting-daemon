@@ -134,7 +134,7 @@ func main() {
 		}
 	}()
 	go func() {
-		err := runMetricProcessor(config, dsmRepo, dsmUpdater, gdsServer, processedRepo)
+		err := runMetricProcessor(config, dsmRepo, dsmUpdater, gdsServer, processedRepo, historicRepo)
 		if err != nil {
 			log.Fatal().Err(err).Msg("running metric processor")
 		}
@@ -176,13 +176,14 @@ func runMetricProcessor(
 	dsmUpdater domain.DataSourceMapRepoUpdater,
 	gdsServer *gds.Server,
 	resultRepo domain.ProcessedRepository,
+	historicRepo domain.HistoricRepository,
 ) error {
 	pollChan := make(chan []*domain.ProcessedHost)
 	poller, err := retrieval.New(log.Logger, config.Retrieval, dsmRepo, dsmUpdater, pollChan)
 	if err != nil {
 		return errors.Wrap(err, "creating retrieval poller")
 	}
-	processor := processing.NewProcessor(resultRepo, log.Logger)
+	processor := processing.NewProcessor(resultRepo, historicRepo, log.Logger)
 
 	// Start the ganglia metric poller.  It will report polled hosts on pollChan.
 	go func() { poller.Start() }()
@@ -198,10 +199,7 @@ func runMetricProcessor(
 
 	// Each time we poll metrics from ganglia process them.
 	for hosts := range pollChan {
-		err := processor.Process(hosts)
-		if err != nil {
-			log.Error().Err(err).Msg("processing metrics")
-		}
+		processor.Process(hosts)
 	}
 	return nil
 }

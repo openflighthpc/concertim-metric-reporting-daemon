@@ -29,6 +29,8 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
+var NumericMetricTypes = []string{"int8", "uint8", "int16", "uint16", "int32", "uint32", "float", "double"}
+
 // HostId exists to document some function signatures.
 type HostId string
 
@@ -124,6 +126,13 @@ type HistoricHost struct {
 type HistoricMetric struct {
 	Value     float64
 	Timestamp int64
+}
+
+type MetricSummary struct {
+	// The number of hosts that reported the metric.
+	Num int
+	// The total value reported for all hosts that report the metric.
+	Sum any
 }
 
 // ErrInvalidMetricVal is used if the metric's value is not valid for its

@@ -71,10 +71,12 @@ type VisualizerAPI struct {
 }
 
 type RRD struct {
-	ClusterName string `yaml:"cluster_name"`
-	GridName    string `yaml:"grid_name"`
-	Directory   string `yaml:"directory"`
-	ToolPath    string `yaml:"rrd_tool_path"`
+	Archives    []string      `yaml:"archives"`
+	ClusterName string        `yaml:"cluster_name"`
+	Directory   string        `yaml:"directory"`
+	GridName    string        `yaml:"grid_name"`
+	Step        time.Duration `yaml:"step"`
+	ToolPath    string        `yaml:"rrd_tool_path"`
 }
 
 // DefaultPath is the path to the default config file.
