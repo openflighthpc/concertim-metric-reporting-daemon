@@ -61,7 +61,7 @@ func (p *Processor) Process(hosts []*domain.ProcessedHost) error {
 		return errors.Wrap(err, "committing transaction")
 	}
 	um, err := p.resultRepo.GetUniqueMetrics()
-	if err != nil {
+	if err == nil {
 		stats.numUniqueMetrics = len(um)
 	}
 	logProcessResults(p.logger, stats)
