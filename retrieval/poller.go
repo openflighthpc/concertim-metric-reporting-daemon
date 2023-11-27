@@ -292,7 +292,7 @@ func processedMetricFromGanglia(now time.Time, src Metric) (domain.ProcessedMetr
 	dst.Value = src.Val
 	dst.Nature = nature
 	dst.Dmax = dmax
-	dst.Timestamp = now.Unix() - int64(tn)
+	dst.Timestamp = now.Add(time.Duration(-tn) * time.Second)
 	dst.Stale = stale
 
 	return dst, nil

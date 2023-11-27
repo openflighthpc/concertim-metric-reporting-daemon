@@ -262,7 +262,7 @@ func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) e
 		rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metricName))
 		r := updateRunner{}
 		ds := []string{"DS:sum:GAUGE:120:NaN:NaN", "DS:num:GAUGE:120:NaN:NaN"}
-		timestamp := time.Now().Unix()
+		timestamp := time.Now()
 		var values string
 		sumVal := reflect.ValueOf(summary.Sum)
 		if sumVal.CanInt() {
@@ -308,7 +308,7 @@ func (hr *historicRepo) runMkdir(rrdFilePath string) error {
 	return os.MkdirAll(dirname, 0755)
 }
 
-func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp int64, dss []string) error {
+func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp time.Time, dss []string) error {
 	if _, err := os.Stat(rrdFilePath); err == nil {
 		// File already exists.
 		return nil
@@ -316,7 +316,7 @@ func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp int64, dss []
 		step := int64(hr.step.Seconds())
 		cmd := exec.Command(
 			hr.rrdTool, "create", rrdFilePath,
-			"--start", fmt.Sprintf("%d", timestamp-step),
+			"--start", fmt.Sprintf("%d", timestamp.Unix()-step),
 			"--step", fmt.Sprintf("%d", step),
 			"--no-overwrite",
 		)
@@ -334,8 +334,8 @@ func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp int64, dss []
 	}
 }
 
-func (hr *historicRepo) runUpdateCmd(rrdFilePath string, timestamp int64, values string) error {
-	valueSpec := fmt.Sprintf("%d:%s", timestamp, values)
+func (hr *historicRepo) runUpdateCmd(rrdFilePath string, timestamp time.Time, values string) error {
+	valueSpec := fmt.Sprintf("%d:%s", timestamp.Unix(), values)
 	cmd := exec.Command(
 		hr.rrdTool, "update", rrdFilePath, valueSpec,
 	)

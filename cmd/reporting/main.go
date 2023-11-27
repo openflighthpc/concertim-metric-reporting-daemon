@@ -26,9 +26,7 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/inmem"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/processing"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/retrieval"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/rrd"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 )
@@ -105,13 +103,13 @@ func main() {
 		log.Fatal().Err(err).Msg("loading config failed")
 	}
 	setLogLevel(config)
-	repository := memory.New(log.Logger)
+	pendingRepo := memory.New(log.Logger)
 	dsmRetriever := getDSMRetriever(config)
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)
 	currentRepo := inmem.NewProcessedRepository(log.Logger)
 	historicRepo := rrd.NewHistoricRepo(log.Logger, config.RRD, dsmRepo)
-	app := domain.NewApp(*config, repository, dsmRepo, dsmUpdater, currentRepo, historicRepo)
+	app := domain.NewApp(*config, pendingRepo, dsmRepo, dsmUpdater, currentRepo, historicRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
 	if err != nil {
@@ -134,10 +132,7 @@ func main() {
 		}
 	}()
 	go func() {
-		err := runMetricProcessor(config, dsmRepo, dsmUpdater, gdsServer, currentRepo, historicRepo)
-		if err != nil {
-			log.Fatal().Err(err).Msg("running metric processor")
-		}
+		runMetricProcessor(config, pendingRepo, currentRepo, historicRepo)
 	}()
 
 	gracefulExitSigs := []os.Signal{os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGHUP}
@@ -172,36 +167,17 @@ func main() {
 
 func runMetricProcessor(
 	config *config.Config,
-	dsmRepo domain.DataSourceMapRepository,
-	dsmUpdater domain.DataSourceMapRepoUpdater,
-	gdsServer *gds.Server,
+	pendingRepo domain.PendingRepository,
 	currentRepo domain.CurrentRepository,
 	historicRepo domain.HistoricRepository,
-) error {
-	pollChan := make(chan []*domain.ProcessedHost)
-	poller, err := retrieval.New(log.Logger, config.Retrieval, dsmRepo, dsmUpdater, pollChan)
-	if err != nil {
-		return errors.Wrap(err, "creating retrieval poller")
+) {
+	step := config.RRD.Step
+	processor := domain.NewProcessor(pendingRepo, currentRepo, historicRepo, step, log.Logger)
+	ticker := time.NewTicker(step)
+	for {
+		<-ticker.C
+		processor.Process()
 	}
-	processor := processing.NewProcessor(currentRepo, historicRepo, log.Logger)
-
-	// Start the ganglia metric poller.  It will report polled hosts on pollChan.
-	go func() { poller.Start() }()
-
-	// Each time we report metrics to gmetad, kick the processing loop.
-	go func() {
-		for {
-			<-gdsServer.AcceptedChan
-			time.Sleep(config.Retrieval.PostGmetadDelay)
-			poller.PollOnce()
-		}
-	}()
-
-	// Each time we poll metrics from ganglia process them.
-	for hosts := range pollChan {
-		processor.Process(hosts)
-	}
-	return nil
 }
 
 func getDSMRetriever(config *config.Config) domain.DataSourceMapRetreiver {

@@ -44,6 +44,7 @@ type Converter interface {
 	ModelFromDomainMetric(source domain.PendingMetric) MetricModel
 	// goverter:map Val Value
 	// goverter:map DMax TTL
+	// goverter:ignore LastProcessed
 	DomainFromModelMetric(source MetricModel) domain.PendingMetric
 	// goverter:map DeviceId Id
 	// goverter:map DSMName DSM

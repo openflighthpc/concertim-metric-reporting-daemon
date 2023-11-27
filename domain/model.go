@@ -55,14 +55,14 @@ func (d DSM) String() string {
 // been reported.
 type PendingHost struct {
 	// The Concertim ID for the host.
-	Id       HostId
+	Id HostId
 	// The data source map for the host.
-	DSM      DSM
+	DSM DSM
 	// The time at which metrics were most recently reported for this host.
 	// XXX ProcessedHost has this as a pointer value.
 	Reported time.Time
 	// XXX This can disappear soon.
-	DMax     time.Duration
+	DMax time.Duration
 	// A map from metric name to the most recently reported metric with that
 	// name.
 	Metrics map[MetricName]PendingMetric
@@ -74,13 +74,14 @@ type MetricName string
 // PendingMetric is the domain model representing a single reported metric.
 // It has not yet been fully processed.
 type PendingMetric struct {
-	Name     string
-	Value    string
-	Units    string
-	Slope    MetricSlope
-	Reported time.Time
-	TTL      time.Duration
-	Type     MetricType
+	Name          string
+	Value         string
+	Units         string
+	Slope         MetricSlope
+	Reported      time.Time
+	TTL           time.Duration
+	Type          MetricType
+	LastProcessed *time.Time
 }
 
 // ProcessedHost is the domain model representing a single host that has been
@@ -98,16 +99,16 @@ type ProcessedHost struct {
 // been fully processed.
 type ProcessedMetric struct {
 	// XXX Consider changing some of these strings to MetricName etc..
-	Name      string
-	Datatype  string
-	Units     string
-	Value     string
-	Nature    string
-	Dmax      int
-	// The time at which the metric was reported.
-	Timestamp int64
+	Name     string
+	Datatype string
+	Units    string
+	Value    string
+	Nature   string
+	Dmax     int
+	// The processing time for the metric.
+	Timestamp time.Time
 	// Whether the metric has expired.
-	Stale     bool
+	Stale bool
 }
 
 type UniqueMetric struct {
