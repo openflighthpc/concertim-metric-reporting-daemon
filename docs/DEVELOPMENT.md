@@ -60,10 +60,6 @@ A brief explanation of the directories is as follows:
   `domain.ProcessedRepository`.  (This code is likely making its way to
   `domain`).
 
-* `repository/memory` package: contains an implementation of
-  `domain.Repository` that holds the reported metrics in memory.  (This code is
-  likely making its way to `inmem`).
-
 * `visualizer` package: contains a HTTP client for interacting with the
   Concertim Visualisation App's API.
 
