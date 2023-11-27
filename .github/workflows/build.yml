@@ -27,7 +27,7 @@ jobs:
       matrix:
         # go: ['stable', 'oldstable']
         # os: ['ubuntu-22.04', 'ubuntu-latest']
-        go-version: [1.20.x, 1.21.x]
+        go: [1.21.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -76,12 +76,18 @@ jobs:
       matrix:
         # go: ['stable', 'oldstable']
         # os: ['ubuntu-22.04', 'ubuntu-latest']
-        go-version: [1.20.x, 1.21.x]
+        go: [1.21.x]
         os: [ubuntu-22.04]
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
 
       - name: Install test dependencies
         run: sudo apt-get -y install rrdtool
@@ -119,6 +125,12 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.21.x
+          cache: false
 
       - name: Check makefile
         run: make && make clean
