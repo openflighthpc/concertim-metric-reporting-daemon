@@ -74,7 +74,7 @@ func (s *Server) addRoutes() chi.Router {
 		// access.  Later we probably want to check the claims that are being
 		// made.
 		r.Use(jwtauth.Verifier(s.tokenAuth))
-		r.Use(jwtauth.Authenticator)
+		r.Use(jwtauth.Authenticator(s.tokenAuth))
 
 		r.Put("/{deviceId}/metrics", s.putMetricHandler)
 	})
