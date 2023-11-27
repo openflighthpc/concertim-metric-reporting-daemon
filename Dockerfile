@@ -24,7 +24,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
          rrdtool \
-         gmetad \
     && apt-get clean \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
@@ -67,7 +66,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
          rrdtool \
-         gmetad \
     && apt-get clean \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
@@ -79,7 +77,6 @@ RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
 
 COPY --from=build /app/ct-metric-reporting-daemon /app/ct-metric-reporting-daemon
 COPY --from=build /app/config/*.yml /app/config/
-COPY --from=build /app/docker/gmetad.conf /etc/ganglia/gmetad.conf
 COPY --from=build /app/docker/entrypoint.sh /app/docker/entrypoint.sh
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 

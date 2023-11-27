@@ -33,7 +33,7 @@ A brief explanation of the directories is as follows:
   `domain.ProcessedRepository`.
 
 * `canned` directory contains functionality to provide canned responses for
-  querying the data source maps and metrics reported to ganglia's gmetad.
+  querying the data source maps.
 
 * `cmd` directory contains the executables.
 

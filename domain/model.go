@@ -39,7 +39,7 @@ func (m HostId) String() string {
 	return string(m)
 }
 
-// DSM represents a Ganglia identifier for a host.
+// DSM represents a hierarchical path to the host.
 type DSM struct {
 	GridName    string
 	ClusterName string

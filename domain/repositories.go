@@ -44,8 +44,8 @@ type PendingRepository interface {
 type DataSourceMapRepository interface {
 	// GetDSM returns the data source map for the given host id.
 	//
-	// deviceId is the device's concertim ID. The returned DSM is the map
-	// to that deivce in the Gmetad output.
+	// deviceId is the device's concertim ID. The returned DSM is the
+	// hierarchical map to that device's RRD files.
 	GetDSM(deviceId HostId) (dsm DSM, ok bool)
 
 	// GetHostId returns the host id for the given data source map.
