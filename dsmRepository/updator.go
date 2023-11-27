@@ -3,29 +3,37 @@ package dsmRepository
 import (
 	"time"
 
+	"golang.org/x/time/rate"
+
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/ticker"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
 type Updater struct {
-	Ticker    *ticker.Ticker
 	config    config.DSM
+	limiter   rate.Sometimes
 	logger    zerolog.Logger
 	repo      domain.DataSourceMapRepository
 	retriever domain.DataSourceMapRetreiver
+	ticker    *time.Ticker
 }
 
 // New returns a new Updater.  It will be populated with assuming that the data
 // retriever can do so.
-func NewUpdater(logger zerolog.Logger, config config.DSM, repo domain.DataSourceMapRepository, retriever domain.DataSourceMapRetreiver) *Updater {
+func NewUpdater(
+	logger zerolog.Logger,
+	config config.DSM,
+	repo domain.DataSourceMapRepository,
+	retriever domain.DataSourceMapRetreiver,
+) *Updater {
 	logger = logger.With().Str("component", "dsm-updater").Logger()
 	u := &Updater{
 		config:    config,
 		repo:      repo,
-		Ticker:    ticker.NewTicker(config.Frequency, config.Throttle),
+		ticker:    time.NewTicker(config.Frequency),
+		limiter:   rate.Sometimes{First: 1, Interval: config.Throttle},
 		logger:    logger,
 		retriever: retriever,
 	}
@@ -37,19 +45,24 @@ func (u *Updater) RunPeriodicUpdateLoop() {
 	go func() {
 		u.logger.Debug().Dur("frequency", u.config.Frequency).Msg("Starting periodic retreival")
 		for {
-			<-u.Ticker.C
-			err := u.update()
-			if err != nil {
-				u.logger.Warn().Err(err).Msg("periodic update failed")
-			}
+			<-u.ticker.C
+			u.limiter.Do(func() {
+				err := u.update()
+				if err != nil {
+					u.logger.Warn().Err(err).Msg("periodic update failed")
+				}
+			})
 		}
 	}()
 }
 
 func (u *Updater) UpdateNow() {
-	if u.Ticker.TickNow() {
-		time.Sleep(u.config.Duration)
-	}
+	u.limiter.Do(func() {
+		err := u.update()
+		if err != nil {
+			u.logger.Warn().Err(err).Msg("on demand update failed")
+		}
+	})
 }
 
 // Update retrieves the latest DSM from an external source and updates its

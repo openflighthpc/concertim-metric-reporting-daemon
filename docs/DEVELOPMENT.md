@@ -69,9 +69,6 @@ A brief explanation of the directories is as follows:
   to `domain.ProcessedHost` and `domain.ProcessedMetric` and made available for
   further processing.
 
-* `ticker` package: contains an wrapper around a `time.Ticker` which also
-  allows for manually ticking the ticker.
-
 * `visualizer` package: contains a HTTP client for interacting with the
   Concertim Visualisation App's API.
 

@@ -63,6 +63,7 @@ func (pr *ProcessedRepository) AddHost(host *domain.ProcessedHost) {
 	// if pr.nextResult == nil {
 	// 	return fmt.Errorf("adding host outside of transaction")
 	// }
+	pr.logger.Debug().Stringer("host", host.DSM).Msg("adding host")
 	pr.nextResult.hosts = append(pr.nextResult.hosts, host)
 	if len(host.Metrics) > 0 {
 		now := time.Now()
@@ -77,6 +78,7 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 	// if pr.nextResult == nil {
 	// 	return fmt.Errorf("adding host outside of transaction")
 	// }
+	pr.logger.Debug().Stringer("host", host.DSM).Str("metric", metric.Name).Msg("adding metric")
 	nextResult := pr.nextResult
 	metricName := domain.MetricName(metric.Name)
 	host.Metrics[metricName] = *metric
@@ -89,6 +91,7 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 	um, found := nextResult.uniqueMetrics[metricName]
 	if !found {
 		um = uniqueMetricFromMetric(*metric)
+		pr.logger.Debug().Str("metric", um.Name).Msg("adding unique metric")
 		nextResult.uniqueMetrics[metricName] = um
 	}
 	adjustMinMax(um, *metric)

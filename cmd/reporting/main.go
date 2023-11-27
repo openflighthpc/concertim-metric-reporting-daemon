@@ -178,21 +178,21 @@ func runMetricProcessor(
 	resultRepo domain.ProcessedRepository,
 ) error {
 	pollChan := make(chan []*domain.ProcessedHost)
-	poller, err := retrieval.New(log.Logger, config.Retrieval, dsmRepo, dsmUpdater)
+	poller, err := retrieval.New(log.Logger, config.Retrieval, dsmRepo, dsmUpdater, pollChan)
 	if err != nil {
 		return errors.Wrap(err, "creating retrieval poller")
 	}
 	processor := processing.NewProcessor(resultRepo, log.Logger)
 
 	// Start the ganglia metric poller.  It will report polled hosts on pollChan.
-	go func() { poller.Start(pollChan) }()
+	go func() { poller.Start() }()
 
 	// Each time we report metrics to gmetad, kick the processing loop.
 	go func() {
 		for {
 			<-gdsServer.AcceptedChan
 			time.Sleep(config.Retrieval.PostGmetadDelay)
-			poller.Ticker.TickNow()
+			poller.PollOnce()
 		}
 	}()
 

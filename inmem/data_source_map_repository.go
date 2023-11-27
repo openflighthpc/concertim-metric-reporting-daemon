@@ -36,10 +36,6 @@ func NewDSMRepo(logger zerolog.Logger, config config.DSM) *DSMRepo {
 // See domain.DataSourceMapRepository interface for more details.
 func (r *DSMRepo) GetDSM(hostId domain.HostId) (domain.DSM, bool) {
 	dsm, ok := r.getDSM(hostId)
-	// if !ok && r.Ticker.TickNow() {
-	// 	time.Sleep(r.config.Duration)
-	// 	dsm, ok = r.getDSM(hostId)
-	// }
 	if !ok {
 		r.logger.Debug().Stringer("lookup", hostId).Msg("not found")
 	} else {
