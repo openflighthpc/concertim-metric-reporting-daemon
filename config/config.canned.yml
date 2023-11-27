@@ -1,11 +1,9 @@
-# Configuration using canned responses for the data source map and ganglia
-# retrieved metrics.
+# Configuration using canned responses for the data source map.
 #
 # During normal operation, metric reporting daemon will connect to ct
-# visualisation app and ganglia's gmetad to retrieve the data source map and
-# list of current metrics respectively.  This configuration replaces those
-# connections with processing of canned responses.  This can be convenient when
-# developing the daemon outside of a full concertim setup.
+# visualisation app retrieve the data source map. This configuration replaces
+# that connection with processing of canned responses.  This can be
+# convenient when developing the daemon outside of a full concertim setup.
 
 # Configuration for the HTTP API.
 api:

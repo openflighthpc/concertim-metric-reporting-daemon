@@ -51,11 +51,6 @@ A brief explanation of the directories is as follows:
 * `inmem` package: contains in-memory implementations of the repository
   interfaces defined in the `domain` package.
 
-* `processing` package: contains routines for processing the metrics retrieved
-  from gmetad.  The processed metrics are stored in an implementation of
-  `domain.ProcessedRepository`.  (This code is likely making its way to
-  `domain`).
-
 * `visualizer` package: contains a HTTP client for interacting with the
   Concertim Visualisation App's API.
 
