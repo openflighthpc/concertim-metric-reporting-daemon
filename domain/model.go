@@ -51,28 +51,35 @@ func (d DSM) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.GridName, d.ClusterName, d.HostName)
 }
 
-// ReportedHost is the domain model representing a host for which metrics have
+// PendingHost is the domain model representing a host for which metrics have
 // been reported.
-type ReportedHost struct {
+type PendingHost struct {
+	// The Concertim ID for the host.
 	Id       HostId
+	// The data source map for the host.
 	DSM      DSM
+	// The time at which metrics were most recently reported for this host.
+	// XXX ProcessedHost has this as a pointer value.
 	Reported time.Time
+	// XXX This can disappear soon.
 	DMax     time.Duration
-	Metrics  []ReportedMetric
+	// A map from metric name to the most recently reported metric with that
+	// name.
+	Metrics map[MetricName]PendingMetric
 }
 
 // MetricName exists to document some function signatures.
 type MetricName string
 
-// ReportedMetric is the domain model representing a single reported metric.
+// PendingMetric is the domain model representing a single reported metric.
 // It has not yet been fully processed.
-type ReportedMetric struct {
+type PendingMetric struct {
 	Name     string
 	Value    string
 	Units    string
 	Slope    MetricSlope
 	Reported time.Time
-	DMax     time.Duration
+	TTL      time.Duration
 	Type     MetricType
 }
 
@@ -94,11 +101,12 @@ type ProcessedMetric struct {
 	Name      string
 	Datatype  string
 	Units     string
-	Source    string
 	Value     string
 	Nature    string
 	Dmax      int
+	// The time at which the metric was reported.
 	Timestamp int64
+	// Whether the metric has expired.
 	Stale     bool
 }
 

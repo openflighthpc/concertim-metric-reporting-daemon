@@ -21,7 +21,7 @@ type Repo struct {
 }
 
 // PutHost implements the Repository interface.
-func (mr *Repo) PutHost(host domain.ReportedHost) error {
+func (mr *Repo) PutHost(host domain.PendingHost) error {
 	mr.logger.Debug().Stringer("host", host.Id).Msg("Putting host")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -29,13 +29,13 @@ func (mr *Repo) PutHost(host domain.ReportedHost) error {
 	return nil
 }
 
-func (mr *Repo) isHostStored(host domain.ReportedHost) bool {
+func (mr *Repo) isHostStored(host domain.PendingHost) bool {
 	_, ok := mr.hosts[host.Id.String()]
 	return ok
 }
 
 // PutMetric implements the Repository interface.
-func (mr *Repo) PutMetric(host domain.ReportedHost, metric domain.ReportedMetric) error {
+func (mr *Repo) PutMetric(host domain.PendingHost, metric domain.PendingMetric) error {
 	mr.logger.Debug().Stringer("host", host.Id).Str("metric", metric.Name).Msg("Putting metric")
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
@@ -52,11 +52,11 @@ func (mr *Repo) PutMetric(host domain.ReportedHost, metric domain.ReportedMetric
 }
 
 // GetAll implements the Repository interface.
-func (mr *Repo) GetAll() []domain.ReportedHost {
+func (mr *Repo) GetAll() []domain.PendingHost {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	mr.logger.Debug().Msg("Getting all data")
-	hosts := make([]domain.ReportedHost, 0, len(mr.hosts))
+	hosts := make([]domain.PendingHost, 0, len(mr.hosts))
 	for _, h := range mr.hosts {
 		metrics := mr.metrics[h.DeviceId]
 		logHostAndMetrics(mr.logger, h, metrics)
@@ -68,13 +68,13 @@ func (mr *Repo) GetAll() []domain.ReportedHost {
 }
 
 // GetHost implements the Repository interface.
-func (mr *Repo) GetHost(hostId domain.HostId) (domain.ReportedHost, bool) {
+func (mr *Repo) GetHost(hostId domain.HostId) (domain.PendingHost, bool) {
 	mr.mux.Lock()
 	defer mr.mux.Unlock()
 	mr.logger.Debug().Stringer("host", hostId).Msg("Getting host")
 	host, ok := mr.hosts[hostId.String()]
 	if !ok {
-		return domain.ReportedHost{}, false
+		return domain.PendingHost{}, false
 	}
 	return conv.DomainFromModelHost(host), true
 }

@@ -289,7 +289,6 @@ func processedMetricFromGanglia(now time.Time, src Metric) (domain.ProcessedMetr
 	dst.Name = src.Name
 	dst.Datatype = src.Type
 	dst.Units = src.Units
-	dst.Source = src.Source
 	dst.Value = src.Val
 	dst.Nature = nature
 	dst.Dmax = dmax

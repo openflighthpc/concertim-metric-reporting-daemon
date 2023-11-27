@@ -38,21 +38,23 @@ type MetricModel struct {
 type Converter interface {
 	// goverter:map Id DeviceId
 	// goverter:map DSM.HostName DSMName
-	ModelFromDomainHost(source domain.ReportedHost) HostModel
+	ModelFromDomainHost(source domain.PendingHost) HostModel
 	// goverter:map Value Val
-	ModelFromDomainMetric(source domain.ReportedMetric) MetricModel
+	// goverter:map TTL DMax
+	ModelFromDomainMetric(source domain.PendingMetric) MetricModel
 	// goverter:map Val Value
-	DomainFromModelMetric(source MetricModel) domain.ReportedMetric
+	// goverter:map DMax TTL
+	DomainFromModelMetric(source MetricModel) domain.PendingMetric
 	// goverter:map DeviceId Id
 	// goverter:map DSMName DSM
 	// goverter:mapExtend Metrics DefaultMetrics
-	DomainFromModelHost(source HostModel) domain.ReportedHost
+	DomainFromModelHost(source HostModel) domain.PendingHost
 }
 
-func domainHostFromModelHostAndMetrics(modelHost HostModel, modelMetrics map[string]MetricModel) domain.ReportedHost {
+func domainHostFromModelHostAndMetrics(modelHost HostModel, modelMetrics map[string]MetricModel) domain.PendingHost {
 	domainHost := conv.DomainFromModelHost(modelHost)
-	for _, modelMetric := range modelMetrics {
-		domainHost.Metrics = append(domainHost.Metrics, conv.DomainFromModelMetric(modelMetric))
+	for metricName, modelMetric := range modelMetrics {
+		domainHost.Metrics[domain.MetricName(metricName)] = conv.DomainFromModelMetric(modelMetric)
 	}
 
 	return domainHost
@@ -65,8 +67,8 @@ func ConvertTime(source time.Time) time.Time {
 
 // DefaultMetrics sets the default metrics for domain.Host when retrieved from
 // the repository.
-func DefaultMetrics() []domain.ReportedMetric {
-	return make([]domain.ReportedMetric, 0)
+func DefaultMetrics() map[domain.MetricName]domain.PendingMetric {
+	return make(map[domain.MetricName]domain.PendingMetric)
 }
 
 // DSMNameToDSM builds a domain.DSM from a HostModel.DSMName.

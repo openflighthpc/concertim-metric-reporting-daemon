@@ -6,21 +6,21 @@ import "github.com/alces-flight/concertim-metric-reporting-daemon/config"
 // various singleton components of the system such as the Repository.  It also
 // has various "commands" as methods such as AddMetric.
 type Application struct {
-	Repo         ReportedRepository
+	Repo         PendingRepository
 	config       config.Config
 	dsmRepo      DataSourceMapRepository
 	dsmUpdater   DataSourceMapRepoUpdater
-	ResultRepo   ProcessedRepository
+	CurrentRepoo CurrentRepository
 	HistoricRepo HistoricRepository
 }
 
 // NewApp returns a newly configured Application.
 func NewApp(
 	config config.Config,
-	repo ReportedRepository,
+	repo PendingRepository,
 	dsmRepo DataSourceMapRepository,
 	dsmUpdater DataSourceMapRepoUpdater,
-	resultRepo ProcessedRepository,
+	resultRepo CurrentRepository,
 	historicRepo HistoricRepository,
 ) *Application {
 	return &Application{
@@ -28,7 +28,7 @@ func NewApp(
 		config:       config,
 		dsmRepo:      dsmRepo,
 		dsmUpdater:   dsmUpdater,
-		ResultRepo:   resultRepo,
+		CurrentRepoo: resultRepo,
 		HistoricRepo: historicRepo,
 	}
 }

@@ -109,9 +109,9 @@ func main() {
 	dsmRetriever := getDSMRetriever(config)
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)
-	processedRepo := inmem.NewProcessedRepository(log.Logger)
+	currentRepo := inmem.NewProcessedRepository(log.Logger)
 	historicRepo := rrd.NewHistoricRepo(log.Logger, config.RRD, dsmRepo)
-	app := domain.NewApp(*config, repository, dsmRepo, dsmUpdater, processedRepo, historicRepo)
+	app := domain.NewApp(*config, repository, dsmRepo, dsmUpdater, currentRepo, historicRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 	gdsServer, err := gds.New(log.Logger, app, config.GDS)
 	if err != nil {
@@ -134,7 +134,7 @@ func main() {
 		}
 	}()
 	go func() {
-		err := runMetricProcessor(config, dsmRepo, dsmUpdater, gdsServer, processedRepo, historicRepo)
+		err := runMetricProcessor(config, dsmRepo, dsmUpdater, gdsServer, currentRepo, historicRepo)
 		if err != nil {
 			log.Fatal().Err(err).Msg("running metric processor")
 		}
@@ -175,7 +175,7 @@ func runMetricProcessor(
 	dsmRepo domain.DataSourceMapRepository,
 	dsmUpdater domain.DataSourceMapRepoUpdater,
 	gdsServer *gds.Server,
-	resultRepo domain.ProcessedRepository,
+	currentRepo domain.CurrentRepository,
 	historicRepo domain.HistoricRepository,
 ) error {
 	pollChan := make(chan []*domain.ProcessedHost)
@@ -183,7 +183,7 @@ func runMetricProcessor(
 	if err != nil {
 		return errors.Wrap(err, "creating retrieval poller")
 	}
-	processor := processing.NewProcessor(resultRepo, historicRepo, log.Logger)
+	processor := processing.NewProcessor(currentRepo, historicRepo, log.Logger)
 
 	// Start the ganglia metric poller.  It will report polled hosts on pollChan.
 	go func() { poller.Start() }()

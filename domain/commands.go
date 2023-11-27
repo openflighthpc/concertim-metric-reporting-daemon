@@ -10,7 +10,7 @@ import (
 // AddMetric adds the given metric for the specified host to the repository.
 // If the host has not previously been added it will also be added if its data
 // source map to host can be found in the DataSourceMapRepository.
-func (app *Application) AddMetric(metric ReportedMetric, hostId HostId) error {
+func (app *Application) AddMetric(metric PendingMetric, hostId HostId) error {
 	host, ok := app.Repo.GetHost(hostId)
 	if !ok {
 		var err error
@@ -32,16 +32,16 @@ func (app *Application) AddMetric(metric ReportedMetric, hostId HostId) error {
 //
 // The host is only added if a data source map can be found in the
 // DataSourceMapRepository.  Otherwise an error is returned.
-func (app *Application) addHost(hostId HostId) (ReportedHost, error) {
+func (app *Application) addHost(hostId HostId) (PendingHost, error) {
 	dsm, ok := app.dsmRepo.GetDSM(hostId)
 	if !ok {
 		app.dsmUpdater.UpdateNow()
 		dsm, ok = app.dsmRepo.GetDSM(hostId)
 	}
 	if !ok {
-		return ReportedHost{}, fmt.Errorf("%w: %s", ErrUnknownHost, hostId)
+		return PendingHost{}, fmt.Errorf("%w: %s", ErrUnknownHost, hostId)
 	}
-	host := ReportedHost{
+	host := PendingHost{
 		Id:       hostId,
 		DSM:      dsm,
 		Reported: time.Now(),
@@ -49,7 +49,7 @@ func (app *Application) addHost(hostId HostId) (ReportedHost, error) {
 	}
 	err := app.Repo.PutHost(host)
 	if err != nil {
-		return ReportedHost{}, err
+		return PendingHost{}, err
 	}
 	return host, nil
 }

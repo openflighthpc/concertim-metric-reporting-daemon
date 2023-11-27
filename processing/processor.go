@@ -21,19 +21,19 @@ import (
 type Processor struct {
 	historicRepo domain.HistoricRepository
 	logger       zerolog.Logger
-	resultRepo   domain.ProcessedRepository
+	currentRepo  domain.CurrentRepository
 }
 
 // NewProcessor returns a new *Processor.
 func NewProcessor(
-	resultRepo domain.ProcessedRepository,
+	currentRepo domain.CurrentRepository,
 	historicRepo domain.HistoricRepository,
 	logger zerolog.Logger,
 ) *Processor {
 	return &Processor{
 		historicRepo: historicRepo,
 		logger:       logger.With().Str("component", "processor").Logger(),
-		resultRepo:   resultRepo,
+		currentRepo:  currentRepo,
 	}
 }
 
@@ -43,7 +43,7 @@ func (p *Processor) Process(hosts []*domain.ProcessedHost) {
 	stats := processLogStats{}
 	summaries := newMetricSummaries()
 	p.logger.Debug().Int("count", len(hosts)).Msg("processing hosts")
-	err := p.resultRepo.Begin()
+	err := p.currentRepo.Begin()
 	if err != nil {
 		p.logger.Error().Err(err).Msg("starting transaction")
 		return
@@ -61,7 +61,7 @@ func (p *Processor) Process(hosts []*domain.ProcessedHost) {
 				Str("host", host.DSM.HostName).
 				Str("metric", metric.Name).
 				Msg("processing metric")
-			p.resultRepo.AddMetric(host, &metric)
+			p.currentRepo.AddMetric(host, &metric)
 			if slices.Contains(domain.NumericMetricTypes, metric.Datatype) {
 				if err := p.historicRepo.UpdateMetric(host, &metric); err != nil {
 					p.logger.Warn().Err(err).Msg("updating historic repo")
@@ -71,18 +71,18 @@ func (p *Processor) Process(hosts []*domain.ProcessedHost) {
 				}
 			}
 		}
-		p.resultRepo.AddHost(host)
+		p.currentRepo.AddHost(host)
 	}
 	err = p.historicRepo.UpdateSummaryMetrics(summaries)
 	if err != nil {
 		p.logger.Error().Err(err).Msg("writing consolidated metrics")
 	}
-	err = p.resultRepo.Commit()
+	err = p.currentRepo.Commit()
 	if err != nil {
 		p.logger.Error().Err(err).Msg("committing transaction")
 		return
 	}
-	um, err := p.resultRepo.GetUniqueMetrics()
+	um, err := p.currentRepo.GetUniqueMetrics()
 	if err == nil {
 		stats.numUniqueMetrics = len(um)
 	}

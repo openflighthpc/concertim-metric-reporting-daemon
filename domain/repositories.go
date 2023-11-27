@@ -11,11 +11,13 @@ var ErrWaitingOnProcessingRun = errors.New("Waiting on metric processing run")
 var ErrHostNotFound = errors.New("Host not found")
 var ErrMetricNotFound = errors.New("Metric not found")
 
-// ReportedRepository is the interface for storing reported metrics.
-type ReportedRepository interface {
+// PendingRepository is the interface for storing reported metrics that have
+// not yet been processed.  Metrics in this repository are processed
+// periodically and once processed become the current metrics.
+type PendingRepository interface {
 	// PutHost adds a Host to the repository.  If the Host has already been
 	// added it will be updated.
-	PutHost(ReportedHost) error
+	PutHost(PendingHost) error
 
 	// PutMetric adds a Metric to the repository for a previously added Host.
 	//
@@ -23,13 +25,13 @@ type ReportedRepository interface {
 	//
 	// If the Host has not been previously added an UnknownHost error is
 	// returned.
-	PutMetric(ReportedHost, ReportedMetric) error
+	PutMetric(PendingHost, PendingMetric) error
 
 	// GetAll returns a slice of all Hosts added to the repository, populated
 	// with all of their Metrics.
-	GetAll() []ReportedHost
+	GetAll() []PendingHost
 
-	GetHost(HostId) (ReportedHost, bool)
+	GetHost(HostId) (PendingHost, bool)
 }
 
 // DataSourceMapRepository is the interface for looking up a device's data
@@ -48,17 +50,21 @@ type DataSourceMapRepository interface {
 	Update(map[HostId]DSM, map[DSM]HostId) error
 }
 
+// DataSourceMapRetreiver is the interface for retrieving the latest data
+// source map.
 type DataSourceMapRetreiver interface {
 	GetDSM() (map[HostId]DSM, map[DSM]HostId, error)
 }
 
+// DataSourceMapRetreiver is the interface for updating a DataSourceMapRepository.
 type DataSourceMapRepoUpdater interface {
 	RunPeriodicUpdateLoop()
 	UpdateNow()
 }
 
-// ProcessedRepository is the interface for storing processed metrics.
-type ProcessedRepository interface {
+// CurrentRepository is the interface for storing the most recently processed
+// metrics.
+type CurrentRepository interface {
 	// GetUniqueMetrics returns a slice of the unique metrics found in the
 	// last processing run.  The uniqueness of a metric is determined by
 	// its name.
@@ -96,9 +102,15 @@ type HistoricRepository interface {
 	// UpdateHostMetric updates the historic record for the given host and
 	// metric with the metric's current value.
 	UpdateMetric(host *ProcessedHost, metric *ProcessedMetric) error
+	// UpdateSummaryMetrics updates the historic record for the given
+	// summaries.
 	UpdateSummaryMetrics(MetricSummaries) error
 }
 
+// MetricSummaries is the interface for calculating metric summaries.  The
+// summaries are calculated as part of the periodic processing run.  Once
+// calculated they have to be persisted by calling
+// HistoricRepository.UpdateSummaryMetrics.
 type MetricSummaries interface {
 	AddMetric(metric ProcessedMetric) error
 	GetSummaries() map[MetricName]*MetricSummary

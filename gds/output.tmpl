@@ -54,7 +54,7 @@
     {{- range .Hosts }}
     <HOST NAME="{{.DSM.HostName | xml}}" IP="" REPORTED="{{.Reported | timeToUnix | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}">
       {{- range .Metrics }}
-      <METRIC NAME="{{.Name | xml}}" VAL="{{.Value | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.DMax | secondsAsInt | xml}}" SOURCE="{{$.MetricSource}}" TYPE="{{.Type | xml}}"></METRIC>
+      <METRIC NAME="{{.Name | xml}}" VAL="{{.Value | xml}}" UNITS="{{.Units | xml}}" SLOPE="{{.Slope | xml}}" TN="{{.Reported | secondsSince | xml}}" TMAX="60" DMAX="{{.TTL | secondsAsInt | xml}}" SOURCE="{{$.MetricSource}}" TYPE="{{.Type | xml}}"></METRIC>
       {{- end }}
     </HOST>
     {{- end }}
