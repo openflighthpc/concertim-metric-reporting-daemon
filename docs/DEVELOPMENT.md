@@ -64,11 +64,6 @@ A brief explanation of the directories is as follows:
   `domain.Repository` that holds the reported metrics in memory.  (This code is
   likely making its way to `inmem`).
 
-* `retrieval` package: contains routines for periodically retrieving and
-  filtering hosts and metrics from ganglia.  The hosts and metrics are parsed
-  to `domain.ProcessedHost` and `domain.ProcessedMetric` and made available for
-  further processing.
-
 * `visualizer` package: contains a HTTP client for interacting with the
   Concertim Visualisation App's API.
 

@@ -18,7 +18,6 @@ type Config struct {
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`
 	GDS              `yaml:"gds"`
-	Retrieval        `yaml:"retrieval"`
 	VisualizerAPI    `yaml:"visualizer_api"`
 	RRD              `yaml:"rrd"`
 }
@@ -47,18 +46,6 @@ type DSM struct {
 	Frequency time.Duration `yaml:"frequency"`
 	Testdata  string        `yaml:"testdata"`
 	Throttle  time.Duration `yaml:"throttle"`
-}
-
-// Retrieval is the configuration for retrieving the ganglia XML.
-type Retrieval struct {
-	ClusterName     string        `yaml:"cluster_name"`
-	Frequency       time.Duration `yaml:"frequency"`
-	GridName        string        `yaml:"grid_name"`
-	IP              string        `yaml:"ip"`
-	Port            int           `yaml:"port"`
-	PostGmetadDelay time.Duration `yaml:"post_gmetad_delay"`
-	Testdata        string        `yaml:"testdata"`
-	Throttle        time.Duration `yaml:"throttle"`
 }
 
 type VisualizerAPI struct {
