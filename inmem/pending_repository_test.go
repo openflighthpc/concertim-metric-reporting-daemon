@@ -47,7 +47,6 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 					Id:       "10",
 					DSM:      dsm_for("comp10"),
 					Reported: time.Now(),
-					DMax:     10,
 					Metrics:  map[domain.MetricName]domain.PendingMetric{},
 				},
 			},
@@ -59,14 +58,12 @@ func Test_AddedHostCanBeRetrieved(t *testing.T) {
 					Id:       "10",
 					DSM:      dsm_for("comp10"),
 					Reported: time.Now(),
-					DMax:     10,
 					Metrics:  map[domain.MetricName]domain.PendingMetric{},
 				},
 				{
 					Id:       "20",
 					DSM:      dsm_for("comp20"),
 					Reported: time.Now(),
-					DMax:     20,
 					Metrics:  map[domain.MetricName]domain.PendingMetric{},
 				},
 			},
@@ -119,7 +116,7 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 		{
 			name: "Adding multiple metrics for a single host",
 			hosts: map[domain.HostId]domain.PendingHost{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: map[domain.MetricName]domain.PendingMetric{}},
+				"10": {Id: "10", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}},
 			},
 			metrics: map[domain.HostId][]domain.PendingMetric{
 				"10": {
@@ -131,8 +128,8 @@ func Test_AddedMetricsCanBeRetrieved(t *testing.T) {
 		{
 			name: "Adding different metrics for different hosts",
 			hosts: map[domain.HostId]domain.PendingHost{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: map[domain.MetricName]domain.PendingMetric{}},
-				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: map[domain.MetricName]domain.PendingMetric{}},
+				"10": {Id: "10", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}},
+				"20": {Id: "20", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}},
 			},
 			metrics: map[domain.HostId][]domain.PendingMetric{
 				"10": {
@@ -187,7 +184,7 @@ func Test_AddingMetricForUnknownHostIsAnError(t *testing.T) {
 	// Setup
 	assert := assert.New(t)
 	repo := NewPendingRepository(log.Logger)
-	host := domain.PendingHost{Id: "01", Reported: time.Now(), DMax: 10, Metrics: map[domain.MetricName]domain.PendingMetric{}}
+	host := domain.PendingHost{Id: "01", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}}
 	metric := domain.PendingMetric{Name: "power", Value: "10", Units: "W", Slope: "both", TTL: 60, Type: "int64"}
 
 	// Preconditions
@@ -211,7 +208,6 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 		Id:       "01",
 		DSM:      dsm_for("comp01"),
 		Reported: time.Now(),
-		DMax:     10,
 		Metrics:  map[domain.MetricName]domain.PendingMetric{},
 	}
 	err := repo.PutHost(host)
@@ -227,7 +223,7 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 	for k, v := range host.Metrics {
 		updatedHost.Metrics[k] = v
 	}
-	updatedHost.DMax = host.DMax + 10
+	updatedHost.Reported = host.Reported.Add(10 * time.Second)
 	err = repo.PutHost(updatedHost)
 
 	// Assertions
@@ -235,7 +231,7 @@ func Test_AddingHostUpdatesIfAlreadyThere(t *testing.T) {
 	hosts = repo.GetAll()
 	assert.Len(hosts, 1)
 	assert.Equal(updatedHost, hosts[0])
-	assert.Equal(host.DMax+10, hosts[0].DMax)
+	assert.Equal(host.Reported.Add(10*time.Second), hosts[0].Reported)
 }
 
 func Test_UpdateLastProcessed(t *testing.T) {
@@ -247,8 +243,8 @@ func Test_UpdateLastProcessed(t *testing.T) {
 		{
 			name: "UpdateLastProcessed when LastProcessed is nil",
 			hosts: map[domain.HostId]domain.PendingHost{
-				"10": {Id: "10", Reported: time.Now(), DMax: 10, Metrics: map[domain.MetricName]domain.PendingMetric{}},
-				"20": {Id: "20", Reported: time.Now(), DMax: 20, Metrics: map[domain.MetricName]domain.PendingMetric{}},
+				"10": {Id: "10", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}},
+				"20": {Id: "20", Reported: time.Now(), Metrics: map[domain.MetricName]domain.PendingMetric{}},
 			},
 			metrics: map[domain.HostId][]domain.PendingMetric{
 				"10": {

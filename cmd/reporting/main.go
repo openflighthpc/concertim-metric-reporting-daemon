@@ -1,11 +1,10 @@
-// Package main runs the HTTP API server and the TCP GDS server.
+// Package main runs the HTTP API server and the processing loop.
 package main
 
 import (
 	"context"
 	"flag"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,7 +23,6 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/inmem"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/rrd"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
@@ -108,26 +106,14 @@ func main() {
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)
 	currentRepo := inmem.NewProcessedRepository(log.Logger)
 	historicRepo := rrd.NewHistoricRepo(log.Logger, config.RRD, dsmRepo)
-	app := domain.NewApp(*config, pendingRepo, dsmRepo, dsmUpdater, currentRepo, historicRepo)
+	app := domain.NewApp(pendingRepo, dsmRepo, dsmUpdater, currentRepo, historicRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)
-	gdsServer, err := gds.New(log.Logger, app, config.GDS)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Unable to create gds.Server")
-	}
 	go func() {
 		err := apiServer.ListenAndServe()
 		if err != nil && errors.Is(err, http.ErrServerClosed) {
 			log.Info().Msg("api.Server closed. Waiting for active connections to finish")
 		} else if err != nil {
 			log.Fatal().Err(err).Msg("api.Server.ListenAndServe")
-		}
-	}()
-	go func() {
-		err := gdsServer.ListenAndServe()
-		if err != nil && errors.Is(err, net.ErrClosed) {
-			log.Info().Msg("gds.Server closed")
-		} else if err != nil {
-			log.Fatal().Err(err).Msg("gds.Server.ListenAndServe")
 		}
 	}()
 	go func() {
@@ -143,9 +129,6 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := gdsServer.Close(); err != nil {
-		log.Error().Err(err).Msg("gds.Server.Close")
-	}
 	if err := apiServer.Shutdown(ctx); err != nil {
 		log.Error().Err(err).Msg("http.Server.Shutdown")
 	}

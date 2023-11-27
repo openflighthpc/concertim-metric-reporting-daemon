@@ -45,7 +45,6 @@ RUN apt-get update \
 
 COPY --from=build /app/testdata/* /app/testdata/
 COPY --from=build /app/api/testdata/* /app/api/testdata/
-COPY --from=build /app/gds/testdata/* /app/gds/testdata/
 COPY --from=build /app/rrd/testdata/* /app/rrd/testdata/
 COPY --from=build /go/pkg /go/pkg/
 

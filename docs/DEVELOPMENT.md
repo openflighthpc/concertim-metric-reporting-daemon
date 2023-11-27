@@ -48,10 +48,6 @@ A brief explanation of the directories is as follows:
   `domain.DataSourceMapRetreiver` to retrieve the latest data source map.
   (NOTE: This code is likely making its way to `domain`).
 
-* `gds` package: contains an implementation of a Ganglia Data Source Server aka
-  gmond.  This is the mechanism used to report metrics to Ganglia's gmetad.  The
-  metrics reported are read from a `domain.ReportedRepository`.
-
 * `inmem` package: contains in-memory implementations of the repository
   interfaces defined in the `domain` package.
 
@@ -129,7 +125,7 @@ with the following command:
   go test ./...
   ```
 
-- Tests for a single package, e.g., "api", "gds", etc..
+- Tests for a single package, e.g., "api", etc..
   ```bash
   go test ./api
   ```

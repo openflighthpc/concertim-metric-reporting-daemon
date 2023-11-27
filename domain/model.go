@@ -61,8 +61,6 @@ type PendingHost struct {
 	// The time at which metrics were most recently reported for this host.
 	// XXX ProcessedHost has this as a pointer value.
 	Reported time.Time
-	// XXX This can disappear soon.
-	DMax time.Duration
 	// A map from metric name to the most recently reported metric with that
 	// name.
 	Metrics map[MetricName]PendingMetric

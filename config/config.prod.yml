@@ -24,27 +24,6 @@ api:
   write_timeout: 10s
   idle_timeout: 120s
 
-# Configuration for the gangali data source server.
-gds:
-  # The address of the network interface to listen on.
-  ip: "127.0.0.1"
-
-  # The port to listen on.
-  port: 8678
-
-  # The cluster name to use in the ganglia output.
-  cluster_name: "unspecified"
-
-  # The source to use in the ganglia output.
-  metric_source: "ct-metric-reporting-daemon"
-
-  # The time in seconds that a host should remain "fresh" for.
-  #
-  # If the last metric for a host was reported more than `hostTTL` seconds
-  # ago, the host and all of its metrics are considered stale and no longer
-  # included in the metric stream.
-  host_ttl: 180
-
 # Configuration for generating the data source map lookup.
 dsm:
   # The data source map is periodically updated from the Concertim

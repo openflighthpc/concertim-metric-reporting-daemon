@@ -63,7 +63,7 @@ func main() {
 	}
 	setLogLevel(config)
 
-	app := domain.NewApp(*config, nil, nil, nil, nil, nil)
+	app := domain.NewApp(nil, nil, nil, nil, nil)
 	apiServer := api.NewServer(log.Logger, app, config.API)
 
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {

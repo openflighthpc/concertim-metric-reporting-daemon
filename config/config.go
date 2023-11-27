@@ -17,7 +17,6 @@ type Config struct {
 	SharedSecretFile string `yaml:"shared_secret_file"`
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`
-	GDS              `yaml:"gds"`
 	VisualizerAPI    `yaml:"visualizer_api"`
 	RRD              `yaml:"rrd"`
 }
@@ -30,15 +29,6 @@ type API struct {
 	ReadTimeout  time.Duration `yaml:"read_timeout"`
 	WriteTimeout time.Duration `yaml:"write_timeout"`
 	IdleTimeout  time.Duration `yaml:"idle_timeout"`
-}
-
-// GDS is the configuration for the Ganglia Data Source server component.
-type GDS struct {
-	IP           string `yaml:"ip"`
-	ClusterName  string `yaml:"cluster_name"`
-	Port         int    `yaml:"port"`
-	MetricSource string `yaml:"metric_source"`
-	HostTTL      int    `yaml:"host_ttl"`
 }
 
 // DSM is the configuration for the Data Source Map component.
