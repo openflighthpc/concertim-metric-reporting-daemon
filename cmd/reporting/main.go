@@ -26,7 +26,6 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/gds"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/inmem"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/repository/memory"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/rrd"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
 )
@@ -103,7 +102,7 @@ func main() {
 		log.Fatal().Err(err).Msg("loading config failed")
 	}
 	setLogLevel(config)
-	pendingRepo := memory.New(log.Logger)
+	pendingRepo := inmem.NewPendingRepository(log.Logger)
 	dsmRetriever := getDSMRetriever(config)
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"time"
 )
 
 // ErrUnknownHost is the error reported when an attempt to add a metric to an
@@ -31,7 +32,11 @@ type PendingRepository interface {
 	// with all of their Metrics.
 	GetAll() []PendingHost
 
+	// GetHost returns the host identified by HostId if present.
 	GetHost(HostId) (PendingHost, bool)
+
+	// UpdateLastProcessed updates the metric's LastProcessed field.
+	UpdateLastProcessed(HostId, MetricName, time.Time) error
 }
 
 // DataSourceMapRepository is the interface for looking up a device's data

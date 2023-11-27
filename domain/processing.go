@@ -82,7 +82,10 @@ func (p *Processor) Process() {
 				stats.numStaleMetrics++
 				continue
 			}
-			pendingMetric.LastProcessed = &metric.Timestamp
+			err := p.pendingRepo.UpdateLastProcessed(pendingHost.Id, MetricName(pendingMetric.Name), metric.Timestamp)
+			if err != nil {
+				p.logger.Warn().Err(err).Msg("updating metric last processed timestamp")
+			}
 			p.currentRepo.AddMetric(&host, &metric)
 			if slices.Contains(NumericMetricTypes, metric.Datatype) {
 				if err := p.historicRepo.UpdateMetric(&host, &metric); err != nil {

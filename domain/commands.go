@@ -46,6 +46,7 @@ func (app *Application) addHost(hostId HostId) (PendingHost, error) {
 		DSM:      dsm,
 		Reported: time.Now(),
 		DMax:     time.Duration(app.config.HostTTL) * time.Second,
+		Metrics:  map[MetricName]PendingMetric{},
 	}
 	err := app.Repo.PutHost(host)
 	if err != nil {
