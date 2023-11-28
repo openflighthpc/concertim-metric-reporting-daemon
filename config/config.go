@@ -48,7 +48,6 @@ type VisualizerAPI struct {
 }
 
 type RRD struct {
-	Archives    []string      `yaml:"archives"`
 	ClusterName string        `yaml:"cluster_name"`
 	Directory   string        `yaml:"directory"`
 	GridName    string        `yaml:"grid_name"`

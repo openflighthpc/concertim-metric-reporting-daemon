@@ -201,6 +201,7 @@ type HistoricMetricDuration struct {
 // ENUM(hour, day, quarter).
 type LastDuration string
 
+// These values need to be consistent with the RRA archives.  See rrd.archives.
 var LastXLookup map[LastDuration]HistoricMetricDuration = map[LastDuration]HistoricMetricDuration{
 	LastDurationHour:    {Start: "-1h", Resolution: "15s"},
 	LastDurationDay:     {Start: "-1d", Resolution: "5m"},

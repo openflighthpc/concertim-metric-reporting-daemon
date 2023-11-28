@@ -18,10 +18,30 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// The round robin archives (RRA) used in all of our RRD files.  The archives are:
+//   - One hour consolidating 15 seconds of data.
+//   - One day consolidating 5 minutes of data.
+//   - 90 days consolidating of one hour of data.
+//
+// for each of those we consolidate the AVERAGE, MIN and MAX.
+//
+// These are not yet configurable as they need to be consistent with the values
+// in domain.LastXLookup.
+var archives = []string{
+	"RRA:AVERAGE:0.5:15s:1h",
+	"RRA:AVERAGE:0.5:5m:1d",
+	"RRA:AVERAGE:0.5:1h:90d",
+	"RRA:MIN:0.5:15s:1h",
+	"RRA:MIN:0.5:5m:1d",
+	"RRA:MIN:0.5:1h:90d",
+	"RRA:MAX:0.5:15s:1h",
+	"RRA:MAX:0.5:5m:1d",
+	"RRA:MAX:0.5:1h:90d",
+}
+
 var _ domain.HistoricRepository = (*historicRepo)(nil)
 
 type historicRepo struct {
-	archives              []string
 	cluster               string
 	consolidationFunction string
 	dsmRepo               domain.DataSourceMapRepository
@@ -35,7 +55,6 @@ type historicRepo struct {
 
 func NewHistoricRepo(logger zerolog.Logger, config config.RRD, dsmRepo domain.DataSourceMapRepository) *historicRepo {
 	return &historicRepo{
-		archives:              config.Archives,
 		cluster:               config.ClusterName,
 		consolidationFunction: "AVERAGE",
 		dsmRepo:               dsmRepo,
@@ -261,7 +280,6 @@ func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) e
 		rrdFileDir := filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__")
 		rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metricName))
 		r := updateRunner{}
-		ds := []string{"DS:sum:GAUGE:120:NaN:NaN", "DS:num:GAUGE:120:NaN:NaN"}
 		timestamp := time.Now()
 		var values string
 		sumVal := reflect.ValueOf(summary.Sum)
@@ -274,7 +292,7 @@ func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) e
 		}
 		values = fmt.Sprintf("%s:%d", values, summary.Num)
 		r.run(func() error { return hr.runMkdir(rrdFilePath) })
-		r.run(func() error { return hr.runCreateCmd(rrdFilePath, timestamp, ds) })
+		r.run(func() error { return hr.runCreateCmd(rrdFilePath, timestamp, true) })
 		r.run(func() error { return hr.runUpdateCmd(rrdFilePath, timestamp, values) })
 		err = errors.Join(err, r.err)
 	}
@@ -286,9 +304,8 @@ func (hr *historicRepo) UpdateMetric(host *domain.ProcessedHost, metric *domain.
 	rrdFileDir := filepath.Join(hr.rrdDir, host.DSM.ClusterName, host.DSM.HostName)
 	rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metric.Name))
 	r := updateRunner{}
-	ds := []string{"DS:sum:GAUGE:120:NaN:NaN"}
 	r.run(func() error { return hr.runMkdir(rrdFilePath) })
-	r.run(func() error { return hr.runCreateCmd(rrdFilePath, metric.Timestamp, ds) })
+	r.run(func() error { return hr.runCreateCmd(rrdFilePath, metric.Timestamp, false) })
 	r.run(func() error { return hr.runUpdateCmd(rrdFilePath, metric.Timestamp, metric.Value) })
 	return r.err
 }
@@ -308,11 +325,16 @@ func (hr *historicRepo) runMkdir(rrdFilePath string) error {
 	return os.MkdirAll(dirname, 0755)
 }
 
-func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp time.Time, dss []string) error {
+func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp time.Time, summary bool) error {
 	if _, err := os.Stat(rrdFilePath); err == nil {
 		// File already exists.
 		return nil
 	} else if errors.Is(err, os.ErrNotExist) {
+		heartbeat := 120
+		dss := []string{fmt.Sprintf("DS:sum:GAUGE:%d:NaN:NaN", heartbeat)}
+		if summary {
+			dss = append(dss, fmt.Sprintf("DS:num:GAUGE:%d:NaN:NaN", heartbeat))
+		}
 		step := int64(hr.step.Seconds())
 		cmd := exec.Command(
 			hr.rrdTool, "create", rrdFilePath,
@@ -321,7 +343,7 @@ func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp time.Time, ds
 			"--no-overwrite",
 		)
 		cmd.Args = append(cmd.Args, dss...)
-		cmd.Args = append(cmd.Args, hr.archives...)
+		cmd.Args = append(cmd.Args, archives...)
 		hr.logger.Info().Str("cmd", cmd.String()).Msg("creating RRD file")
 		out, err := cmd.Output()
 		hr.logger.Info().Str("cmd", cmd.String()).Bytes("out", out).Msg("created RRD file")

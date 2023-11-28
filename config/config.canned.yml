@@ -89,16 +89,5 @@ rrd:
   # How frequently metrics are reported to this daemon.
   step: 15s
 
-  archives:
-    - "RRA:AVERAGE:0.5:15s:1h"
-    - "RRA:AVERAGE:0.5:5m:1d"
-    - "RRA:AVERAGE:0.5:1h:90d"
-    - "RRA:MIN:0.5:15s:1h"
-    - "RRA:MIN:0.5:5m:1d"
-    - "RRA:MIN:0.5:1h:90d"
-    - "RRA:MAX:0.5:15s:1h"
-    - "RRA:MAX:0.5:5m:1d"
-    - "RRA:MAX:0.5:1h:90d"
-
 log_level: info
 shared_secret_file: "./testdata/secret.dev"
