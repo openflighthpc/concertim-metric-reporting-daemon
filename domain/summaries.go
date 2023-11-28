@@ -22,6 +22,7 @@ func newMetricSummaries() *metricSummaries {
 	return &ms
 }
 
+// AddMetric method implements the MetricSummaries interface.
 func (ms *metricSummaries) AddMetric(metric CurrentMetric) error {
 	ms.logger.Debug().Str("metric", metric.Name).Msg("adding metric")
 	metricName := MetricName(metric.Name)
@@ -34,6 +35,7 @@ func (ms *metricSummaries) AddMetric(metric CurrentMetric) error {
 	return addMetricValueToSum(summary, metric)
 }
 
+// AddMetric method implements the MetricSummaries interface.
 func (ms *metricSummaries) GetSummaries() map[MetricName]*MetricSummary {
 	return ms.summaries
 }

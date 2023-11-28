@@ -134,6 +134,12 @@ type HistoricMetric struct {
 	Timestamp int64
 }
 
+// MetricSummary is a summary of a single metric across all hosts.  It includes
+// two stats about that metric: the number of hosts that have reported the
+// metric and the sum of the reported values.
+//
+// A MetricSummary is calculated for each metric across all hosts each
+// processing run and is stored in the HistoricRepository.
 type MetricSummary struct {
 	// The number of hosts that reported the metric.
 	Num int

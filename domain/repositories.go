@@ -117,6 +117,8 @@ type HistoricRepository interface {
 // calculated they have to be persisted by calling
 // HistoricRepository.UpdateSummaryMetrics.
 type MetricSummaries interface {
+	// AddMetric updates the summary of the metric.
 	AddMetric(metric CurrentMetric) error
+	// GetSummaries returns a map of metric name to metric summary.
 	GetSummaries() map[MetricName]*MetricSummary
 }
