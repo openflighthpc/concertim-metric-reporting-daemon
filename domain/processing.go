@@ -48,6 +48,7 @@ func NewProcessor(
 
 // Process the pending repo.
 func (p *Processor) Process() {
+	start := time.Now()
 	stats := processLogStats{}
 	summaries := newMetricSummaries()
 	pendingHosts := p.pendingRepo.GetAll()
@@ -72,7 +73,7 @@ func (p *Processor) Process() {
 				Str("metric", pendingMetric.Name).
 				Msg("processing metric")
 
-			metric := processedMetricFromPendingMetric(pendingMetric, p.step)
+			metric := processedMetricFromPendingMetric(pendingMetric, p.step, start)
 			p.logger.Debug().Any("pending", pendingMetric).Any("processed", metric).Send()
 			if metric.Stale {
 				p.logger.Debug().
@@ -111,11 +112,12 @@ func (p *Processor) Process() {
 	if err == nil {
 		stats.numUniqueMetrics = len(um)
 	}
-	logProcessResults(p.logger, stats)
+	logProcessResults(p.logger, stats, time.Since(start))
 }
 
-func logProcessResults(logger zerolog.Logger, stats processLogStats) {
+func logProcessResults(logger zerolog.Logger, stats processLogStats, duration time.Duration) {
 	logger.Info().
+		Dur("duration", duration).
 		Int("hosts", stats.numHosts).
 		Int("metrics", stats.numMetrics).
 		Int("unique metrics", stats.numUniqueMetrics).
@@ -132,10 +134,9 @@ type processLogStats struct {
 	numUniqueMetrics int
 }
 
-func processedMetricFromPendingMetric(src PendingMetric, step time.Duration) ProcessedMetric {
+func processedMetricFromPendingMetric(src PendingMetric, step time.Duration, now time.Time) ProcessedMetric {
 	var dst ProcessedMetric
 	var stale bool
-	now := time.Now()
 	persistent := src.TTL == 0
 	if persistent {
 		stale = false

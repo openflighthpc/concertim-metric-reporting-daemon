@@ -147,7 +147,7 @@ func (hr *historicRepo) getHosts() ([]string, error) {
 	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic hosts")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, augmentError(err, hr.rrdTool, "executing")
+		return nil, augmentError(err, hr.rrdTool, "listing hosts")
 	}
 	hosts := make([]string, 0)
 	for _, host := range strings.Split(string(out), "\n") {
@@ -165,7 +165,7 @@ func (hr *historicRepo) getMetricNames(dir string) ([]string, error) {
 	hr.logger.Debug().Str("cmd", cmd.String()).Msg("listing historic metrics")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, augmentError(err, hr.rrdTool, "executing")
+		return nil, augmentError(err, hr.rrdTool, "listing metrics")
 	}
 	metricNames := make([]string, 0)
 	for _, file := range strings.Split(string(out), "\n") {
@@ -226,7 +226,7 @@ func (hr *historicRepo) runFetchCmd(args fetchCmdArgs) ([]*domain.HistoricMetric
 	hr.logger.Debug().Str("cmd", cmd.String()).Msg("fetching metrics")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, augmentError(err, hr.rrdTool, "executing")
+		return nil, augmentError(err, hr.rrdTool, "fetching metrics")
 	}
 	hr.logger.Debug().Bytes("metrics", out).Msg("found metrics")
 	return hr.parseMetricValues(out), nil
@@ -276,7 +276,7 @@ func (hr *historicRepo) parseMetricValues(input []byte) []*domain.HistoricMetric
 func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) error {
 	var err error
 	for metricName, summary := range summaries.GetSummaries() {
-		hr.logger.Info().Str("metric", string(metricName)).Int("value", summary.Num).Msg("updating consolidated metric")
+		hr.logger.Debug().Str("metric", string(metricName)).Int("value", summary.Num).Msg("updating consolidated metric")
 		rrdFileDir := filepath.Join(hr.rrdDir, hr.cluster, "__SummaryInfo__")
 		rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metricName))
 		r := updateRunner{}
@@ -300,7 +300,7 @@ func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) e
 }
 
 func (hr *historicRepo) UpdateMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) error {
-	hr.logger.Info().Stringer("host", host.DSM).Str("metric", metric.Name).Str("value", metric.Value).Msg("updating metric")
+	hr.logger.Debug().Stringer("host", host.DSM).Str("metric", metric.Name).Str("value", metric.Value).Msg("updating metric")
 	rrdFileDir := filepath.Join(hr.rrdDir, host.DSM.ClusterName, host.DSM.HostName)
 	rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metric.Name))
 	r := updateRunner{}
@@ -344,11 +344,11 @@ func (hr *historicRepo) runCreateCmd(rrdFilePath string, timestamp time.Time, su
 		)
 		cmd.Args = append(cmd.Args, dss...)
 		cmd.Args = append(cmd.Args, archives...)
-		hr.logger.Info().Str("cmd", cmd.String()).Msg("creating RRD file")
+		hr.logger.Debug().Str("cmd", cmd.String()).Msg("creating RRD file")
 		out, err := cmd.Output()
-		hr.logger.Info().Str("cmd", cmd.String()).Bytes("out", out).Msg("created RRD file")
+		hr.logger.Debug().Str("cmd", cmd.String()).Bytes("out", out).Msg("created RRD file")
 		if err != nil {
-			return augmentError(err, hr.rrdTool, "executing")
+			return augmentError(err, hr.rrdTool, "creating RRD file")
 		}
 		return nil
 	} else {
@@ -361,11 +361,11 @@ func (hr *historicRepo) runUpdateCmd(rrdFilePath string, timestamp time.Time, va
 	cmd := exec.Command(
 		hr.rrdTool, "update", rrdFilePath, valueSpec,
 	)
-	hr.logger.Info().Str("cmd", cmd.String()).Msg("updating metrics")
+	hr.logger.Debug().Str("cmd", cmd.String()).Msg("updating metrics")
 	out, err := cmd.Output()
-	hr.logger.Info().Str("cmd", cmd.String()).Bytes("out", out).Msg("updated metrics")
+	hr.logger.Debug().Str("cmd", cmd.String()).Bytes("out", out).Msg("updated metrics")
 	if err != nil {
-		return augmentError(err, hr.rrdTool, "executing")
+		return augmentError(err, hr.rrdTool, "updating RRD file")
 	}
 	return nil
 }
