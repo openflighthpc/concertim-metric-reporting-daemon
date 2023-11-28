@@ -58,12 +58,12 @@ visualizer_api:
 
 # Configuration for storing and retrieving historic metrics with RRDTool.
 rrd:
-  # The ganglia grid from which to retrieve historic metrics.  All other grids
-  # are ignored.
+  # The grid from which to retrieve historic metrics.
+  # DEPRECATED.
   grid_name: "unspecified"
 
-  # The ganglia cluster from which to retrieve historic hosts.  All other
-  # clusters are ignored.
+  # The cluster from which to retrieve historic metrics.
+  # DEPRECATED.
   cluster_name: "unspecified"
 
   # Directory where the RRD files are stored.

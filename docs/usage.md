@@ -471,12 +471,14 @@ When deployed as part of the Concertim appliance, an API token can be created by
 
 When running locally, an API token can be created by running, `go run cmd/create-auth-token/main.go`.  The auth token will be printed to standard output.
 
+```bash
+$ go run cmd/create-auth-token/main.go --config-file ./config/config.canned.yml
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDEzNjg4ODl9.xfwqABmzcjpRIWU8cvjP8daIgFmF5dWkR2m1CSOLkL4
 ```
-$ curl -D - -k  -X POST http://localhost:3000/token -d '{}'
-HTTP/1.1 200 OK
-Content-Type: application/json; charset=utf-8
-Date: Tue, 17 Jan 2023 18:09:30 GMT
-Content-Length: 131
 
-{"status":200,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzQwNjUzNzB9.mwoJLkw0eKZhRgyX2BX6RwzE1XDzb1b3VDWh-dW2AXk"}
+When running in docker container you can use the following:
+
+```bash
+$ docker run --rm --volume .:/app concertim-metric-reporting-daemon go run ./cmd/create-auth-token/main.go --config-file ./config/config.canned.yml 
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDEzNzAxNDJ9.HXSKYVXKDnA2-hRHBtpesrpIYVxav7l1M4U2IOl1Gc8
 ```
