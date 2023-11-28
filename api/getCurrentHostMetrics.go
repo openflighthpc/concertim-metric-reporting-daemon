@@ -31,7 +31,7 @@ func (s *Server) getCurrentHostMetrics(rw http.ResponseWriter, r *http.Request) 
 	}
 	body := []metricResponse{}
 	hostId := domain.HostId(chi.URLParam(r, "deviceId"))
-	metrics, err := s.app.CurrentRepoo.GetMetricsForHost(hostId)
+	metrics, err := s.app.CurrentRepo.GetMetricsForHost(hostId)
 	if err != nil {
 		if errors.Is(err, domain.ErrWaitingOnProcessingRun) {
 			ServiceUnavailable(rw, r, err)

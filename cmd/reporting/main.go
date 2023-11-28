@@ -104,7 +104,7 @@ func main() {
 	dsmRetriever := getDSMRetriever(config)
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)
 	dsmUpdater := dsmRepository.NewUpdater(log.Logger, config.DSM, dsmRepo, dsmRetriever)
-	currentRepo := inmem.NewProcessedRepository(log.Logger)
+	currentRepo := inmem.NewCurrentRepository(log.Logger)
 	historicRepo := rrd.NewHistoricRepo(log.Logger, config.RRD, dsmRepo)
 	app := domain.NewApp(pendingRepo, dsmRepo, dsmUpdater, currentRepo, historicRepo)
 	apiServer := api.NewServer(log.Logger, app, config.API)

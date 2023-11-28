@@ -65,7 +65,7 @@ func (p *Processor) Process() {
 			Str("host", pendingHost.DSM.HostName).
 			Int("count", len(pendingHost.Metrics)).
 			Msg("processing metrics")
-		host := processedHostFromPendingHost(pendingHost)
+		host := currentHostFromPendingHost(pendingHost)
 		for _, pendingMetric := range pendingHost.Metrics {
 			stats.numMetrics++
 			p.logger.Debug().
@@ -73,8 +73,8 @@ func (p *Processor) Process() {
 				Str("metric", pendingMetric.Name).
 				Msg("processing metric")
 
-			metric := p.processedMetricFromPendingMetric(pendingMetric, start)
-			p.logger.Debug().Any("pending", pendingMetric).Any("processed", metric).Send()
+			metric := p.currentMetricFromPendingMetric(pendingMetric, start)
+			p.logger.Debug().Any("pending", pendingMetric).Any("current", metric).Send()
 			if metric.Stale {
 				p.logger.Debug().
 					Str("host", host.DSM.HostName).
@@ -134,8 +134,8 @@ type processLogStats struct {
 	numUniqueMetrics int
 }
 
-func (p *Processor) processedMetricFromPendingMetric(src PendingMetric, now time.Time) ProcessedMetric {
-	var dst ProcessedMetric
+func (p *Processor) currentMetricFromPendingMetric(src PendingMetric, now time.Time) CurrentMetric {
+	var dst CurrentMetric
 	var stale bool
 	expirationTime := src.Reported.Add(src.TTL)
 	persistent := src.TTL == 0
@@ -191,10 +191,10 @@ func (p *Processor) processedMetricFromPendingMetric(src PendingMetric, now time
 	return dst
 }
 
-func processedHostFromPendingHost(src PendingHost) ProcessedHost {
-	var dst ProcessedHost
+func currentHostFromPendingHost(src PendingHost) CurrentHost {
+	var dst CurrentHost
 	dst.Id = src.Id
 	dst.DSM = src.DSM
-	dst.Metrics = map[MetricName]ProcessedMetric{}
+	dst.Metrics = map[MetricName]CurrentMetric{}
 	return dst
 }

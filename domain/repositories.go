@@ -76,18 +76,18 @@ type CurrentRepository interface {
 	GetUniqueMetrics() ([]*UniqueMetric, error)
 	// GetMetricsForHost returns the metrics reported by the given host in the
 	// most recent processing run.
-	GetMetricsForHost(hostId HostId) ([]*ProcessedMetric, error)
-	// HostsWithMetric returns a slice of ProcessedHosts that had the given
+	GetMetricsForHost(hostId HostId) ([]*CurrentMetric, error)
+	// HostsWithMetric returns a slice of CurrentHosts that had the given
 	// metric in the last processing run.
-	HostsWithMetric(metricName MetricName) ([]*ProcessedHost, error)
+	HostsWithMetric(metricName MetricName) ([]*CurrentHost, error)
 	// Begin records the start of a processing run.
 	Begin() error
 	// Commit commits the results of a processing run.
 	Commit() error
 	// AddHost records the presence of a host in the current processing run.
-	AddHost(host *ProcessedHost)
+	AddHost(host *CurrentHost)
 	// AddMetric records the presence of a metric in the current processing run.
-	AddMetric(host *ProcessedHost, metric *ProcessedMetric)
+	AddMetric(host *CurrentHost, metric *CurrentMetric)
 }
 
 // HistoricRepository is the interface for storing and retrieving historic
@@ -106,7 +106,7 @@ type HistoricRepository interface {
 	ListHostMetricNames(hostId HostId) ([]string, error)
 	// UpdateHostMetric updates the historic record for the given host and
 	// metric with the metric's current value.
-	UpdateMetric(host *ProcessedHost, metric *ProcessedMetric) error
+	UpdateMetric(host *CurrentHost, metric *CurrentMetric) error
 	// UpdateSummaryMetrics updates the historic record for the given
 	// summaries.
 	UpdateSummaryMetrics(MetricSummaries) error
@@ -117,6 +117,6 @@ type HistoricRepository interface {
 // calculated they have to be persisted by calling
 // HistoricRepository.UpdateSummaryMetrics.
 type MetricSummaries interface {
-	AddMetric(metric ProcessedMetric) error
+	AddMetric(metric CurrentMetric) error
 	GetSummaries() map[MetricName]*MetricSummary
 }

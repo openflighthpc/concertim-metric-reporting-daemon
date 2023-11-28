@@ -26,7 +26,7 @@ type metricValue struct {
 //	]
 func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 	metricName := domain.MetricName(chi.URLParam(r, "metricName"))
-	hosts, err := s.app.CurrentRepoo.HostsWithMetric(metricName)
+	hosts, err := s.app.CurrentRepo.HostsWithMetric(metricName)
 	if err != nil {
 		if errors.Is(err, domain.ErrWaitingOnProcessingRun) {
 			ServiceUnavailable(rw, r, err)
@@ -65,7 +65,7 @@ func (s *Server) getMetricValues(rw http.ResponseWriter, r *http.Request) {
 	renderJSON(body, http.StatusOK, rw)
 }
 
-func castMetricValue(metric domain.ProcessedMetric) (any, error) {
+func castMetricValue(metric domain.CurrentMetric) (any, error) {
 	switch metric.Datatype {
 	case "int8", "int16", "int32":
 		i, err := strconv.ParseInt(metric.Value, 10, 64)

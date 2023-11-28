@@ -22,7 +22,7 @@ func newMetricSummaries() *metricSummaries {
 	return &ms
 }
 
-func (ms *metricSummaries) AddMetric(metric ProcessedMetric) error {
+func (ms *metricSummaries) AddMetric(metric CurrentMetric) error {
 	ms.logger.Debug().Str("metric", metric.Name).Msg("adding metric")
 	metricName := MetricName(metric.Name)
 	summary, ok := ms.summaries[metricName]
@@ -40,7 +40,7 @@ func (ms *metricSummaries) GetSummaries() map[MetricName]*MetricSummary {
 
 // addMetricValueToSum adds the metrics Value to the summaries Sum attribute.
 // Hoops are jumped through to handle the various data types.
-func addMetricValueToSum(summary *MetricSummary, metric ProcessedMetric) error {
+func addMetricValueToSum(summary *MetricSummary, metric CurrentMetric) error {
 	switch metric.Datatype {
 	case "int8", "int16", "int32":
 		i, err := strconv.ParseInt(metric.Value, 10, 64)

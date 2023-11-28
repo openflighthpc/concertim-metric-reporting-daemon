@@ -59,7 +59,6 @@ type PendingHost struct {
 	// The data source map for the host.
 	DSM DSM
 	// The time at which metrics were most recently reported for this host.
-	// XXX ProcessedHost has this as a pointer value.
 	Reported time.Time
 	// A map from metric name to the most recently reported metric with that
 	// name.
@@ -82,20 +81,20 @@ type PendingMetric struct {
 	LastProcessed *time.Time
 }
 
-// ProcessedHost is the domain model representing a single host that has been
+// CurrentHost is the domain model representing a single host that has been
 // fully processed.
-type ProcessedHost struct {
+type CurrentHost struct {
 	// The Concertim ID for the host.
 	Id      HostId
 	DSM     DSM
-	Metrics map[MetricName]ProcessedMetric
+	Metrics map[MetricName]CurrentMetric
 	// Time that metrics were last reported for the host.
 	Mtime *time.Time
 }
 
-// ProcessedMetric is the domain model representing a single metric that has
+// CurrentMetric is the domain model representing a single metric that has
 // been fully processed.
-type ProcessedMetric struct {
+type CurrentMetric struct {
 	// XXX Consider changing some of these strings to MetricName etc..
 	Name     string
 	Datatype string
