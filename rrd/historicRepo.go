@@ -300,7 +300,7 @@ func (hr *historicRepo) UpdateSummaryMetrics(summaries domain.MetricSummaries) e
 }
 
 func (hr *historicRepo) UpdateMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) error {
-	hr.logger.Debug().Stringer("host", host.DSM).Str("metric", metric.Name).Str("value", metric.Value).Msg("updating metric")
+	hr.logger.Debug().Stringer("host", host.DSM).Str("metric", metric.Name).Str("value", metric.Value).Int64("timestamp", metric.Timestamp.Unix()).Msg("updating metric")
 	rrdFileDir := filepath.Join(hr.rrdDir, host.DSM.ClusterName, host.DSM.HostName)
 	rrdFilePath := filepath.Join(rrdFileDir, fmt.Sprintf("%s.rrd", metric.Name))
 	r := updateRunner{}

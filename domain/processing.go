@@ -73,7 +73,7 @@ func (p *Processor) Process() {
 				Str("metric", pendingMetric.Name).
 				Msg("processing metric")
 
-			metric := processedMetricFromPendingMetric(pendingMetric, p.step, start)
+			metric := p.processedMetricFromPendingMetric(pendingMetric, start)
 			p.logger.Debug().Any("pending", pendingMetric).Any("processed", metric).Send()
 			if metric.Stale {
 				p.logger.Debug().
@@ -134,14 +134,14 @@ type processLogStats struct {
 	numUniqueMetrics int
 }
 
-func processedMetricFromPendingMetric(src PendingMetric, step time.Duration, now time.Time) ProcessedMetric {
+func (p *Processor) processedMetricFromPendingMetric(src PendingMetric, now time.Time) ProcessedMetric {
 	var dst ProcessedMetric
 	var stale bool
+	expirationTime := src.Reported.Add(src.TTL)
 	persistent := src.TTL == 0
 	if persistent {
 		stale = false
 	} else {
-		expirationTime := src.Reported.Add(src.TTL)
 		stale = expirationTime.Before(now)
 	}
 	nature := "volatile"
@@ -165,12 +165,20 @@ func processedMetricFromPendingMetric(src PendingMetric, step time.Duration, now
 		//
 		// Due to the way that RRD works, dst.Timestamp should be set to a
 		// value that is both (1) src.Reported + an integer multiple of step;
-		// and (2) the current time or before.
+		// and (2) not after the current time.  The time comparisons are done
+		// on whole seconds as that is how RRDTool works.
 		lastProcessed := *src.LastProcessed
-		for !lastProcessed.Add(step).After(now) {
-			lastProcessed = lastProcessed.Add(step)
+		for !lastProcessed.Add(p.step).Truncate(1 * time.Second).After(now.Truncate(1 * time.Second)) {
+			lastProcessed = lastProcessed.Add(p.step)
 		}
 		timestamp = lastProcessed
+		p.logger.Debug().
+			Str("metric", src.Name).
+			Int64("processing start", now.Unix()).
+			Int64("timestamp", timestamp.Unix()).
+			Int64("reported", src.Reported.Unix()).
+			Int64("expiration", expirationTime.Unix()).
+			Msg("reprocessing non-expired metric")
 	}
 
 	dst.Name = src.Name
