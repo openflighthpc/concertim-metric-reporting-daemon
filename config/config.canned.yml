@@ -1,11 +1,9 @@
-# Configuration using canned responses for the data source map and ganglia
-# retrieved metrics.
+# Configuration using canned responses for the data source map.
 #
 # During normal operation, metric reporting daemon will connect to ct
-# visualisation app and ganglia's gmetad to retrieve the data source map and
-# list of current metrics respectively.  This configuration replaces those
-# connections with processing of canned responses.  This can be convenient when
-# developing the daemon outside of a full concertim setup.
+# visualisation app retrieve the data source map. This configuration replaces
+# that connection with processing of canned responses.  This can be
+# convenient when developing the daemon outside of a full concertim setup.
 
 # Configuration for the HTTP API.
 api:
@@ -33,28 +31,6 @@ api:
   write_timeout: 10s
   idle_timeout: 120s
 
-# Configuration for the gangali data source server.
-gds:
-  # The address of the network interface to listen on.
-  ip: "0.0.0.0"
-
-  # The port to listen on.
-  port: 8678
-
-  # The cluster name to use in the ganglia output.  This should be the same as
-  # the retrieval.cluster_name and rrd.cluster_name settings.
-  cluster_name: "unspecified"
-
-  # The source to use in the ganglia output.
-  metric_source: "ct-metric-reporting-daemon"
-
-  # The time in seconds that a host should remain "fresh" for.
-  #
-  # If the last metric for a host was reported more than `hostTTL` seconds
-  # ago, the host and all of its metrics are considered stale and no longer
-  # included in the metric stream.
-  host_ttl: 180
-
 # Configuration for generating the data source map lookup.
 dsm:
   # The data source map is periodically updated from the Concertim
@@ -80,52 +56,6 @@ dsm:
   # process.
   testdata: "./testdata/dsm.json"
 
-# Configuration for retrieving metrics from gmetad.
-retrieval:
-  # The IP address, or hostname, of the gmetad server to poll for metrics.
-  ip: localhost
-
-  # The port of the gmetad server to poll for metrics.
-  port: 8651
-
-  # The ganglia grid from which to retrieve clusters.  All other grids are
-  # ignored.  This should be the same as the rrd.grid_name setting.
-  grid_name: "unspecified"
-
-  # The ganglia cluster from which to retrieve hosts.  All other clusters are
-  # ignored.  This should be the same as the gds.cluster_name and
-  # rrd.cluster_name settings.
-  cluster_name: "unspecified"
-
-  # The metrics are periodically retrieved from the gmetad source. `frequency`
-  # specifies the frequency of the periodic updating.
-  #
-  # Certain events can cause the metrics to be retrieved outside of its
-  # periodic updating.  To prevent over consumption of resources, the updates
-  # can be throttled such that no two updates will occur within `throttle` of
-  # each other.
-  #
-  # Both the `frequency` and `throttle` values require a number and unit, e.g.,
-  # `60s` for sixty seconds or `1h10m20s` for one hour ten minutes and twenty
-  # seconds.
-  #
-  # Valid time units are “ns”, “us” (or “µs”), “ms”, “s”, “m”, “h”.
-  frequency: 30s
-  throttle: 10s
-
-  # After gmetad has requested metrics from us, we request metrics from gmetad.
-  # This value configures the delay between the two.  We want to provide enough
-  # time for gmetad to have processed the metrics, but don't want to wait too
-  # long as we want the metrics to be available to IRV as soon as possible.
-  post_gmetad_delay: 500ms
-
-  # If this values is given and is not an empty string, the ganglia XML will be
-  # read from this file instead of polling the gmetad server.  In this case the
-  # IP and port will be ignored.  Relative paths are relative to the working
-  # directory of the running process.
-  # testdata: "./testdata/ganglia-small.xml"
-  # testdata: "./testdata/ganglia.xml"
-
 # Configuration for accessing the Concertim Visualization App (aka Visualizer)
 # API.
 visualizer_api:
@@ -139,25 +69,25 @@ visualizer_api:
   # If set to true skip all TLS certificate verification checks.
   skip_certificate_check: true
 
-# Configuration for retrieving historic metrics with RRDTool.  Currently, the
-# RRD files are created by Ganglia's Gmetad.  These values must be consistent
-# with how Gmetad has been configured.
+# Configuration for storing and retrieving historic metrics with RRDTool.
 rrd:
-  # The ganglia grid from which to retrieve historic metrics.  All other grids
-  # are ignored.  This should be the same as the retrieval.grid_name setting.
+  # The grid from which to retrieve historic metrics.
+  # DEPRECATED.
   grid_name: "unspecified"
 
-  # The ganglia cluster from which to retrieve historic hosts.  All other
-  # clusters are ignored.  This should be the same as the gds.cluster_name and
-  # retrieval.cluster_name settings.
+  # The cluster from which to retrieve historic metrics.
+  # DEPRECATED.
   cluster_name: "unspecified"
 
   # Directory where the RRD files are stored.
-  # directory: /var/lib/ganglia/rrds/
-  directory: testdata/rrds/
+  # directory: testdata/rrds/
+  directory: /var/lib/metric-reporting-daemon/rrds/
 
   # Path to the RRDTool executable.
   rrd_tool_path: /usr/bin/rrdtool
+
+  # How frequently metrics are reported to this daemon.
+  step: 15s
 
 log_level: info
 shared_secret_file: "./testdata/secret.dev"

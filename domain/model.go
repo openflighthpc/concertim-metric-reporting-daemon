@@ -29,6 +29,8 @@ type MetricSlope string
 // ENUM(string, int8, uint8, int16, uint16, int32, uint32, float, double).
 type MetricType string
 
+var NumericMetricTypes = []string{"int8", "uint8", "int16", "uint16", "int32", "uint32", "float", "double"}
+
 // HostId exists to document some function signatures.
 type HostId string
 
@@ -37,7 +39,7 @@ func (m HostId) String() string {
 	return string(m)
 }
 
-// DSM represents a Ganglia identifier for a host.
+// DSM represents a hierarchical path to the host.
 type DSM struct {
 	GridName    string
 	ClusterName string
@@ -49,55 +51,61 @@ func (d DSM) String() string {
 	return fmt.Sprintf("%s/%s/%s", d.GridName, d.ClusterName, d.HostName)
 }
 
-// ReportedHost is the domain model representing a host for which metrics have
+// PendingHost is the domain model representing a host for which metrics have
 // been reported.
-type ReportedHost struct {
-	Id       HostId
-	DSM      DSM
+type PendingHost struct {
+	// The Concertim ID for the host.
+	Id HostId
+	// The data source map for the host.
+	DSM DSM
+	// The time at which metrics were most recently reported for this host.
 	Reported time.Time
-	DMax     time.Duration
-	Metrics  []ReportedMetric
+	// A map from metric name to the most recently reported metric with that
+	// name.
+	Metrics map[MetricName]PendingMetric
 }
 
 // MetricName exists to document some function signatures.
 type MetricName string
 
-// ReportedMetric is the domain model representing a single reported metric.
+// PendingMetric is the domain model representing a single reported metric.
 // It has not yet been fully processed.
-type ReportedMetric struct {
-	Name     string
-	Value    string
-	Units    string
-	Slope    MetricSlope
-	Reported time.Time
-	DMax     time.Duration
-	Type     MetricType
+type PendingMetric struct {
+	Name          string
+	Value         string
+	Units         string
+	Slope         MetricSlope
+	Reported      time.Time
+	TTL           time.Duration
+	Type          MetricType
+	LastProcessed *time.Time
 }
 
-// ProcessedHost is the domain model representing a single host that has been
+// CurrentHost is the domain model representing a single host that has been
 // fully processed.
-type ProcessedHost struct {
+type CurrentHost struct {
 	// The Concertim ID for the host.
 	Id      HostId
 	DSM     DSM
-	Metrics map[MetricName]ProcessedMetric
+	Metrics map[MetricName]CurrentMetric
 	// Time that metrics were last reported for the host.
 	Mtime *time.Time
 }
 
-// ProcessedMetric is the domain model representing a single metric that has
+// CurrentMetric is the domain model representing a single metric that has
 // been fully processed.
-type ProcessedMetric struct {
+type CurrentMetric struct {
 	// XXX Consider changing some of these strings to MetricName etc..
-	Name      string
-	Datatype  string
-	Units     string
-	Source    string
-	Value     string
-	Nature    string
-	Dmax      int
-	Timestamp int64
-	Stale     bool
+	Name     string
+	Datatype string
+	Units    string
+	Value    string
+	Nature   string
+	Dmax     int
+	// The processing time for the metric.
+	Timestamp time.Time
+	// Whether the metric has expired.
+	Stale bool
 }
 
 type UniqueMetric struct {
@@ -124,6 +132,19 @@ type HistoricHost struct {
 type HistoricMetric struct {
 	Value     float64
 	Timestamp int64
+}
+
+// MetricSummary is a summary of a single metric across all hosts.  It includes
+// two stats about that metric: the number of hosts that have reported the
+// metric and the sum of the reported values.
+//
+// A MetricSummary is calculated for each metric across all hosts each
+// processing run and is stored in the HistoricRepository.
+type MetricSummary struct {
+	// The number of hosts that reported the metric.
+	Num int
+	// The total value reported for all hosts that report the metric.
+	Sum any
 }
 
 // ErrInvalidMetricVal is used if the metric's value is not valid for its
@@ -185,6 +206,7 @@ type HistoricMetricDuration struct {
 // ENUM(hour, day, quarter).
 type LastDuration string
 
+// These values need to be consistent with the RRA archives.  See rrd.archives.
 var LastXLookup map[LastDuration]HistoricMetricDuration = map[LastDuration]HistoricMetricDuration{
 	LastDurationHour:    {Start: "-1h", Resolution: "15s"},
 	LastDurationDay:     {Start: "-1d", Resolution: "5m"},

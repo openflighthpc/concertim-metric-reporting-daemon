@@ -17,8 +17,6 @@ type Config struct {
 	SharedSecretFile string `yaml:"shared_secret_file"`
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`
-	GDS              `yaml:"gds"`
-	Retrieval        `yaml:"retrieval"`
 	VisualizerAPI    `yaml:"visualizer_api"`
 	RRD              `yaml:"rrd"`
 }
@@ -33,32 +31,11 @@ type API struct {
 	IdleTimeout  time.Duration `yaml:"idle_timeout"`
 }
 
-// GDS is the configuration for the Ganglia Data Source server component.
-type GDS struct {
-	IP           string `yaml:"ip"`
-	ClusterName  string `yaml:"cluster_name"`
-	Port         int    `yaml:"port"`
-	MetricSource string `yaml:"metric_source"`
-	HostTTL      int    `yaml:"host_ttl"`
-}
-
 // DSM is the configuration for the Data Source Map component.
 type DSM struct {
 	Frequency time.Duration `yaml:"frequency"`
 	Testdata  string        `yaml:"testdata"`
 	Throttle  time.Duration `yaml:"throttle"`
-}
-
-// Retrieval is the configuration for retrieving the ganglia XML.
-type Retrieval struct {
-	ClusterName     string        `yaml:"cluster_name"`
-	Frequency       time.Duration `yaml:"frequency"`
-	GridName        string        `yaml:"grid_name"`
-	IP              string        `yaml:"ip"`
-	Port            int           `yaml:"port"`
-	PostGmetadDelay time.Duration `yaml:"post_gmetad_delay"`
-	Testdata        string        `yaml:"testdata"`
-	Throttle        time.Duration `yaml:"throttle"`
 }
 
 type VisualizerAPI struct {
@@ -71,10 +48,11 @@ type VisualizerAPI struct {
 }
 
 type RRD struct {
-	ClusterName string `yaml:"cluster_name"`
-	GridName    string `yaml:"grid_name"`
-	Directory   string `yaml:"directory"`
-	ToolPath    string `yaml:"rrd_tool_path"`
+	ClusterName string        `yaml:"cluster_name"`
+	Directory   string        `yaml:"directory"`
+	GridName    string        `yaml:"grid_name"`
+	Step        time.Duration `yaml:"step"`
+	ToolPath    string        `yaml:"rrd_tool_path"`
 }
 
 // DefaultPath is the path to the default config file.

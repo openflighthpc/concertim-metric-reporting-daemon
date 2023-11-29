@@ -45,13 +45,13 @@ func (u *Updater) RunPeriodicUpdateLoop() {
 	go func() {
 		u.logger.Debug().Dur("frequency", u.config.Frequency).Msg("Starting periodic retreival")
 		for {
-			<-u.ticker.C
 			u.limiter.Do(func() {
 				err := u.update()
 				if err != nil {
 					u.logger.Warn().Err(err).Msg("periodic update failed")
 				}
 			})
+			<-u.ticker.C
 		}
 	}()
 }

@@ -22,8 +22,7 @@ func Test_getHistoricMetricNames(t *testing.T) {
 	}
 	historicRepo := rrd.NewHistoricRepo(log.Logger, rrdConfig, testDSMRepo)
 	app := domain.Application{
-		Repo:         nil,
-		ResultRepo:   nil,
+		CurrentRepo:  nil,
 		HistoricRepo: historicRepo,
 	}
 	server := NewServer(log.Logger, &app, testAPIConfig)

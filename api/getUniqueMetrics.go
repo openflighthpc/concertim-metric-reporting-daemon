@@ -31,7 +31,7 @@ type uniqueMetric struct {
 //	  ...
 //	]
 func (s *Server) getUniqueMetrics(rw http.ResponseWriter, r *http.Request) {
-	metrics, err := s.app.ResultRepo.GetUniqueMetrics()
+	metrics, err := s.app.CurrentRepo.GetUniqueMetrics()
 	if err != nil {
 		if errors.Is(err, domain.ErrWaitingOnProcessingRun) {
 			ServiceUnavailable(rw, r, err)

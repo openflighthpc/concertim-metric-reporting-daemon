@@ -6,6 +6,7 @@ FROM golang:1.21 AS build
 
 WORKDIR /app
 COPY . /app
+RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
 RUN make clean
 RUN make ct-metric-reporting-daemon
 
@@ -23,7 +24,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
          rrdtool \
-         gmetad \
     && apt-get clean \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
@@ -44,7 +44,6 @@ RUN apt-get update \
 
 COPY --from=build /app/testdata/* /app/testdata/
 COPY --from=build /app/api/testdata/* /app/api/testdata/
-COPY --from=build /app/gds/testdata/* /app/gds/testdata/
 COPY --from=build /app/rrd/testdata/* /app/rrd/testdata/
 COPY --from=build /go/pkg /go/pkg/
 
@@ -67,18 +66,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
          rrdtool \
-         gmetad \
     && apt-get clean \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
 WORKDIR /app
+RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
 
 # Add files containing canned responses.
 # COPY --from=build /app/testdata/* /app/testdata/
 
 COPY --from=build /app/ct-metric-reporting-daemon /app/ct-metric-reporting-daemon
 COPY --from=build /app/config/*.yml /app/config/
-COPY --from=build /app/docker/gmetad.conf /etc/ganglia/gmetad.conf
 COPY --from=build /app/docker/entrypoint.sh /app/docker/entrypoint.sh
 ENTRYPOINT ["/app/docker/entrypoint.sh"]
 

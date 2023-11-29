@@ -10,46 +10,51 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// processingResult is a struct that holds the result of a single processing run.
 type processingResult struct {
 	// hostsByMetric is a map from a metric's name to a list of hosts that
 	// currently have a fresh value for that metric.
-	hostsByMetric map[domain.MetricName][]*domain.ProcessedHost
+	hostsByMetric map[domain.MetricName][]*domain.CurrentHost
 
 	// uniqueMetrics is a set of unique metrics by name.
 	uniqueMetrics map[domain.MetricName]*domain.UniqueMetric
 
-	// hosts is a slice of Host containing their processed metrics.
-	hosts []*domain.ProcessedHost
+	// hosts is a slice of CurrentHosts.  Each host contains its current metrics.
+	hosts []*domain.CurrentHost
 }
 
-var _ domain.ProcessedRepository = (*ProcessedRepository)(nil)
+var _ domain.CurrentRepository = (*CurrentRepository)(nil)
 
-type ProcessedRepository struct {
+// CurrentRepository implements the domain.CurrentRepository interface.  The
+// results from the most recently completed processing run, if any, are stored
+// in the result field.  The ongoing processing run, if any, is stored in the
+// nextResult field.
+type CurrentRepository struct {
 	logger     zerolog.Logger
 	mux        sync.Mutex
 	result     *processingResult
 	nextResult *processingResult
 }
 
-func NewProcessedRepository(logger zerolog.Logger) *ProcessedRepository {
-	return &ProcessedRepository{
-		logger: logger.With().Str("component", "processed-repo").Logger(),
+func NewCurrentRepository(logger zerolog.Logger) *CurrentRepository {
+	return &CurrentRepository{
+		logger: logger.With().Str("component", "current-repo").Logger(),
 		mux:    sync.Mutex{},
 	}
 }
 
-func (pr *ProcessedRepository) Begin() error {
+func (pr *CurrentRepository) Begin() error {
 	pr.logger.Debug().Msg("begin transaction")
 	pr.mux.Lock()
 	defer pr.mux.Unlock()
 	pr.nextResult = &processingResult{
-		hostsByMetric: map[domain.MetricName][]*domain.ProcessedHost{},
+		hostsByMetric: map[domain.MetricName][]*domain.CurrentHost{},
 		uniqueMetrics: map[domain.MetricName]*domain.UniqueMetric{},
 	}
 	return nil
 }
 
-func (pr *ProcessedRepository) Commit() error {
+func (pr *CurrentRepository) Commit() error {
 	pr.logger.Debug().Any("results", pr.nextResult).Msg("committing transaction")
 	pr.mux.Lock()
 	defer pr.mux.Unlock()
@@ -58,7 +63,7 @@ func (pr *ProcessedRepository) Commit() error {
 	return nil
 }
 
-func (pr *ProcessedRepository) AddHost(host *domain.ProcessedHost) {
+func (pr *CurrentRepository) AddHost(host *domain.CurrentHost) {
 	// XXX Add error handling if outside of transaction.
 	// if pr.nextResult == nil {
 	// 	return fmt.Errorf("adding host outside of transaction")
@@ -73,7 +78,7 @@ func (pr *ProcessedRepository) AddHost(host *domain.ProcessedHost) {
 
 // AddMetric adds the given metric for the given host.  Host should be the host
 // that reported the metric.
-func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *domain.ProcessedMetric) {
+func (pr *CurrentRepository) AddMetric(host *domain.CurrentHost, metric *domain.CurrentMetric) {
 	// XXX Add error handling if outside of transaction.
 	// if pr.nextResult == nil {
 	// 	return fmt.Errorf("adding host outside of transaction")
@@ -84,7 +89,7 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 	host.Metrics[metricName] = *metric
 	hosts, ok := nextResult.hostsByMetric[metricName]
 	if !ok {
-		hosts = make([]*domain.ProcessedHost, 0)
+		hosts = make([]*domain.CurrentHost, 0)
 		nextResult.hostsByMetric[metricName] = hosts
 	}
 	nextResult.hostsByMetric[metricName] = append(hosts, host)
@@ -98,7 +103,7 @@ func (pr *ProcessedRepository) AddMetric(host *domain.ProcessedHost, metric *dom
 	// pr.numMetrics++
 }
 
-func (pr *ProcessedRepository) GetUniqueMetrics() ([]*domain.UniqueMetric, error) {
+func (pr *CurrentRepository) GetUniqueMetrics() ([]*domain.UniqueMetric, error) {
 	if pr.result == nil {
 		return nil, domain.ErrWaitingOnProcessingRun
 	}
@@ -109,7 +114,7 @@ func (pr *ProcessedRepository) GetUniqueMetrics() ([]*domain.UniqueMetric, error
 	return metrics, nil
 }
 
-func (pr *ProcessedRepository) HostsWithMetric(metric domain.MetricName) ([]*domain.ProcessedHost, error) {
+func (pr *CurrentRepository) HostsWithMetric(metric domain.MetricName) ([]*domain.CurrentHost, error) {
 	if pr.result == nil {
 		return nil, domain.ErrWaitingOnProcessingRun
 	}
@@ -120,11 +125,11 @@ func (pr *ProcessedRepository) HostsWithMetric(metric domain.MetricName) ([]*dom
 	return hosts, nil
 }
 
-func (pr *ProcessedRepository) GetMetricsForHost(hostId domain.HostId) ([]*domain.ProcessedMetric, error) {
+func (pr *CurrentRepository) GetMetricsForHost(hostId domain.HostId) ([]*domain.CurrentMetric, error) {
 	if pr.result == nil {
 		return nil, domain.ErrWaitingOnProcessingRun
 	}
-	var host *domain.ProcessedHost
+	var host *domain.CurrentHost
 	for _, candidate := range pr.result.hosts {
 		if hostId == candidate.Id {
 			host = candidate
@@ -134,7 +139,7 @@ func (pr *ProcessedRepository) GetMetricsForHost(hostId domain.HostId) ([]*domai
 	if host == nil {
 		return nil, domain.ErrHostNotFound
 	}
-	metrics := make([]*domain.ProcessedMetric, 0, len(host.Metrics))
+	metrics := make([]*domain.CurrentMetric, 0, len(host.Metrics))
 	for _, metric := range host.Metrics {
 		metric := metric
 		metrics = append(metrics, &metric)
@@ -142,7 +147,7 @@ func (pr *ProcessedRepository) GetMetricsForHost(hostId domain.HostId) ([]*domai
 	return metrics, nil
 }
 
-func uniqueMetricFromMetric(src domain.ProcessedMetric) *domain.UniqueMetric {
+func uniqueMetricFromMetric(src domain.CurrentMetric) *domain.UniqueMetric {
 	var dst domain.UniqueMetric
 	dst.Datatype = src.Datatype
 	dst.Name = src.Name
@@ -152,7 +157,7 @@ func uniqueMetricFromMetric(src domain.ProcessedMetric) *domain.UniqueMetric {
 	return &dst
 }
 
-func adjustMinMax(unique *domain.UniqueMetric, metric domain.ProcessedMetric) {
+func adjustMinMax(unique *domain.UniqueMetric, metric domain.CurrentMetric) {
 	// XXX Add some logging of what's going on.  Especially for the error cases.
 	switch metric.Datatype {
 	case "int8", "int16", "int32":
