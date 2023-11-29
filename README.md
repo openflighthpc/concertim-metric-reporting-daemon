@@ -1,4 +1,4 @@
-# Alces Concertim Metric Reporting and Processing Daemon
+# Alces Concertim Metric Reporting Daemon
 
 ## Overview
 

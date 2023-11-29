@@ -7,6 +7,9 @@ To setup for development you will need to:
 
 These are explained in more detail below.
 
+See the [architecture docs](/docs/architecture.md) for documentation on the
+architecture of Metric Reporting Daemon.
+
 ## Build the docker image
 
 The [Dockerfile](/Dockerfile) contains a `dev` target suitable for development.
@@ -75,3 +78,23 @@ docker run \
     --volume ./tmp/rrds:/var/lib/metric-reporting-daemon/rrds/
     <SNIP>
 ```
+
+## Running tests
+
+The tests can be ran on the docker container or alternatively on your laptop
+with the following command:
+
+- All tests:
+  ```bash
+  go test ./...
+  ```
+
+- Tests for a single package, e.g., "api", etc..
+  ```bash
+  go test ./api
+  ```
+
+- Run all tests on code changes.
+  ```bash
+  air -build.bin "go test ./..."
+  ```
