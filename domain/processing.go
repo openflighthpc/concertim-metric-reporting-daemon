@@ -142,7 +142,7 @@ func (p *Processor) currentMetricFromPendingMetric(src PendingMetric, now time.T
 	if persistent {
 		stale = false
 	} else {
-		stale = expirationTime.Before(now)
+		stale = src.LastProcessed != nil && expirationTime.Before(now)
 	}
 	nature := "volatile"
 	if src.Type == "string" || src.Type == "timestamp" {
