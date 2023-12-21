@@ -51,7 +51,7 @@ ARG CACHEBUST=1
 RUN go test -v -count=1 -race -shuffle=on ./...
 
 ###################
-FROM ubuntu:22.04
+FROM ubuntu:22.04 AS prod
 
 ARG BUILD_DATE
 ARG BUILD_VERSION
