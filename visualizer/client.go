@@ -93,19 +93,22 @@ func (v *Client) GetDSM() (map[domain.HostId]domain.DSM, map[domain.DSM]domain.H
 }
 
 func (v *Client) Get(url string) (*http.Response, error) {
-	err := v.authenticate()
-	if err != nil {
-		return nil, augmentError(err, "", "GET", url)
+	doAuthenticatedRequest := func() (*http.Response, error) {
+		err := v.authenticate()
+		if err != nil {
+			return nil, augmentError(err, "", "GET", url)
+		}
+		return v.Do("GET", url, nil)
 	}
-	return v.Do("GET", url, nil)
-}
-
-func (v *Client) Post(url string, body io.Reader) (*http.Response, error) {
-	err := v.authenticate()
+	resp, err := doAuthenticatedRequest()
 	if err != nil {
-		return nil, augmentError(err, "", "POST", url)
+		return resp, err
+	} else if resp.StatusCode == 401 {
+		v.logger.Debug().Msg("existing auth token appears invalid")
+		v.authToken = ""
+		return doAuthenticatedRequest()
 	}
-	return v.Do("POST", url, body)
+	return resp, nil
 }
 
 func (v *Client) Do(method, url string, body io.Reader) (*http.Response, error) {
@@ -123,7 +126,7 @@ func (v *Client) Do(method, url string, body io.Reader) (*http.Response, error) 
 	}
 	resp, err := v.client.Do(req)
 	if err != nil {
-		return nil, augmentError(err, "", "GET", url)
+		return resp, augmentError(err, "", method, url)
 	}
 	return resp, nil
 }
