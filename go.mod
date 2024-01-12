@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/go-chi/chi/v5 v5.0.11
-	github.com/go-chi/jwtauth/v5 v5.1.1
+	github.com/go-chi/jwtauth/v5 v5.3.0
 	github.com/go-playground/locales v0.14.1
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.16.0
@@ -23,11 +23,11 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
-	github.com/lestrrat-go/blackmagic v1.0.1 // indirect
+	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
 	github.com/lestrrat-go/httpcc v1.0.1 // indirect
 	github.com/lestrrat-go/httprc v1.0.4 // indirect
 	github.com/lestrrat-go/iter v1.0.2 // indirect
-	github.com/lestrrat-go/jwx/v2 v2.0.11 // indirect
+	github.com/lestrrat-go/jwx/v2 v2.0.17 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
