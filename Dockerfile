@@ -15,8 +15,7 @@ RUN make ct-metric-reporting-daemon
 FROM build AS dev
 
 ENV GO_ENUM_VERSION=v0.5.8
-RUN go install github.com/cosmtrek/air@latest \
-    && go install github.com/jmattheis/goverter/cmd/goverter@v0.18.0 \
+RUN go install github.com/cosmtrek/air@v1.49.0 \
     && curl -fsSL "https://github.com/abice/go-enum/releases/download/${GO_ENUM_VERSION}/go-enum_$(uname -s)_$(uname -m)" -o $(go env GOPATH)/bin/go-enum \
     && chmod +x $(go env GOPATH)/bin/go-enum
 
