@@ -52,7 +52,6 @@ jobs:
       - name: Install go generate dependencies
         run: |
           GO_ENUM_VERSION=v0.5.8
-          go install github.com/jmattheis/goverter/cmd/goverter@v0.18.0
           curl -fsSL "https://github.com/abice/go-enum/releases/download/${GO_ENUM_VERSION}/go-enum_$(uname -s)_$(uname -m)" -o $(go env GOPATH)/bin/go-enum
           chmod +x $(go env GOPATH)/bin/go-enum
 
@@ -135,8 +134,11 @@ jobs:
       - name: Check makefile
         run: make && make clean
 
-      - name: Check Dockerfile
-        run: docker build .
+      - name: Check Dockerfile prod target
+        run: docker build --target prod .
+
+      - name: Check Dockerfile dev target
+        run: docker build --target dev .
 
   linters:
     name: Run linters et al
