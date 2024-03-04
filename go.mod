@@ -10,7 +10,7 @@ require (
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.31.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/sys v0.14.0
 	golang.org/x/time v0.5.0
