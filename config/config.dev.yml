@@ -78,4 +78,5 @@ rrd:
   step: 15s
 
 log_level: info
+log_file: /app/log/development.log
 shared_secret_file: "/opt/concertim/etc/secret"

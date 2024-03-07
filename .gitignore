@@ -25,3 +25,4 @@ go.work
 ct-metric-reporting-daemon.tgz
 
 /testdata/secret
+/log/*

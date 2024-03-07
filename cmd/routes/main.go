@@ -13,29 +13,10 @@ import (
 	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/sys/unix"
 )
 
 var configFile = flag.String("config-file", config.DefaultPath, "path to config file")
-
-func init() {
-	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
-	isatty := err == nil
-	if isatty {
-		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
-		log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
-	}
-}
-
-func setLogLevel(config *config.Config) {
-	level, err := zerolog.ParseLevel(config.LogLevel)
-	if err != nil {
-		log.Error().Err(err).Msg("Unable to set log level")
-	}
-	zerolog.SetGlobalLevel(level)
-}
 
 func loadConfig() (*config.Config, error) {
 	if *configFile == "" {
@@ -59,9 +40,9 @@ func main() {
 	}
 	config, err := loadConfig()
 	if err != nil {
-		log.Fatal().Err(err).Msg("loading config failed")
+		fmt.Fprintf(os.Stderr, "Fatal error: %s\n", err)
+		os.Exit(1)
 	}
-	setLogLevel(config)
 
 	app := domain.NewApp(nil, nil, nil, nil, nil)
 	apiServer := api.NewServer(log.Logger, app, config.API)

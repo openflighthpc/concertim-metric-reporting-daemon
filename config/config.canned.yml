@@ -90,4 +90,5 @@ rrd:
   step: 15s
 
 log_level: info
+log_file: log/development.log
 shared_secret_file: "./testdata/secret.dev"
