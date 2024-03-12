@@ -69,7 +69,8 @@ RUN apt-get update \
     && rm -rf /usr/share/doc /usr/share/man /var/lib/apt/lists/*
 
 WORKDIR /app
-RUN mkdir -p /var/lib/metric-reporting-daemon/rrds
+RUN mkdir -p /var/lib/metric-reporting-daemon/rrds \
+             /app/log
 
 # Add files containing canned responses.
 # COPY --from=build /app/testdata/* /app/testdata/

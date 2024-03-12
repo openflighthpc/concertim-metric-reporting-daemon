@@ -14,6 +14,7 @@ import (
 // Config is the configuration struct for the app.
 type Config struct {
 	LogLevel         string `yaml:"log_level"`
+	LogFile          string `yaml:"log_file"`
 	SharedSecretFile string `yaml:"shared_secret_file"`
 	API              `yaml:"api"`
 	DSM              `yaml:"dsm"`

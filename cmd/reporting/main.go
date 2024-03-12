@@ -47,21 +47,34 @@ var Usage = func() {
 var version string
 
 func init() {
-	_, err := unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
-	isatty := err == nil
-	if isatty {
-		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
-		log.Logger = zerolog.New(consoleWriter).With().Timestamp().Logger()
-	}
 	flag.Usage = Usage
 }
 
-func setLogLevel(config *config.Config) {
+func configureLogger(config *config.Config) error {
+	logFile, err := os.OpenFile(
+		config.LogFile,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0664,
+	)
+	if err != nil {
+		return errors.Wrap(err, "opening log file")
+	}
+	_, err = unix.IoctlGetWinsize(int(os.Stdout.Fd()), unix.TIOCGWINSZ)
+	isatty := err == nil
+	if isatty {
+		consoleWriter := zerolog.ConsoleWriter{Out: os.Stdout}
+		multi := zerolog.MultiLevelWriter(consoleWriter, logFile)
+		log.Logger = zerolog.New(multi).With().Timestamp().Logger()
+	} else {
+		log.Logger = zerolog.New(logFile).With().Timestamp().Logger()
+	}
 	level, err := zerolog.ParseLevel(config.LogLevel)
 	if err != nil {
-		log.Error().Err(err).Msg("Unable to set log level")
+		level = zerolog.InfoLevel
+		log.Warn().Str("log_level", config.LogLevel).Msgf("Parsing log_level failed, defaulting to '%s'", level)
 	}
 	zerolog.SetGlobalLevel(level)
+	return nil
 }
 
 func loadConfig() (*config.Config, error) {
@@ -99,7 +112,9 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("loading config failed")
 	}
-	setLogLevel(config)
+	if err = configureLogger(config); err != nil {
+		log.Fatal().Err(err).Msg("Error configuring logger")
+	}
 	pendingRepo := inmem.NewPendingRepository(log.Logger)
 	dsmRetriever := getDSMRetriever(config)
 	dsmRepo := inmem.NewDSMRepo(log.Logger, config.DSM)

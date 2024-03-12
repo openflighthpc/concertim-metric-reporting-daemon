@@ -24,7 +24,7 @@ func main() {
 	flag.Parse()
 	config, err := loadConfig()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load config: %s\n", err.Error())
+		fmt.Fprintf(os.Stderr, "Fatal error: %s\n", err.Error())
 		os.Exit(1)
 	}
 	tokenAuth := jwtauth.New("HS256", config.API.JWTSecret, nil)
