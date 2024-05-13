@@ -39,12 +39,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/non-standard/validators"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/rs/zerolog/hlog"
 )
 

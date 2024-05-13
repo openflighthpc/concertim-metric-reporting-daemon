@@ -31,8 +31,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 )
 
 // getCurrentHostMetrics returns a JSON list of all current metrics for the

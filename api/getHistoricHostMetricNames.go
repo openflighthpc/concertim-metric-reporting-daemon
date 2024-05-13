@@ -31,8 +31,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 )
 
 // getHistoricHostMetricNames returns a JSON list of historic metric names. The

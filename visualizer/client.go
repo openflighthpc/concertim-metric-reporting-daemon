@@ -36,9 +36,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
 	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
