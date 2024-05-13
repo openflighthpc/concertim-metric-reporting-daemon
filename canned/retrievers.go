@@ -32,8 +32,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/visualizer"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )

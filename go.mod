@@ -1,4 +1,4 @@
-module github.com/alces-flight/concertim-metric-reporting-daemon
+module github.com/openflighthpc/concertim-metric-reporting-daemon
 
 go 1.20
 

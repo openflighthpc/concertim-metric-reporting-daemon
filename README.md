@@ -15,7 +15,7 @@ The metrics and the associated views are made available over a HTTP API.
 
 1. Clone the repository
     ```bash
-    git clone https://github.com/alces-flight/concertim-metric-reporting-daemon.git
+    git clone https://github.com/openflighthpc/concertim-metric-reporting-daemon.git
     ```
 2. Build the docker image
     ```bash
@@ -29,9 +29,9 @@ The metrics and the associated views are made available over a HTTP API.
     ```
 
 Use [Concertim OpenStack
-Service](https://github.com/alces-flight/concertim-openstack-service) to
+Service](https://github.com/openflighthpc/concertim-openstack-service) to
 collect and report metrics and use [Concertim Visualisation
-App](https://github.com/alces-flight/concertim-ct-visualisation-app) to view
+App](https://github.com/openflighthpc/concertim-ct-visualisation-app) to view
 the reported metrics.
 
 ## Building the docker image
@@ -41,7 +41,7 @@ There is a Dockerfile in this repo for building the image.
 
 1. Clone the repository
     ```bash
-    git clone https://github.com/alces-flight/concertim-metric-reporting-daemon.git
+    git clone https://github.com/openflighthpc/concertim-metric-reporting-daemon.git
     ```
 2. Build the docker image
     ```bash
@@ -119,7 +119,7 @@ getting started with development.
 
 Concertim Metric Reporting Daemon is deployed as part of the Concertim
 appliance using the [Concertim ansible
-playbook](https://github.com/alces-flight/concertim-ansible-playbook).
+playbook](https://github.com/openflighthpc/concertim-ansible-playbook).
 
 # Contributing
 

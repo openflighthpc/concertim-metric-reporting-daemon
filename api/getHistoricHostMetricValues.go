@@ -31,8 +31,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 )
 
 // getHistoricHostMetricValues returns a JSON list of historic metric values

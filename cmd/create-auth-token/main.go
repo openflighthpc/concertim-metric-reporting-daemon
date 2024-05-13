@@ -33,8 +33,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
 	"github.com/go-chi/jwtauth/v5"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
 )
 
 var configFile = flag.String("config-file", config.DefaultPath, "path to config file")
