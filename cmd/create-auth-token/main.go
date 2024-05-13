@@ -33,7 +33,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
 	"github.com/go-chi/jwtauth/v5"
 )
 

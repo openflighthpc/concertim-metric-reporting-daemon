@@ -36,9 +36,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/api"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/api"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
 )

@@ -30,7 +30,7 @@ package api
 import (
 	"time"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/rs/zerolog"
 )
 

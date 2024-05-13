@@ -33,8 +33,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
 	"github.com/stretchr/testify/assert"
 )
 

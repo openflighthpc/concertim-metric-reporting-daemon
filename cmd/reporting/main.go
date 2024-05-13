@@ -45,14 +45,14 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sys/unix"
 
-	"github.com/alces-flight/concertim-metric-reporting-daemon/api"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/canned"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/config"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/domain"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/dsmRepository"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/inmem"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/rrd"
-	"github.com/alces-flight/concertim-metric-reporting-daemon/visualizer"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/api"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/canned"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/config"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/domain"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/dsmRepository"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/inmem"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/rrd"
+	"github.com/openflighthpc/concertim-metric-reporting-daemon/visualizer"
 )
 
 var (
